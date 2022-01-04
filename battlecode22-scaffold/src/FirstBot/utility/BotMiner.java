@@ -16,13 +16,13 @@ public class BotMiner extends Util{
         commIndex = -1;
 
         // TODO: Check if initialzation to 0 is needed or not
-        for(int i = 0; i++ < MAP_WIDTH;)
-            for(int j = 0; j++ < MAP_HEIGHT;)
+        for(int i = 0; i < MAP_WIDTH; ++i)
+            for(int j = 0; j < MAP_HEIGHT; ++j)
                 rubbleMap[i][j] = 0;
         
         
-        for(int i = 0; i++ < 3;)
-            for(int j = 0; j++ < 3;)
+        for(int i = 0; i < 3; ++i)
+            for(int j = 0; j < 3; ++j)
                 convolutionKernel[i][j] = 1;
     }
 
@@ -37,12 +37,12 @@ public class BotMiner extends Util{
     }
 
 
-    public static int computeGradedRubbleValue(int rubbleValue){
+    public static int computeGradedRubbleValue(int rubbleValue) throws GameActionException{
         return (int)((rubbleValue/(MAX_RUBBLE - MIN_RUBBLE)) * 7);
     }
 
 
-    public static int computeRubbleValue(MapLocation loc){
+    public static int computeRubbleValue(MapLocation loc) throws GameActionException{
         MapLocation[] adjacentLocations = rc.getAllLocationsWithinRadiusSquared(loc, 1);
         int rubbleValue = 0, locationCount = 0;
         for(MapLocation adjLoc : adjacentLocations){
@@ -56,17 +56,17 @@ public class BotMiner extends Util{
     }
 
 
-    public static int computeWriteValue(int locationValue, int rubbleValue, int turnFlag){
+    public static int computeWriteValue(int locationValue, int rubbleValue, int turnFlag) throws GameActionException{
         return (locationValue << 3 | rubbleValue | (turnFlag << 15));
     }
 
 
-    public static int getRubbleValue(int num){
-        return (num & (~((num >> 3) << 3)));
+    public static int getRubbleValue(int num) throws GameActionException{
+        return (num & 7);
     }
 
 
-    public static void updateRubbleMapByReadValue(int readValue){
+    public static void updateRubbleMapByReadValue(int readValue) throws GameActionException{
         if ((readValue>>15) == flipTurnFlag()){
             MapLocation loc = mapLocationFromInt(setKthBitByInput(readValue>>3, 12, getTurnFlag()));
             int x = loc.x, y = loc.y;
@@ -75,15 +75,15 @@ public class BotMiner extends Util{
     }
 
 
-    public static void updateRubbleMap(){
-        for (int i = 0; i++ < SHARED_ARRAY_LENGTH;){
+    public static void updateRubbleMap() throws GameActionException{
+        for (int i = 0; i < SHARED_ARRAY_LENGTH; ++i){
             int curVal = rc.readSharedArray(i);
             updateRubbleMapByReadValue(curVal);
         }
     }
 
 
-    public static void runMiner(RobotController rc) throws GameActionException{
+    public static void rubbleMapFormation(RobotController rc) throws GameActionException{
         if (commIndex == -1)
             commIndex = myRobotCount - archonCount - 1;
         

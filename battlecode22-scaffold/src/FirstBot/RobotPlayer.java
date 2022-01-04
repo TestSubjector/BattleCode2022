@@ -2,7 +2,7 @@ package FirstBot;
 
 import battlecode.common.*;
 import java.util.Random;
-import utility.Globals;
+import utility.*;
 
 /**
  * RobotPlayer is the class that describes your main robot strategy.
@@ -111,19 +111,19 @@ public strictfp class RobotPlayer {
     static void runMiner(RobotController rc) throws GameActionException {
         // Try to mine on squares around us.
         MapLocation me = rc.getLocation();
-        for (int dx = -1; dx <= 1; dx++) {
-            for (int dy = -1; dy <= 1; dy++) {
-                MapLocation mineLocation = new MapLocation(me.x + dx, me.y + dy);
-                // Notice that the Miner's action cooldown is very low.
-                // You can mine multiple times per turn!
-                while (rc.canMineGold(mineLocation)) {
-                    rc.mineGold(mineLocation);
-                }
-                while (rc.canMineLead(mineLocation)) {
-                    rc.mineLead(mineLocation);
-                }
-            }
-        }
+        // for (int dx = -1; dx <= 1; dx++) {
+        //     for (int dy = -1; dy <= 1; dy++) {
+        //         MapLocation mineLocation = new MapLocation(me.x + dx, me.y + dy);
+        //         // Notice that the Miner's action cooldown is very low.
+        //         // You can mine multiple times per turn!
+        //         while (rc.canMineGold(mineLocation)) {
+        //             rc.mineGold(mineLocation);
+        //         }
+        //         while (rc.canMineLead(mineLocation)) {
+        //             rc.mineLead(mineLocation);
+        //         }
+        //     }
+        // }
 
         // Also try to move randomly.
         Direction dir = Globals.directions[rng.nextInt(Globals.directions.length)];
@@ -131,6 +131,8 @@ public strictfp class RobotPlayer {
             rc.move(dir);
             // System.out.println("I moved!");
         }
+
+        BotMiner.rubbleMapFormation(rc);
     }
 
     /**
