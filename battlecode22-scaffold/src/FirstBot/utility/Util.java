@@ -27,6 +27,23 @@ public class Util extends Globals {
         return ((turnCount + 1) % 2);
     }
 
+
+    // Set kth bit of the input number to 1
+    public static final int setKthBit(int num, int k){
+        return ((1 << k) | num);
+    }
+
+    // Set kth bit of the input number to 0
+    public static final int unsetKthBit(int num, int k){
+        return (num & ~(1 << k));
+    }
+
+    public static final int setKthBitByInput(int num, int k, int val){
+        if (val == 1)
+            return setKthBit(num, k);
+        return unsetKthBit(num, k);
+    }
+
     // mask needs to be changed to reflect shift value
     // public static MapLocation mapLocationFromInt(int loc, int shift){
     //     return new MapLocation(loc >> shift, loc & mask);

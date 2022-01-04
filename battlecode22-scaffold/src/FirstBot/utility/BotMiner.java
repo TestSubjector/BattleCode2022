@@ -2,8 +2,8 @@ package utility;
 
 import battlecode.common.*;
 
-import utility.*;
-public class BotMiner extends Globals{
+// import utility.*;
+public class BotMiner extends Util{
 
 
     public static int[][] rubbleMap;
@@ -14,7 +14,7 @@ public class BotMiner extends Globals{
         rubbleMap = new int[MAP_WIDTH][MAP_HEIGHT];
         convolutionKernel = new int[3][3];
         commIndex = -1;
-        
+
         // TODO: Check if initialzation to 0 is needed or not
         for(int i = 0; i++ < MAP_WIDTH;)
             for(int j = 0; j++ < MAP_HEIGHT;)
@@ -36,9 +36,11 @@ public class BotMiner extends Globals{
         return false;
     }
 
+
     public static int computeGradedRubbleValue(int rubbleValue){
         return (int)((rubbleValue/(MAX_RUBBLE - MIN_RUBBLE)) * 7);
     }
+
 
     public static int computeRubbleValue(MapLocation loc){
         MapLocation[] adjacentLocations = rc.getAllLocationsWithinRadiusSquared(loc, 1);
@@ -53,21 +55,45 @@ public class BotMiner extends Globals{
         
     }
 
+
     public static int computeWriteValue(int locationValue, int rubbleValue, int turnFlag){
         return (locationValue << 3 | rubbleValue | (turnFlag << 15));
     }
 
-    public static void runMiner(RobotController rc) throws GameActionException{
-        if (commIndex == -1){
-            commIndex = myRobotCount - archonCount - 1;
+
+    public static int getRubbleValue(int num){
+        return (num & (~((num >> 3) << 3)));
+    }
+
+
+    public static void updateRubbleMapByReadValue(int readValue){
+        if ((readValue>>15) == flipTurnFlag()){
+            MapLocation loc = mapLocationFromInt(setKthBitByInput(readValue>>3, 12, getTurnFlag()));
+            int x = loc.x, y = loc.y;
+            rubbleMap[x][y] = getRubbleValue(readValue);
         }
-        int rubbleValue = computeRubbleValue(currentLocation), turnFlag = (turnCount % 2);
-        rc.writeSharedArray(commIndex, computeWriteValue(Util.intFromMapLocation(currentLocation), rubbleValue, turnFlag));
+    }
+
+
+    public static void updateRubbleMap(){
         for (int i = 0; i++ < SHARED_ARRAY_LENGTH;){
             int curVal = rc.readSharedArray(i);
-            if ((curVal>>15) == ((turnFlag + 1) % 2)){
-
-            }
+            updateRubbleMapByReadValue(curVal);
         }
+    }
+
+
+    public static void runMiner(RobotController rc) throws GameActionException{
+        if (commIndex == -1)
+            commIndex = myRobotCount - archonCount - 1;
+        
+        if (commIndex >= SHARED_ARRAY_LENGTH)
+            return;
+        
+        int rubbleValue = computeRubbleValue(currentLocation), turnFlag = (turnCount % 2);
+        rc.writeSharedArray(commIndex, computeWriteValue(intFromMapLocation(currentLocation), rubbleValue, turnFlag));
+        
+        // Rubble Map Updation:
+        updateRubbleMap();
     }
 }
