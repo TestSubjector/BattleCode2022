@@ -6,7 +6,7 @@ public class Globals {
 
     public static RobotController rc;
 
-    public static int TURN_COUNT;
+    public static int turnCount;
     public static int BIRTH_ROUND;
 
     public static RobotType UNIT_TYPE;
@@ -15,17 +15,17 @@ public class Globals {
 
     public static Team ENEMY_TEAM;
 
-    public static int ARCHON_COUNT;
+    public static int archonCount;
     public static int ID;
-    public static int ROBOT_LEVEL;
-    public static int MY_ROBOT_COUNT;
-    public static int MY_HEALTH;
+    public static int robotLevel;
+    public static int myRobotCount;
+    public static int myHealth;
     public static MapLocation START_LOCATION;
-    public static MapLocation CURRENT_LOCATION;
+    public static MapLocation currentLocation;
 
-    public static boolean BOT_FREEZE;
+    public static boolean botFreeze;
 
-    public static boolean UNDER_ATTACK;
+    public static boolean underAttack;
 
 	//// ---------------------Droids Globals---------------------
 	// Miner Globals
@@ -57,12 +57,10 @@ public class Globals {
 	// Watchtower Globals
 	public static final int WATCHTOWER_ACTION_RADIUS = RobotType.WATCHTOWER.actionRadiusSquared;
 	public static final int WATCHTOWER_VISION_RADIUS = RobotType.WATCHTOWER.visionRadiusSquared;
-    // public static RobotInfo[] visibleHostiles = null;
-	// public static RobotInfo[] visibleEnemies = null;
-	// public static RobotInfo[] visibleZombies = null;
-	// public static RobotInfo[] visibleAllies = null;
-	// public static RobotInfo[] attackableHostiles = null;
 
+    //// ---------------------Vision Globals---------------------
+	public static RobotInfo[] visibleEnemies = null;
+	public static RobotInfo[] visibleAllies = null;
 
 
     // public static void updateRobotInfos() {
@@ -184,42 +182,43 @@ public class Globals {
 
     public static void initGlobals(RobotController rc1){
         rc = rc1;
-        TURN_COUNT = rc.getRoundNum();
-        BIRTH_ROUND = TURN_COUNT;
+        turnCount = rc.getRoundNum();
+        BIRTH_ROUND = turnCount;
         UNIT_TYPE = rc.getType();
         MAP_WIDTH = rc.getMapWidth();
         MAP_HEIGHT = rc.getMapHeight();
         MAP_SIZE = MAP_WIDTH * MAP_HEIGHT;
         MY_TEAM = rc.getTeam();
         ENEMY_TEAM = MY_TEAM.opponent();
-        ARCHON_COUNT = rc.getArchonCount(); // 20 bytecodes
+        archonCount = rc.getArchonCount(); // 20 bytecodes
         ID = rc.getID();
-        ROBOT_LEVEL = rc.getLevel();
-        MY_ROBOT_COUNT = rc.getRobotCount(); // 20 bytecodes
+        robotLevel = rc.getLevel();
+        myRobotCount = rc.getRobotCount(); // 20 bytecodes
         START_LOCATION = rc.getLocation();
-        CURRENT_LOCATION = START_LOCATION;
-        BOT_FREEZE = false;
-        MY_HEALTH = rc.getHealth();
-        UNDER_ATTACK = false;
+        currentLocation = START_LOCATION;
+        botFreeze = false;
+        myHealth = rc.getHealth();
+        underAttack = false;
     }
 
     public static void updateGlobals() {
         // TODO: Check if unit moved last turn
-		CURRENT_LOCATION = rc.getLocation();
+		currentLocation = rc.getLocation();
         
         //TODO : Reduce computation if bot is freezing
         int curRound = rc.getRoundNum();
-        if (curRound != TURN_COUNT + 1) BOT_FREEZE = true; 
-        TURN_COUNT = curRound;
+        if (curRound != turnCount + 1) botFreeze = true; 
+        turnCount = curRound;
 
         //TODO: Warn if unit is under attack and cannot see enemy
         int curHealth = rc.getHealth();
-        if (curHealth < MY_HEALTH) UNDER_ATTACK = true;
-        MY_HEALTH = curHealth;
+        if (curHealth < myHealth) underAttack = true;
+        myHealth = curHealth;
 	}
 
-    // TODO: Function to update surrounding information (if required)
+    // Heavy bytecode method
     public static void updateSurroundings() {
-        
+        visibleEnemies = rc.senseNearbyRobots(-1, ENEMY_TEAM); // 100 bytecodes
+        visibleAllies = rc.senseNearbyRobots(-1, MY_TEAM); // 100 bytecodes
     }
 }

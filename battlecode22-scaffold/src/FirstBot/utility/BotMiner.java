@@ -57,9 +57,9 @@ public class BotMiner extends Globals{
 
     public static void runMiner(RobotController rc) throws GameActionException{
         if (commIndex == -1){
-            commIndex = MY_ROBOT_COUNT - ARCHON_COUNT;
+            commIndex = myRobotCount - archonCount;
         }
-        int rubbleValue = computeRubbleValue(CURRENT_LOCATION);
+        int rubbleValue = computeRubbleValue(currentLocation);
         
         
     }
