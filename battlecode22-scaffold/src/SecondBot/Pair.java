@@ -4,8 +4,8 @@ import java.util.Objects;
 
 public class Pair<A, B>
 {
-    private final A first;
-    private final B second;
+    private A first;
+    private B second;
 
     public Pair(A first, B second)
     {
@@ -21,6 +21,19 @@ public class Pair<A, B>
     public B getSecond()
     {
         return second;
+    }
+    
+    public void setBoth(A firstValue, B secondValue){
+        this.first = firstValue;
+        this.second = secondValue;
+    }
+
+    public void setFirst(A value){
+        this.first = value;
+    }
+
+    public void setSecond(B value){
+        this.second = value;
     }
 
     @Override
