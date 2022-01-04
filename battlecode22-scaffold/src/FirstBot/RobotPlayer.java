@@ -35,6 +35,15 @@ public strictfp class RobotPlayer {
         // rc.setIndicatorString("Hello world!");
         System.out.println("1: " + String.valueOf(Clock.getBytecodeNum()));
         Globals.initGlobals(rc);
+        switch (rc.getType()) {
+            // case ARCHON:     runArchon(rc);  break;
+            case MINER:      BotMiner.initBotMiner();   break;
+            // case SOLDIER:    runSoldier(rc); break;
+            // case LABORATORY: // Examplefuncsplayer doesn't use any of these robot types below.
+            // case WATCHTOWER: // You might want to give them a try!
+            // case BUILDER:
+            // case SAGE:       break;
+        }
         System.out.println("2: " + String.valueOf(Clock.getBytecodeNum()));
         while (true) {
             // This code runs during the entire lifespan of the robot, which is why it is in an infinite

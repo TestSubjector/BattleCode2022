@@ -10,7 +10,7 @@ public class BotMiner extends Util{
     public static int commIndex;
     public static int[][] convolutionKernel;
     
-    public BotMiner(){
+    public static void initBotMiner(){
         rubbleMap = new int[MAP_WIDTH][MAP_HEIGHT];
         convolutionKernel = new int[3][3];
         commIndex = -1;
@@ -68,8 +68,10 @@ public class BotMiner extends Util{
 
     public static void updateRubbleMapByReadValue(int readValue) throws GameActionException{
         if ((readValue>>15) == flipTurnFlag()){
-            MapLocation loc = mapLocationFromInt(setKthBitByInput(readValue>>3, 12, getTurnFlag()));
+            MapLocation loc = mapLocationFromInt((readValue & (0x7FF8))>>>3);
+            // MapLocation loc = mapLocationFromInt(setKthBitByInput(readValue>>3, 13, getTurnFlag()));
             int x = loc.x, y = loc.y;
+            System.out.println("location: " + loc);
             rubbleMap[x][y] = getRubbleValue(readValue);
         }
     }
