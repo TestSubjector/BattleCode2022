@@ -6,44 +6,46 @@ public class Globals {
 
     public static RobotController rc;
     public static int turnCount = rc.getRoundNum();
+    public static RobotType unitType = rc.getType();
     // public static MapLocation here;
 	// public static Team us;
 	// public static Team them;
 	// public static int myID;
 	// public static RobotType myType;
-    public static int roundNum;
+    // public static int temp = 
+   
 
 
 	//// ---------------------Droids Globals---------------------
 	// Miner Globals
-	public static int MinerActionRadius = 2;
-	public static int MinerVisionRadius = 20;
+	public static int minerActionRadius = RobotType.MINER.actionRadiusSquared;
+	public static int minerVisionRadius = RobotType.MINER.visionRadiusSquared;
 
 	// Builder Globals
-	public static int BuilderActionRadius = 5;
-	public static int BuilderVisionRadius = 20;
+	public static int builderActionRadius = RobotType.BUILDER.actionRadiusSquared;
+	public static int builderVisionRadius = RobotType.BUILDER.visionRadiusSquared;
 
 	// Soldier Globals
-	public static int SoldierActionRadius = 13;
-	public static int SoldierVisionRadius = 20;
+	public static int soldierActionRadius = RobotType.SOLDIER.actionRadiusSquared;
+	public static int soldierVisionRadius = RobotType.SOLDIER.visionRadiusSquared;
 
 	// Sage Globals
-	public static int SageActionRadius = 13;
-	public static int SageVisionRadius = 20;
+	public static int sageActionRadius = RobotType.SAGE.actionRadiusSquared;
+	public static int sageVisionRadius = RobotType.SAGE.visionRadiusSquared;
 
 
 	//// ---------------------Buildings Globals---------------------
 	// Archon Globals
-	public static int ArchonActionRadius = 20;
-	public static int ArchonVisionRadius = 34;
+	public static int archonActionRadius = RobotType.ARCHON.actionRadiusSquared;
+	public static int archonVisionRadius = RobotType.ARCHON.visionRadiusSquared;
 
 	// Laboratory Globals
 	// Action Radius Not Applicable
-	public static int LaboratoryVisionRadius = 53;
+	public static int laboratoryVisionRadius = RobotType.LABORATORY.visionRadiusSquared;
 
 	// Watchtower Globals
-	public static int WatchtowerActionRadius = 20;
-	public static int WatchtowerVisionRadius = 34;
+	public static int watchtowerActionRadius = RobotType.WATCHTOWER.actionRadiusSquared;
+	public static int watchtowerVisionRadius = RobotType.WATCHTOWER.visionRadiusSquared;
     // public static RobotInfo[] visibleHostiles = null;
 	// public static RobotInfo[] visibleEnemies = null;
 	// public static RobotInfo[] visibleZombies = null;
