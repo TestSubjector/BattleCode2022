@@ -15,6 +15,10 @@ public class Util extends Globals {
         return new MapLocation(loc >> 6, loc & 0x3F);
     }
 
+    public static MapLocation mapLocationFromCoords(int x, int y){
+        return new MapLocation(x, y);
+    }
+
     public static int intFromMapLocation(MapLocation loc, int shift){
         return (loc.x << shift) | loc.y; 
     }
