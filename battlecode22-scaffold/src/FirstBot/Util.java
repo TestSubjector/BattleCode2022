@@ -1,7 +1,7 @@
-package utility;
+package FirstBot;
 
 import battlecode.common.MapLocation;
-import utility.Globals;
+// import utility.Globals;
 
 public class Util extends Globals {
     //TODO:  Make separate versions of each method for different units to avoid if cases

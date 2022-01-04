@@ -2,7 +2,7 @@ package FirstBot;
 
 import battlecode.common.*;
 import java.util.Random;
-import utility.*;
+// import utility.*;
 
 /**
  * RobotPlayer is the class that describes your main robot strategy.
@@ -81,8 +81,8 @@ public strictfp class RobotPlayer {
                 e.printStackTrace();
 
             } finally {
-                if (Globals.turnCount % 10 == 0) {
-                    System.out.println("Turn: " + Globals.turnCount + "; Location: " + rc.getLocation());
+                if (Globals.turnCount > 10) {
+                    break;
                 }
                 // Signify we've done everything we want to do, thereby ending our turn.
                 // This will make our code wait until the next turn, and then perform this loop again.

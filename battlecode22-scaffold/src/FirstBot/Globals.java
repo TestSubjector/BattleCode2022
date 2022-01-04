@@ -1,4 +1,4 @@
-package utility;
+package FirstBot;
 
 import battlecode.common.*;
 

@@ -1,4 +1,4 @@
-package utility;
+package FirstBot;
 
 import java.util.Arrays;
 
@@ -62,6 +62,7 @@ public class BotMiner extends Util{
     }
 
     public static int computeWriteValue(int locationValue, int rubbleValue, int turnFlag) throws GameActionException{
+        System.out.println("Turncount " + turnCount + "Value of location: " + locationValue + " Value of rubble: " + rubbleValue + " Turn Flag: " + turnFlag);
         return (locationValue << 3 | rubbleValue | (turnFlag << 15));
     }
 
@@ -76,7 +77,7 @@ public class BotMiner extends Util{
             MapLocation loc = mapLocationFromInt((readValue & (0x7FF8))>>>3);
             // MapLocation loc = mapLocationFromInt(setKthBitByInput(readValue>>3, 13, getTurnFlag()));
             int x = loc.x, y = loc.y;
-
+            
             rubbleMap[x][y] = getRubbleValue(readValue);;
         }
     }
@@ -104,10 +105,10 @@ public class BotMiner extends Util{
         // Rubble Map Updation:
         updateRubbleMap();
 
-        // if (turnCount == 500){
-        //     // for(int i = 0; i < )
-        //     System.out.println("Printing rubbleMap:");
-        //     System.out.println(Arrays.deepToString(rubbleMap));
-        // }
+        if (turnCount < 10){
+            // for(int i = 0; i < )
+            System.out.println("Printing rubbleMap on turn :" + turnCount);
+            System.out.println(Arrays.deepToString(rubbleMap));
+        }
     }
 }
