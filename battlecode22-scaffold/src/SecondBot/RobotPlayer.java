@@ -81,9 +81,6 @@ public strictfp class RobotPlayer {
                 e.printStackTrace();
 
             } finally {
-                if (Globals.turnCount % 10 == 0) {
-                    System.out.println("Turn: " + Globals.turnCount + "; Location: " + rc.getLocation());
-                }
                 // Signify we've done everything we want to do, thereby ending our turn.
                 // This will make our code wait until the next turn, and then perform this loop again.
                 Clock.yield();
