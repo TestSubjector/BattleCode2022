@@ -54,15 +54,14 @@ public strictfp class RobotPlayer {
 
         // You can also use indicators to save debug notes in replays.
         rc.setIndicatorString("Hello world!");
-
+        Globals.initGlobals(rc);
         while (true) {
             // This code runs during the entire lifespan of the robot, which is why it is in an infinite
             // loop. If we ever leave this loop and return from run(), the robot dies! At the end of the
             // loop, we call Clock.yield(), signifying that we've done everything we want to do.
-
-            Globals.turnCount += 1;  // We have now been alive for one more turn!
-            System.out.println("Age: " + Globals.turnCount + "; Location: " + rc.getLocation());
-
+            // Globals.TURN_COUNT += 1;  // We have now been alive for one more turn!
+            // System.out.println("Age: " + Globals.TURN_COUNT + "; Location: " + rc.getLocation());
+            Globals.updateGlobals();
             // Try/catch blocks stop unhandled exceptions, which cause your robot to explode.
             try {
                 // The same run() function is called for every robot on your team, even if they are
@@ -149,7 +148,7 @@ public strictfp class RobotPlayer {
         Direction dir = directions[rng.nextInt(directions.length)];
         if (rc.canMove(dir)) {
             rc.move(dir);
-            System.out.println("I moved!");
+            // System.out.println("I moved!");
         }
     }
 
@@ -173,7 +172,7 @@ public strictfp class RobotPlayer {
         Direction dir = directions[rng.nextInt(directions.length)];
         if (rc.canMove(dir)) {
             rc.move(dir);
-            System.out.println("I moved!");
+            // System.out.println("I moved!");
         }
     }
 }
