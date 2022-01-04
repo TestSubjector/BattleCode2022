@@ -1,14 +1,21 @@
 package utility;
 
-import examplefuncsplayer.RobotPlayer;
+import battlecode.common.*;
 
-public class BotMiner extends RobotPlayer{
+public class BotMiner extends Globals{
 
     public BotMiner(){
-
+        
     }
 
-    // public runMiner(RobotController rc) throws GameActionException{
 
-    // }
+    public static boolean checkAdjacentLocations(MapLocation current){
+        int timerc = rc.getRoundNum();
+
+        return true;
+    }
+
+    public static void runMiner(RobotController rc) throws GameActionException{
+        
+    }
 }
