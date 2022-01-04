@@ -42,7 +42,9 @@ public class BotMiner extends Util{
 
 
     public static int computeGradedRubbleValue(int rubbleValue) throws GameActionException{
-        return (int)((rubbleValue/(MAX_RUBBLE - MIN_RUBBLE)) * 7);
+        // TODO: Extra case required?
+        float temp = ((float)rubbleValue/(MAX_RUBBLE - MIN_RUBBLE)) * 7.0f;
+        return (int)(temp);
     }
 
 
@@ -57,9 +59,7 @@ public class BotMiner extends Util{
         //     }
         // }
         return computeGradedRubbleValue(rubbleValue/locationCount);
-        
     }
-
 
     public static int computeWriteValue(int locationValue, int rubbleValue, int turnFlag) throws GameActionException{
         return (locationValue << 3 | rubbleValue | (turnFlag << 15));
@@ -67,7 +67,7 @@ public class BotMiner extends Util{
 
 
     public static int getRubbleValue(int num) throws GameActionException{
-        return (num & 7);
+        return (num & 0x0007);
     }
 
 
@@ -76,8 +76,8 @@ public class BotMiner extends Util{
             MapLocation loc = mapLocationFromInt((readValue & (0x7FF8))>>>3);
             // MapLocation loc = mapLocationFromInt(setKthBitByInput(readValue>>3, 13, getTurnFlag()));
             int x = loc.x, y = loc.y;
-            // System.out.println("location: " + loc);
-            rubbleMap[x][y] = getRubbleValue(readValue);
+
+            rubbleMap[x][y] = getRubbleValue(readValue);;
         }
     }
 
@@ -85,7 +85,7 @@ public class BotMiner extends Util{
     public static void updateRubbleMap() throws GameActionException{
         for (int i = 0; i < SHARED_ARRAY_LENGTH; ++i){
             int curVal = rc.readSharedArray(i);
-            updateRubbleMapByReadValue(curVal);
+            if ((curVal & (1 << 15)) == flipTurnFlag()) updateRubbleMapByReadValue(curVal);
         }
     }
 
@@ -97,24 +97,17 @@ public class BotMiner extends Util{
         if (commIndex >= SHARED_ARRAY_LENGTH)
             return;
         
-        int rubbleValue = computeRubbleValue(currentLocation), turnFlag = (turnCount % 2);
+        int rubbleValue = computeRubbleValue(currentLocation);
+        int turnFlag = (turnCount % 2);
         rc.writeSharedArray(commIndex, computeWriteValue(intFromMapLocation(currentLocation), rubbleValue, turnFlag));
         
         // Rubble Map Updation:
         updateRubbleMap();
 
-        if (turnCount == 100){
-            // for(int i = 0; i < )
-            System.out.println("Printing rubbleMap:");
-            System.out.println(Arrays.deepToString(rubbleMap));
-            // for (int i = 0; i < MAP_WIDTH; ++i){
-            //     for (int j = 0; j < MAP_HEIGHT; ++j){
-            //         System.out.print(rubbleMap[i][j]);
-            //         // System.out.print(", ");
-            //     }
-            //     System.out.println(".");
-            // }
-            // System.out.println(Arrays.toString(rubbleMap));
-        }
+        // if (turnCount == 500){
+        //     // for(int i = 0; i < )
+        //     System.out.println("Printing rubbleMap:");
+        //     System.out.println(Arrays.deepToString(rubbleMap));
+        // }
     }
 }
