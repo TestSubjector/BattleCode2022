@@ -19,6 +19,14 @@ public class Util extends Globals {
         return (loc.x << shift) | loc.y; 
     }
 
+    public static final int getTurnFlag(){
+        return (turnCount % 2);
+    }
+
+    public static final int flipTurnFlag(){
+        return ((turnCount + 1) % 2);
+    }
+
     // mask needs to be changed to reflect shift value
     // public static MapLocation mapLocationFromInt(int loc, int shift){
     //     return new MapLocation(loc >> shift, loc & mask);

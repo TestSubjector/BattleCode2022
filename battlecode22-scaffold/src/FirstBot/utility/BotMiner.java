@@ -2,6 +2,7 @@ package utility;
 
 import battlecode.common.*;
 
+import utility.*;
 public class BotMiner extends Globals{
 
 
@@ -13,6 +14,7 @@ public class BotMiner extends Globals{
         rubbleMap = new int[MAP_WIDTH][MAP_HEIGHT];
         convolutionKernel = new int[3][3];
         commIndex = -1;
+        
         // TODO: Check if initialzation to 0 is needed or not
         for(int i = 0; i++ < MAP_WIDTH;)
             for(int j = 0; j++ < MAP_HEIGHT;)
@@ -34,6 +36,10 @@ public class BotMiner extends Globals{
         return false;
     }
 
+    public static int computeGradedRubbleValue(int rubbleValue){
+        return (int)((rubbleValue/(MAX_RUBBLE - MIN_RUBBLE)) * 7);
+    }
+
     public static int computeRubbleValue(MapLocation loc){
         MapLocation[] adjacentLocations = rc.getAllLocationsWithinRadiusSquared(loc, 1);
         int rubbleValue = 0, locationCount = 0;
@@ -43,24 +49,25 @@ public class BotMiner extends Globals{
                 locationCount++;
             }
         }
-        return (rubbleValue/locationCount);
+        return computeGradedRubbleValue(rubbleValue/locationCount);
         
     }
 
-    public static int computeGradedRubbleValue(int rubbleValue){
-        return (int)((rubbleValue/(MAX_RUBBLE - MIN_RUBBLE)) * 7);
-    }
-
-    public static int computeWriteValue(int locationValue, int rubbleValue){
-        return (locationValue << 3 | rubbleValue);
+    public static int computeWriteValue(int locationValue, int rubbleValue, int turnFlag){
+        return (locationValue << 3 | rubbleValue | (turnFlag << 15));
     }
 
     public static void runMiner(RobotController rc) throws GameActionException{
         if (commIndex == -1){
-            commIndex = myRobotCount - archonCount;
+            commIndex = myRobotCount - archonCount - 1;
         }
-        int rubbleValue = computeRubbleValue(currentLocation);
-        
-        
+        int rubbleValue = computeRubbleValue(currentLocation), turnFlag = (turnCount % 2);
+        rc.writeSharedArray(commIndex, computeWriteValue(Util.intFromMapLocation(currentLocation), rubbleValue, turnFlag));
+        for (int i = 0; i++ < SHARED_ARRAY_LENGTH;){
+            int curVal = rc.readSharedArray(i);
+            if ((curVal>>15) == ((turnFlag + 1) % 2)){
+
+            }
+        }
     }
 }
