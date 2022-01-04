@@ -10,14 +10,6 @@ import utility.Globals;
  * is created!
  */
 public strictfp class RobotPlayer {
-
-    /**
-     * We will use this variable to count the number of turns this robot has been alive.
-     * You can use static variables like this to save any information you want. Keep in mind that even though
-     * these variables are static, in Battlecode they aren't actually shared between your robots.
-     */
-    
-
     /**
      * A random number generator.
      * We will use this RNG to make some random moves. The Random class is provided by the java.util.Random
@@ -25,18 +17,6 @@ public strictfp class RobotPlayer {
      * we get the same sequence of numbers every time this code is run. This is very useful for debugging!
      */
     static final Random rng = new Random(6147);
-
-    /** Array containing all the possible movement directions. */
-    static final Direction[] directions = {
-        Direction.NORTH,
-        Direction.NORTHEAST,
-        Direction.EAST,
-        Direction.SOUTHEAST,
-        Direction.SOUTH,
-        Direction.SOUTHWEST,
-        Direction.WEST,
-        Direction.NORTHWEST,
-    };
 
     /**
      * run() is the method that is called when a robot is instantiated in the Battlecode world.
@@ -50,11 +30,12 @@ public strictfp class RobotPlayer {
 
         // Hello world! Standard output is very useful for debugging.
         // Everything you say here will be directly viewable in your terminal when you run a match!
-        System.out.println("I'm a " + rc.getType() + " and I just got created! I have health " + rc.getHealth());
-
+        // System.out.println("I'm a " + rc.getType() + " and I just got created! I have health " + rc.getHealth());
         // You can also use indicators to save debug notes in replays.
-        rc.setIndicatorString("Hello world!");
+        // rc.setIndicatorString("Hello world!");
+        System.out.println("1: " + String.valueOf(Clock.getBytecodeNum()));
         Globals.initGlobals(rc);
+        System.out.println("2: " + String.valueOf(Clock.getBytecodeNum()));
         while (true) {
             // This code runs during the entire lifespan of the robot, which is why it is in an infinite
             // loop. If we ever leave this loop and return from run(), the robot dies! At the end of the
@@ -107,7 +88,7 @@ public strictfp class RobotPlayer {
      */
     static void runArchon(RobotController rc) throws GameActionException {
         // Pick a direction to build in.
-        Direction dir = directions[rng.nextInt(directions.length)];
+        Direction dir = Globals.directions[rng.nextInt(Globals.directions.length)];
         if (rng.nextBoolean()) {
             // Let's try to build a miner.
             rc.setIndicatorString("Trying to build a miner");
@@ -145,7 +126,7 @@ public strictfp class RobotPlayer {
         }
 
         // Also try to move randomly.
-        Direction dir = directions[rng.nextInt(directions.length)];
+        Direction dir = Globals.directions[rng.nextInt(Globals.directions.length)];
         if (rc.canMove(dir)) {
             rc.move(dir);
             // System.out.println("I moved!");
@@ -169,7 +150,7 @@ public strictfp class RobotPlayer {
         }
 
         // Also try to move randomly.
-        Direction dir = directions[rng.nextInt(directions.length)];
+        Direction dir = Globals.directions[rng.nextInt(Globals.directions.length)];
         if (rc.canMove(dir)) {
             rc.move(dir);
             // System.out.println("I moved!");

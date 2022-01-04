@@ -1,7 +1,5 @@
 package utility;
 
-import java.util.Map;
-
 import battlecode.common.*;
 
 public class Globals {
@@ -101,7 +99,9 @@ public class Globals {
 
     public static int MAP_WIDTH;
     public static int MAP_HEIGHT;
+    public static int MAP_SIZE;
 
+    // TODO: Flag for shape of map (square, rectangle, very rectangle(thin))
 
     // Game Parameters
     
@@ -161,6 +161,27 @@ public class Globals {
     public static final double ALCHEMIST_LONELINESS_B = GameConstants.ALCHEMIST_LONELINESS_B;
     public static final double ALCHEMIST_LONELINESS_K = GameConstants.ALCHEMIST_LONELINESS_K;
 
+    public static final Direction NORTH = Direction.NORTH;
+    public static final Direction NORTHEAST = Direction.NORTHEAST;
+    public static final Direction EAST = Direction.EAST;
+    public static final Direction SOUTHEAST = Direction.SOUTHEAST;
+    public static final Direction SOUTH = Direction.SOUTH;
+    public static final Direction SOUTHWEST = Direction.SOUTHWEST;
+    public static final Direction WEST = Direction.WEST;
+    public static final Direction NORTHWEST = Direction.NORTHWEST;
+
+    /** Array containing all the possible movement directions. */
+    public static final Direction[] directions = {
+        NORTH,
+        NORTHEAST,
+        EAST,
+        SOUTHEAST,
+        SOUTH,
+        SOUTHWEST,
+        WEST,
+        NORTHWEST,
+    };
+
     public static void initGlobals(RobotController rc1){
         rc = rc1;
         TURN_COUNT = rc.getRoundNum();
@@ -168,12 +189,13 @@ public class Globals {
         UNIT_TYPE = rc.getType();
         MAP_WIDTH = rc.getMapWidth();
         MAP_HEIGHT = rc.getMapHeight();
+        MAP_SIZE = MAP_WIDTH * MAP_HEIGHT;
         MY_TEAM = rc.getTeam();
         ENEMY_TEAM = MY_TEAM.opponent();
-        ARCHON_COUNT = rc.getArchonCount();
+        ARCHON_COUNT = rc.getArchonCount(); // 20 bytecodes
         ID = rc.getID();
         ROBOT_LEVEL = rc.getLevel();
-        MY_ROBOT_COUNT = rc.getRobotCount();
+        MY_ROBOT_COUNT = rc.getRobotCount(); // 20 bytecodes
         START_LOCATION = rc.getLocation();
         CURRENT_LOCATION = START_LOCATION;
         BOT_FREEZE = false;
@@ -197,4 +219,7 @@ public class Globals {
 	}
 
     // TODO: Function to update surrounding information (if required)
+    public static void updateSurroundings() {
+        
+    }
 }
