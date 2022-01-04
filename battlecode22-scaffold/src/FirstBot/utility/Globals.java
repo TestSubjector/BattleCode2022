@@ -1,11 +1,12 @@
 package utility;
 
-import examplefuncsplayer.RobotPlayer;
+import battlecode.common.*;
 
 public class Globals {
 
-    // public static RobotController rc;
-	// public static MapLocation here;
+    public static RobotController rc;
+    public static int turnCount = rc.getRoundNum();
+    // public static MapLocation here;
 	// public static Team us;
 	// public static Team them;
 	// public static int myID;

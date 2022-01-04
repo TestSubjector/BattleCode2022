@@ -2,6 +2,7 @@ package FirstBot;
 
 import battlecode.common.*;
 import java.util.Random;
+import utility.Globals;
 
 /**
  * RobotPlayer is the class that describes your main robot strategy.
@@ -15,7 +16,7 @@ public strictfp class RobotPlayer {
      * You can use static variables like this to save any information you want. Keep in mind that even though
      * these variables are static, in Battlecode they aren't actually shared between your robots.
      */
-    static int turnCount = 0;
+    
 
     /**
      * A random number generator.
@@ -59,8 +60,8 @@ public strictfp class RobotPlayer {
             // loop. If we ever leave this loop and return from run(), the robot dies! At the end of the
             // loop, we call Clock.yield(), signifying that we've done everything we want to do.
 
-            turnCount += 1;  // We have now been alive for one more turn!
-            System.out.println("Age: " + turnCount + "; Location: " + rc.getLocation());
+            Globals.turnCount += 1;  // We have now been alive for one more turn!
+            System.out.println("Age: " + Globals.turnCount + "; Location: " + rc.getLocation());
 
             // Try/catch blocks stop unhandled exceptions, which cause your robot to explode.
             try {
