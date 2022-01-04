@@ -1,8 +1,8 @@
-package FirstBot;
+package SecondBot;
 
 import battlecode.common.*;
 import java.util.Random;
-import utility.*;
+// import utility.*;
 
 /**
  * RobotPlayer is the class that describes your main robot strategy.

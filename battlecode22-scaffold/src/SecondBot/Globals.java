@@ -1,4 +1,4 @@
-package utility;
+package SecondBot;
 
 import battlecode.common.*;
 
