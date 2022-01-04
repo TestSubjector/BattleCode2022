@@ -4,16 +4,15 @@ import java.util.Arrays;
 
 import battlecode.common.*;
 
-// import utility.*;
 public class BotMiner extends Util{
 
 
-    public static int[][] rubbleMap;
+    public static float[][] rubbleMap;
     public static int commIndex;
     public static int[][] convolutionKernel;
     
     public static void initBotMiner(){
-        rubbleMap = new int[MAP_WIDTH][MAP_HEIGHT];
+        rubbleMap = new float[MAP_WIDTH][MAP_HEIGHT];
         convolutionKernel = new int[3][3];
         commIndex = -1;
 
@@ -25,9 +24,9 @@ public class BotMiner extends Util{
         
         for(int i = 0; i < 3; ++i)
             for(int j = 0; j < 3; ++j)
-                convolutionKernel[i][j] = 0;
+                convolutionKernel[i][j] = 1 ;
         
-        convolutionKernel[1][1] = 1;
+        // convolutionKernel[1][1] = 0;
     }
 
 
@@ -49,15 +48,17 @@ public class BotMiner extends Util{
 
 
     public static int computeRubbleValue(MapLocation loc) throws GameActionException{
-        // MapLocation[] adjacentLocations = rc.getAllLocationsWithinRadiusSquared(loc, 1);
-        int rubbleValue = 0, locationCount = 1;
-        rubbleValue = rc.senseRubble(loc);
-        // for(MapLocation adjLoc : adjacentLocations){
-        //     if (rc.canSenseLocation(adjLoc)){
-        //         // rubbleValue += rc.senseRubble(adjLoc) * convolutionKernel;
-        //         // locationCount++;
-        //     }
-        // }
+        MapLocation[] adjacentLocations = rc.getAllLocationsWithinRadiusSquared(loc, 1);
+        int rubbleValue = 0, locationCount = 0;
+        // rubbleValue = rc.senseRubble(loc);
+        for(MapLocation adjLoc : adjacentLocations){
+            if (rc.canSenseLocation(adjLoc)){
+                int i = adjLoc.x - loc.x + 1;
+                int j = adjLoc.y - loc.y + 1;
+                rubbleValue += rc.senseRubble(adjLoc) * convolutionKernel[i][j];
+                locationCount += convolutionKernel[i][j];
+            }
+        }
         return computeGradedRubbleValue(rubbleValue/locationCount);
     }
 
@@ -77,7 +78,21 @@ public class BotMiner extends Util{
             // MapLocation loc = mapLocationFromInt(setKthBitByInput(readValue>>3, 13, getTurnFlag()));
             int x = loc.x, y = loc.y;
 
-            rubbleMap[x][y] = getRubbleValue(readValue);;
+            rubbleMap[x][y] = getRubbleValue(readValue);
+            for (int dx = -1; dx <= 1; ++dx){
+                for (int dy = -1; dy <= 1; ++dy){
+                    if (!isValidMapLocation(x+dx,y+dy)) continue;
+                    // TODO: Add comment
+                    rubbleMap[x+dx][y + dy] = (rubbleMap[x+dx][y + dy] + rubbleMap[x][y]) / 2.0f;
+                }
+            }
+            // MapLocation[] adjacentLocations = rc.getAllLocationsWithinRadiusSquared(loc, 1);
+            // for (MapLocation adjloc : adjacentLocations){
+            //     // if (rc.canSenseLocation(adjloc))
+            //     if (!isValidMapLocation(adjloc)) continue;
+            //     rubbleMap[adjloc.x][adjloc.y]  += (rubbleMap[x][y]);
+            //     rubbleMap[adjloc.x][adjloc.y] /= 2;
+            // }
         }
     }
 
@@ -85,6 +100,7 @@ public class BotMiner extends Util{
     public static void updateRubbleMap() throws GameActionException{
         for (int i = 0; i < SHARED_ARRAY_LENGTH; ++i){
             int curVal = rc.readSharedArray(i);
+            if (curVal == 0) continue;
             if ((curVal & (1 << 15)) == flipTurnFlag()) updateRubbleMapByReadValue(curVal);
         }
     }
@@ -99,15 +115,15 @@ public class BotMiner extends Util{
         
         int rubbleValue = computeRubbleValue(currentLocation);
         int turnFlag = (turnCount % 2);
+        // TODO: If rubbleValue == 0, then some other bot's vision's rubble info should be used
         rc.writeSharedArray(commIndex, computeWriteValue(intFromMapLocation(currentLocation), rubbleValue, turnFlag));
         
         // Rubble Map Updation:
         updateRubbleMap();
 
-        // if (turnCount == 500){
-        //     // for(int i = 0; i < )
-        //     System.out.println("Printing rubbleMap:");
-        //     System.out.println(Arrays.deepToString(rubbleMap));
-        // }
+        if (turnCount == 500){
+            System.out.println("Printing rubbleMap:");
+            System.out.println(Arrays.deepToString(rubbleMap));
+        }
     }
 }

@@ -23,6 +23,11 @@ public class Util extends Globals {
         return (loc.x << shift) | loc.y; 
     }
 
+    public static Pair<Integer, Integer> coordsFromMapLocation(MapLocation loc){
+        Pair<Integer, Integer> coords = new Pair<Integer,Integer>(loc.x, loc.y);
+        return coords;
+    }
+
     public static final int getTurnFlag(){
         return (turnCount % 2);
     }
