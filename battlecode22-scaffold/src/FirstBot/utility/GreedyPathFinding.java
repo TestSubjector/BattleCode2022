@@ -1,5 +1,7 @@
+package utility;
+
 import examplefuncsplayer.RobotPlayer;
 
-public static class GreedyPathFinding extends RobotPlayer {
+public class GreedyPathFinding extends RobotPlayer {
     
 }
