@@ -1,4 +1,4 @@
-package ThirdBot;
+package FourthBot;
 
 import java.util.Random;
 import battlecode.common.*;
