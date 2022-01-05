@@ -53,12 +53,22 @@ public class Util extends Globals {
         return unsetKthBit(num, k);
     }
 
+    public static boolean isOnEdge(MapLocation loc){
+        return (loc.x == 0 || loc.x == MAP_WIDTH - 1 || loc.y == 0 || loc.y == MAP_HEIGHT - 1);
+    }
+
+    // Very expensive computations (around 15-30 bytecodes)
     public static boolean isValidMapLocation(int x, int y){
-        return x >= 0 && x < MAP_WIDTH && y >= 0 && y < MAP_HEIGHT;
+        MapLocation loc = new MapLocation(x,y);
+        return isValidMapLocation(loc);
     }
 
     public static boolean isValidMapLocation(MapLocation loc){
-        return isValidMapLocation(loc.x, loc.y);
+        if (loc.x >= rc.getMapWidth()) return false;
+        if (loc.x < 0 ) return false;
+        if (loc.y >= rc.getMapHeight()) return false;
+        if (loc.y < 0 ) return false;
+        return true;
     }
 
 }

@@ -28,16 +28,26 @@ public class RubbleMap extends Util{
         if ((readValue>>15) == flipTurnFlag()){
             MapLocation loc = Comms.getLocFromRubbleMessage(readValue);
             int x = loc.x, y = loc.y;
-
-            rubbleMap[x][y] = Comms.getRubbleValueFromRubbleMessage(readValue);
-            for (int dx = -1; dx <= 1; ++dx){
-                for (int dy = -1; dy <= 1; ++dy){
-                    if (!isValidMapLocation(x+dx,y+dy)) continue;
-                    // TODO: Add comment
-                    rubbleMap[x+dx][y + dy] = (rubbleMap[x+dx][y + dy] + rubbleMap[x][y]) / 2.0f;
-                }
-            }
+            int rubbleLayer = Comms.getRubbleValueFromRubbleMessage(readValue);
+            // if (!isValidMapLocation(x+dx,y+dy)) continue; // RubbleMapFormation Line 4 removes the need for this check
+            // Averages out the map, will always lead to better information of the map
+            // System.out.println("1: " + Clock.getBytecodesLeft());
+            updateRubbleMapLayer(rubbleLayer, x, y);
+            // System.out.println("2: " + Clock.getBytecodesLeft());
         }
+    }
+
+    public static void updateRubbleMapLayer(int rubbleLayer, int x, int y) throws GameActionException{
+        int a = x-1, b = x+1, c = y-1, d = y+1;
+        rubbleMap[x][y] = (rubbleMap[x][y] + rubbleLayer) / 2.0f;
+        rubbleMap[a][c] = (rubbleMap[a][c] + rubbleLayer) / 2.0f;
+        rubbleMap[a][y] = (rubbleMap[a][y] + rubbleLayer) / 2.0f;
+        rubbleMap[a][d] = (rubbleMap[a][d] + rubbleLayer) / 2.0f;
+        rubbleMap[x][c] = (rubbleMap[x][c] + rubbleLayer) / 2.0f;
+        rubbleMap[x][d] = (rubbleMap[x][d] + rubbleLayer) / 2.0f;
+        rubbleMap[b][c] = (rubbleMap[b][c] + rubbleLayer) / 2.0f;
+        rubbleMap[b][y] = (rubbleMap[b][y] + rubbleLayer) / 2.0f;
+        rubbleMap[b][d] = (rubbleMap[b][d] + rubbleLayer) / 2.0f;
     }
 
     public static void updateRubbleMap() throws GameActionException{

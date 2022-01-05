@@ -49,7 +49,7 @@ public class BotMiner extends Util{
     public static void rubbleMapFormation(RobotController rc) throws GameActionException{
         if (commIndex == -1) commIndex = myRobotCount - archonCount - 1;
         if (commIndex >= SHARED_ARRAY_LENGTH) return;
-        
+        if(isOnEdge(currentLocation)) return; // Do not send information when on edge of Map
         int rubbleValue = RubbleMap.computeRubbleValue(currentLocation);
         int turnFlag = (turnCount % 2);
         // TODO: If rubbleValue == 0, then some other bot's vision's rubble info should be used

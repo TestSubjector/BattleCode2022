@@ -41,7 +41,7 @@ public strictfp class RobotPlayer {
                 e.printStackTrace();
 
             } finally {
-                if (Clock.getBytecodesLeft() < 1000) System.out.println("Warning, bytecodes left this turn is: " + Clock.getBytecodesLeft());
+                // if (Clock.getBytecodesLeft() < 1000) System.out.println("Warning, bytecodes left this turn is: " + Clock.getBytecodesLeft());
                 Clock.yield();
             }
         }
