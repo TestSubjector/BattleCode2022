@@ -16,7 +16,6 @@ public strictfp class RobotPlayer {
      * import at the top of this file. Here, we *seed* the RNG with a constant number (6147); this makes sure
      * we get the same sequence of numbers every time this code is run. This is very useful for debugging!
      */
-    static final Random rng = new Random(6147);
 
     /**
      * run() is the method that is called when a robot is instantiated in the Battlecode world.
@@ -36,7 +35,7 @@ public strictfp class RobotPlayer {
         // System.out.println("1: " + String.valueOf(Clock.getBytecodeNum()));
         Globals.initGlobals(rc);
         PathFinder.initPathFinder();
-
+        Globals.updateEnemyArchonLocation();
         switch (rc.getType()) {
             // case ARCHON:     runArchon(rc);  break;
             case MINER:      BotMiner.initBotMiner();   break;
@@ -99,8 +98,8 @@ public strictfp class RobotPlayer {
      */
     static void runArchon(RobotController rc) throws GameActionException {
         // Pick a direction to build in.
-        Direction dir = Globals.directions[rng.nextInt(Globals.directions.length)];
-        if (rng.nextBoolean()) {
+        Direction dir = Globals.directions[Globals.rng.nextInt(Globals.directions.length)];
+        if (Globals.rng.nextBoolean()) {
             // Let's try to build a miner.
             rc.setIndicatorString("Trying to build a miner");
             if (rc.canBuildRobot(RobotType.MINER, dir)) {
@@ -139,7 +138,15 @@ public strictfp class RobotPlayer {
         // }
 
         // Also try to move randomly.
-        Direction dir = Globals.directions[rng.nextInt(Globals.directions.length)];
+        // Direction dir = Globals.directions[Globals.rng.nextInt(Globals.directions.length)];
+        // if (rc.canMove(dir)) {
+        //     rc.move(dir);
+        //     // System.out.println("I moved!");
+        // }
+        if (Globals.rememberedEnemyArchonLocation == null){
+            System.out.println("!!!!");
+        }
+        Direction dir = PathFinder.findPath(Globals.currentLocation, Globals.rememberedEnemyArchonLocation);
         if (rc.canMove(dir)) {
             rc.move(dir);
             // System.out.println("I moved!");
@@ -165,7 +172,7 @@ public strictfp class RobotPlayer {
         }
 
         // Also try to move randomly.
-        Direction dir = Globals.directions[rng.nextInt(Globals.directions.length)];
+        Direction dir = Globals.directions[Globals.rng.nextInt(Globals.directions.length)];
         if (rc.canMove(dir)) {
             rc.move(dir);
             // System.out.println("I moved!");

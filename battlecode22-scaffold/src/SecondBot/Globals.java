@@ -1,11 +1,12 @@
 package SecondBot;
 
+import java.util.Random;
 import battlecode.common.*;
 
 public class Globals {
 
     public static RobotController rc;
-
+    public static final Random rng = new Random(6147);
     public static int turnCount;
     public static int BIRTH_ROUND;
 
@@ -22,12 +23,16 @@ public class Globals {
     public static int myHealth;
     public static MapLocation START_LOCATION;
     public static MapLocation currentLocation;
+    public static MapLocation rememberedArchonLocation = null;
+    public static MapLocation rememberedEnemyArchonLocation = null;
 
     public static boolean botFreeze;
 
     public static boolean underAttack;
 
-	//// ---------------------Droids Globals---------------------
+    public static int mapSymmetry = (ID%2 ==0) ? 0 :2; // 0 = vertical symmetry, 1 = horizontal symmetry, 2 = rotational symmetry
+	
+    //// ---------------------Droids Globals---------------------
 	// Miner Globals
 	public static final int MINER_ACTION_RADIUS = RobotType.MINER.actionRadiusSquared;
 	public static final int MINER_VISION_RADIUS = RobotType.MINER.visionRadiusSquared;
@@ -98,7 +103,7 @@ public class Globals {
     public static int MAP_WIDTH;
     public static int MAP_HEIGHT;
     public static int MAP_SIZE;
-
+    public static boolean isMapSquare = true;
     // TODO: Flag for shape of map (square, rectangle, very rectangle(thin))
 
     // Game Parameters
@@ -200,6 +205,15 @@ public class Globals {
         botFreeze = false;
         myHealth = rc.getHealth();
         underAttack = false;
+        visibleAllies = rc.senseNearbyRobots(-1, MY_TEAM);
+        if (UNIT_TYPE == RobotType.ARCHON) rememberedArchonLocation = currentLocation;
+        for (RobotInfo ally : visibleAllies) {
+            if (ally.getType() == RobotType.ARCHON) {
+                rememberedArchonLocation = ally.getLocation();
+            }
+        }
+        isMapSquare = (MAP_WIDTH == MAP_HEIGHT);
+        if(mapSymmetry == 1 && !isMapSquare) mapSymmetry = 2; // TODO: Junk code to make bot run, change later
     }
 
     public static void updateGlobals() {
@@ -221,5 +235,20 @@ public class Globals {
     public static void updateSurroundings() {
         visibleEnemies = rc.senseNearbyRobots(-1, ENEMY_TEAM); // 100 bytecodes
         visibleAllies = rc.senseNearbyRobots(-1, MY_TEAM); // 100 bytecodes
+    }
+
+    public static void updateEnemyArchonLocation() {
+        switch(mapSymmetry){
+        case 0:
+            rememberedEnemyArchonLocation = new MapLocation(MAP_WIDTH - rememberedArchonLocation.x, rememberedArchonLocation.y);
+            break;
+        case 1:
+            // System.out.println("Map symmetry 2 not implemented " + MAP_WIDTH + " " + MAP_HEIGHT + " " + rememberedArchonLocation.x + " " + rememberedArchonLocation.y);
+            rememberedEnemyArchonLocation = new MapLocation(MAP_WIDTH - rememberedArchonLocation.x, MAP_HEIGHT - rememberedArchonLocation.y);
+            break;
+        case 2:
+            rememberedEnemyArchonLocation = new MapLocation(rememberedArchonLocation.x, MAP_HEIGHT - rememberedArchonLocation.y);
+            break;
+        }
     }
 }
