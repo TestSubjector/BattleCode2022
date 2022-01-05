@@ -21,6 +21,7 @@ public class Movement extends Util{
 		return false;
 	}
 
+    // Takes around 400 bytecodes to run 
     public static boolean goToDirect(MapLocation dest) throws GameActionException {
     	if (currentLocation.equals(dest)) return false;
         Direction forward = currentLocation.directionTo(dest);

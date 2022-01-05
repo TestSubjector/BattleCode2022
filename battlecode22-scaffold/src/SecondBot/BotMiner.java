@@ -57,7 +57,6 @@ public class BotMiner extends Util{
         }
     }
 
-
     public static int computeGradedRubbleValue(int rubbleValue) throws GameActionException{
         // TODO: Extra case required?
         float temp = ((float)rubbleValue/(MAX_RUBBLE - MIN_RUBBLE)) * 7.0f;
@@ -80,23 +79,13 @@ public class BotMiner extends Util{
         return computeGradedRubbleValue(rubbleValue/locationCount);
     }
 
-    public static int computeWriteValue(int locationValue, int rubbleValue, int turnFlag) throws GameActionException{
-        return (locationValue << 3 | rubbleValue | (turnFlag << 15));
-    }
-
-
-    public static int getRubbleValue(int num) throws GameActionException{
-        return (num & 0x0007);
-    }
-
-
     public static void updateRubbleMapByReadValue(int readValue) throws GameActionException{
         if ((readValue>>15) == flipTurnFlag()){
-            MapLocation loc = mapLocationFromInt((readValue & (0x7FF8))>>>3);
+            MapLocation loc = Comms.getLocFromRubbleMessage(readValue);
             // MapLocation loc = mapLocationFromInt(setKthBitByInput(readValue>>3, 13, getTurnFlag()));
             int x = loc.x, y = loc.y;
 
-            rubbleMap[x][y] = getRubbleValue(readValue);
+            rubbleMap[x][y] = Comms.getRubbleValueFromRubbleMessage(readValue);
             for (int dx = -1; dx <= 1; ++dx){
                 for (int dy = -1; dy <= 1; ++dy){
                     if (!isValidMapLocation(x+dx,y+dy)) continue;
@@ -104,13 +93,6 @@ public class BotMiner extends Util{
                     rubbleMap[x+dx][y + dy] = (rubbleMap[x+dx][y + dy] + rubbleMap[x][y]) / 2.0f;
                 }
             }
-            // MapLocation[] adjacentLocations = rc.getAllLocationsWithinRadiusSquared(loc, 1);
-            // for (MapLocation adjloc : adjacentLocations){
-            //     // if (rc.canSenseLocation(adjloc))
-            //     if (!isValidMapLocation(adjloc)) continue;
-            //     rubbleMap[adjloc.x][adjloc.y]  += (rubbleMap[x][y]);
-            //     rubbleMap[adjloc.x][adjloc.y] /= 2;
-            // }
         }
     }
 
@@ -119,7 +101,7 @@ public class BotMiner extends Util{
         for (int i = 0; i < SHARED_ARRAY_LENGTH; ++i){
             int curVal = rc.readSharedArray(i);
             if (curVal == 0) continue;
-            if ((curVal & (1 << 15)) == flipTurnFlag()) updateRubbleMapByReadValue(curVal);
+            updateRubbleMapByReadValue(curVal);
         }
     }
 
@@ -134,7 +116,7 @@ public class BotMiner extends Util{
         int rubbleValue = computeRubbleValue(currentLocation);
         int turnFlag = (turnCount % 2);
         // TODO: If rubbleValue == 0, then some other bot's vision's rubble info should be used
-        rc.writeSharedArray(commIndex, computeWriteValue(intFromMapLocation(currentLocation), rubbleValue, turnFlag));
+        rc.writeSharedArray(commIndex, Comms.getMineValueForRubbleMessage(intFromMapLocation(currentLocation), rubbleValue, turnFlag));
         
         // Rubble Map Updation:
         updateRubbleMap();
@@ -166,7 +148,9 @@ public class BotMiner extends Util{
         //     rc.move(dir);
         //     // System.out.println("I moved!");
         // }
+        // System.out.println("1: " + String.valueOf(Clock.getBytecodeNum()));
         Movement.goToDirect(Globals.rememberedEnemyArchonLocation);
+        // System.out.println("2: " + String.valueOf(Clock.getBytecodeNum()));
         BotMiner.rubbleMapFormation(rc);
     }
 
