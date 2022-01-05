@@ -15,16 +15,9 @@ public class BotMiner extends Util{
         commIndex = -1;
         isMinedThisTurn = false;
 
-        // TODO: Check if initialzation to 0 is needed or not
-        for(int i = 0; i < MAP_WIDTH; ++i)
-            for(int j = 0; j < MAP_HEIGHT; ++j)
-                rubbleMap[i][j] = 0;
-        
-        
         for(int i = 0; i < 3; ++i)
             for(int j = 0; j < 3; ++j)
                 convolutionKernel[i][j] = 1 ;
-        
     }
 
     // TODO : Massive improvements required: remember mining location to mine till its finished, then change location
@@ -68,6 +61,7 @@ public class BotMiner extends Util{
     static void runMiner(RobotController rc) throws GameActionException {
         // Try to mine on squares around us.
         // System.out.println("0: " + String.valueOf(Clock.getBytecodesLeft()));
+        isMinedThisTurn = false;
         mineAdjacentLocations(); // Consumes around 500 bytecodes
 
         // Direction dir = PathFinder.findPath(Globals.currentLocation, Globals.rememberedEnemyArchonLocation);
