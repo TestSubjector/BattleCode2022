@@ -167,6 +167,7 @@ public class Globals {
     public static final Direction SOUTHWEST = Direction.SOUTHWEST;
     public static final Direction WEST = Direction.WEST;
     public static final Direction NORTHWEST = Direction.NORTHWEST;
+    public static final Direction CENTER = Direction.CENTER;
 
     /** Array containing all the possible movement directions. */
     public static final Direction[] directions = {
