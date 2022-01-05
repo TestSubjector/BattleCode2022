@@ -10,11 +10,13 @@ public class BotMiner extends Util{
     public static float[][] rubbleMap;
     public static int commIndex;
     public static int[][] convolutionKernel;
+    public static boolean isMinedThisTurn;
     
     public static void initBotMiner(){
         rubbleMap = new float[MAP_WIDTH][MAP_HEIGHT];
         convolutionKernel = new int[3][3];
         commIndex = -1;
+        isMinedThisTurn = false;
 
         // TODO: Check if initialzation to 0 is needed or not
         for(int i = 0; i < MAP_WIDTH; ++i)
@@ -37,6 +39,22 @@ public class BotMiner extends Util{
                 return true;
         }
         return false;
+    }
+
+    public static void mineAdjacentLocations() throws GameActionException {
+        for (int dx = -1; dx <= 1; dx++) {
+            for (int dy = -1; dy <= 1; dy++) {
+                MapLocation mineLocation = new MapLocation(currentLocation.x + dx, currentLocation.y + dy);
+                while (rc.canMineGold(mineLocation)) {
+                    isMinedThisTurn = true;
+                    rc.mineGold(mineLocation);
+                }
+                while (rc.canMineLead(mineLocation)) {
+                    isMinedThisTurn = true;
+                    rc.mineLead(mineLocation);
+                }
+            }
+        }
     }
 
 
@@ -126,4 +144,30 @@ public class BotMiner extends Util{
             System.out.println(Arrays.deepToString(rubbleMap));
         }
     }
+
+        /**
+     * Run a single turn for a Miner.
+     * This code is wrapped inside the infinite loop in run(), so it is called once per turn.
+     */
+    static void runMiner(RobotController rc) throws GameActionException {
+        // Try to mine on squares around us.
+        // rc.setIndicatorString("Hello world!");
+        // rc.setIndicatorString("2nd Hello world!");
+
+        mineAdjacentLocations();
+        // Also try to move randomly.
+        // Direction dir = Globals.directions[Globals.rng.nextInt(Globals.directions.length)];
+        // if (rc.canMove(dir)) {
+        //     rc.move(dir);
+        //     // System.out.println("I moved!");
+        // }
+        // Direction dir = PathFinder.findPath(Globals.currentLocation, Globals.rememberedEnemyArchonLocation);
+        // if (rc.canMove(dir)) {
+        //     rc.move(dir);
+        //     // System.out.println("I moved!");
+        // }
+        Movement.goToDirect(Globals.rememberedEnemyArchonLocation);
+        BotMiner.rubbleMapFormation(rc);
+    }
+
 }

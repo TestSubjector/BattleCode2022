@@ -30,7 +30,7 @@ public class Globals {
 
     public static boolean underAttack;
 
-    public static int mapSymmetry = (ID%2 ==0) ? 0 :2; // 0 = vertical symmetry, 1 = horizontal symmetry, 2 = rotational symmetry
+    public static int mapSymmetry = 0; // 0 = vertical symmetry, 1 = horizontal symmetry, 2 = rotational symmetry
 	
     //// ---------------------Droids Globals---------------------
 	// Miner Globals
@@ -213,6 +213,7 @@ public class Globals {
             }
         }
         isMapSquare = (MAP_WIDTH == MAP_HEIGHT);
+        mapSymmetry = (BIRTH_ROUND % 2 == 0) ? 0 : 2;
         if(mapSymmetry == 1 && !isMapSquare) mapSymmetry = 2; // TODO: Junk code to make bot run, change later
     }
 
