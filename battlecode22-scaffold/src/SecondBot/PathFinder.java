@@ -2,18 +2,18 @@ package SecondBot;
 
 import battlecode.common.*;
 
-public class PathFinding extends BotMiner{
+public class PathFinder extends BotMiner{
 
     // TODO: Hyperparameter, needs to be tuned
     public static final int numberIterations = 10;
     public static BFPair[][] paths;
     public static boolean updateFlag;
 
-    public static void initPathFinding(){
+    public static void initPathFinder(){
         paths = new BFPair[MAP_WIDTH][MAP_HEIGHT];
     }
 
-    public static void reinitPathFinding(){
+    public static void reinitPathFinder(){
         for(int i = 0; i < MAP_WIDTH; ++i)
             for (int j = 0; j < MAP_HEIGHT; ++j){
                 paths[i][j].smallestCost = -1.0f;
@@ -62,7 +62,7 @@ public class PathFinding extends BotMiner{
             return (paths[src.x][src.y].path);
         
         if (paths[dest.x][dest.y].path != CENTER)
-            reinitPathFinding();
+            reinitPathFinder();
         
         paths[dest.x][dest.y].smallestCost = rubbleMap[dest.x][dest.y];
 

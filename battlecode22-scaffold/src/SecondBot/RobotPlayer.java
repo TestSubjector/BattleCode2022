@@ -35,6 +35,8 @@ public strictfp class RobotPlayer {
         
         // System.out.println("1: " + String.valueOf(Clock.getBytecodeNum()));
         Globals.initGlobals(rc);
+        PathFinder.initPathFinder();
+
         switch (rc.getType()) {
             // case ARCHON:     runArchon(rc);  break;
             case MINER:      BotMiner.initBotMiner();   break;
