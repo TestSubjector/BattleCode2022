@@ -27,13 +27,12 @@ public class RubbleMap extends Util{
     public static void updateRubbleMapByReadValue(int readValue) throws GameActionException{
         if ((readValue>>15) == flipTurnFlag()){
             MapLocation loc = Comms.getLocFromRubbleMessage(readValue);
+            if(rc.canSenseLocation(loc)) return;
             int x = loc.x, y = loc.y;
             int rubbleLayer = Comms.getRubbleValueFromRubbleMessage(readValue);
             // if (!isValidMapLocation(x+dx,y+dy)) continue; // RubbleMapFormation Line 4 removes the need for this check
             // Averages out the map, will always lead to better information of the map
-            // System.out.println("1: " + Clock.getBytecodesLeft());
             updateRubbleMapLayer(rubbleLayer, x, y);
-            // System.out.println("2: " + Clock.getBytecodesLeft());
         }
     }
 
@@ -51,9 +50,9 @@ public class RubbleMap extends Util{
     }
 
     public static void updateRubbleMap() throws GameActionException{
-        for (int i = 0; i < SHARED_ARRAY_LENGTH; ++i){
+        for (int i = 0; i < Comms.CHANNEL_RUBBLE_STOP; ++i){
             int curVal = rc.readSharedArray(i);
-            if (curVal == 0) continue;
+            if (curVal == 0 ) continue;
             updateRubbleMapByReadValue(curVal);
         }
     }

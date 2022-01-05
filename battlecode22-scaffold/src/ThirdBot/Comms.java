@@ -5,7 +5,7 @@ import battlecode.common.*;
 public class Comms extends Util{
 
     public static final int CHANNEL_RUBBLE_START = 0;
-    public static final int CHANNEL_RUBBLE_STOP = 31;
+    public static final int CHANNEL_RUBBLE_STOP = 32;
 
 
     public static int createRubbleMessage(int locationValue, int rubbleValue, int turnFlag) throws GameActionException{

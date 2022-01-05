@@ -47,8 +47,8 @@ public class BotMiner extends Util{
 
 
     public static void rubbleMapFormation(RobotController rc) throws GameActionException{
-        if (commIndex == -1) commIndex = myRobotCount - archonCount - 1;
-        if (commIndex >= SHARED_ARRAY_LENGTH) return;
+        if (commIndex == -1) commIndex = (myRobotCount - archonCount - 1) % Comms.CHANNEL_RUBBLE_STOP;
+        // if (commIndex >= Comms.CHANNEL_RUBBLE_STOP) return;
         if(isOnEdge(currentLocation)) return; // Do not send information when on edge of Map
         int rubbleValue = RubbleMap.computeRubbleValue(currentLocation);
         int turnFlag = (turnCount % 2);
