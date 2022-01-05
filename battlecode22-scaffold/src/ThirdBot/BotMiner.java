@@ -1,4 +1,4 @@
-package SecondBot;
+package ThirdBot;
 
 import java.util.Arrays;
 
