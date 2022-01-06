@@ -2,9 +2,12 @@ package FourthBot;
 
 import battlecode.common.*;
 
+//TODO: Check if BFPair.java is required anymore
+
 public class BFPair extends Util{
     public float smallestCost;
     public Direction path;
+    
     
     public BFPair(){
         smallestCost = -1.0f;

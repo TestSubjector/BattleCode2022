@@ -11,6 +11,10 @@ public class Util extends Globals {
         return (loc.x << 6) | loc.y; 
     }
 
+    public static int intFromMapLocation(int x, int y){
+        return (x << 6) | y;
+    }
+
     public static MapLocation mapLocationFromInt(int loc){
         return new MapLocation(loc >> 6, loc & 0x3F);
     }

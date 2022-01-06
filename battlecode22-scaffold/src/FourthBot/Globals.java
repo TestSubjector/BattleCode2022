@@ -109,9 +109,10 @@ public class Globals {
 
     // Rubble Parameters
 
-    public static float[][] rubbleMap; // Defaults to false
-    public static boolean[][] isRubbleLocRead;
+    public static float[][] rubbleMap; 
+    public static boolean[][] isRubbleLocRead; // Defaults to false
     public static int[][] convolutionKernel;
+    public static int RubbleTransmissionIndex;
 
     // Game Parameters
     
@@ -233,7 +234,7 @@ public class Globals {
         //TODO : Reduce computation if bot is freezing
         if (curRound != turnCount + 1 && curRound != BIRTH_ROUND) {
             botFreeze = true;
-            System.out.println("Birth round " + BIRTH_ROUND + " Current Round "+ curRound + " Turn Count " + turnCount + "Bot Froze"); 
+            System.out.println("Birth round " + BIRTH_ROUND + " Current Round "+ curRound + " Turn Count " + turnCount + " Bot Froze"); 
         }
         turnCount = curRound;
 
