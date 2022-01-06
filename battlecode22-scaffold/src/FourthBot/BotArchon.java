@@ -30,6 +30,7 @@ public class BotArchon extends Util{
     * This code is wrapped inside the infinite loop in run(), so it is called once per turn.
     */
     public static void runArchon(RobotController rc) throws GameActionException {
+        rc.writeSharedArray(Comms.CHANNEL_RUBBLE_TRANSMITTER_COUNT, 0);
         updateArchonBuildUnits();
         buildDivision();
         // randomBuild();

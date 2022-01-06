@@ -87,9 +87,12 @@ public class RubbleMap extends Util{
 
 
     public static void rubbleMapFormation(RobotController rc) throws GameActionException{
+        // if (RubbleTransmissionIndex == -1){
         int RubbleTransmitterCount = rc.readSharedArray(Comms.CHANNEL_RUBBLE_TRANSMITTER_COUNT);
-        if (RubbleTransmissionIndex == -1) RubbleTransmissionIndex = RubbleTransmitterCount++ % Comms.CHANNEL_RUBBLE_STOP;
-        rc.writeSharedArray(Comms.CHANNEL_RUBBLE_TRANSMITTER_COUNT, RubbleTransmitterCount);
+        // System.out.println(RubbleTransmitterCount);
+        RubbleTransmissionIndex = RubbleTransmitterCount++ % Comms.CHANNEL_RUBBLE_STOP;
+        rc.writeSharedArray(Comms.CHANNEL_RUBBLE_TRANSMITTER_COUNT, RubbleTransmitterCount % Comms.CHANNEL_RUBBLE_STOP);
+        
         if(isOnEdge(currentLocation)) return; // Do not send information when on edge of Map
         // System.out.println("1: " + String.valueOf(Clock.getBytecodesLeft()));
         int rubbleValue = RubbleMap.computeRubbleValue(currentLocation);

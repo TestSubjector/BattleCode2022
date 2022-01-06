@@ -2,6 +2,8 @@ package FourthBot;
 
 import battlecode.common.*;
 
+
+// TODO: Add storage of type of robot count
 public class Comms extends Util{
 
     public static final int CHANNEL_RUBBLE_START = 0;
