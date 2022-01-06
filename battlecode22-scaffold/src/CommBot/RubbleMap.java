@@ -6,7 +6,6 @@ import battlecode.common.*;
 
 public class RubbleMap extends Util{
 
-
     public static void initRubbleMap(){
         rubbleMap = new float[MAP_WIDTH][MAP_HEIGHT];
         isRubbleLocRead = new boolean[MAP_WIDTH][MAP_HEIGHT];
@@ -55,6 +54,7 @@ public class RubbleMap extends Util{
                 else isRubbleLocRead[x][y] = true;
             
             int rubbleLayer = Comms.getRubbleValueFromRubbleMessage(readValue);
+            // System.out.println("Reading rubble layer: " + rubbleLayer);
             // if (!isValidMapLocation(x+dx,y+dy)) continue; // RubbleMapFormation Line 4 removes the need for this check
             // System.out.println("1: " + Clock.getBytecodesLeft());
             updateRubbleMapLayer(rubbleLayer, x, y); // Averages out the map, will always lead to better information of the map
@@ -65,29 +65,30 @@ public class RubbleMap extends Util{
 
     public static void updateRubbleMapLayer(int rubbleLayer, int x, int y) throws GameActionException{
         int a = x-1, b = x+1, c = y-1, d = y+1;
-        rubbleMap[x][y] = (rubbleMap[x][y] + rubbleLayer) / 2.0f;
-        rubbleMap[x][c] = (rubbleMap[x][c] + rubbleLayer) / 2.0f;
-        rubbleMap[x][d] = (rubbleMap[x][d] + rubbleLayer) / 2.0f;
-        rubbleMap[a][c] = (rubbleMap[a][c] + rubbleLayer) / 2.0f;
-        rubbleMap[a][y] = (rubbleMap[a][y] + rubbleLayer) / 2.0f;
-        rubbleMap[a][d] = (rubbleMap[a][d] + rubbleLayer) / 2.0f;
-        rubbleMap[b][c] = (rubbleMap[b][c] + rubbleLayer) / 2.0f;
-        rubbleMap[b][y] = (rubbleMap[b][y] + rubbleLayer) / 2.0f;
-        rubbleMap[b][d] = (rubbleMap[b][d] + rubbleLayer) / 2.0f;
+        rubbleMap[x][y] = (rubbleMap[x][y] + rubbleLayer) / 2;
+        rubbleMap[x][c] = (rubbleMap[x][c] + rubbleLayer) / 2;
+        rubbleMap[x][d] = (rubbleMap[x][d] + rubbleLayer) / 2;
+        rubbleMap[a][c] = (rubbleMap[a][c] + rubbleLayer) / 2;
+        rubbleMap[a][y] = (rubbleMap[a][y] + rubbleLayer) / 2;
+        rubbleMap[a][d] = (rubbleMap[a][d] + rubbleLayer) / 2;
+        rubbleMap[b][c] = (rubbleMap[b][c] + rubbleLayer) / 2;
+        rubbleMap[b][y] = (rubbleMap[b][y] + rubbleLayer) / 2;
+        rubbleMap[b][d] = (rubbleMap[b][d] + rubbleLayer) / 2;
     }
-
 
     public static void updateRubbleMap() throws GameActionException{
         for (int i = 0; i < Comms.CHANNEL_RUBBLE_STOP; ++i){
+            if(Clock.getBytecodesLeft() < 400){
+                // System.out.println("Hitting bytecode barrier");
+                return;
+            } 
             int curVal = rc.readSharedArray(i);
-            if (curVal == 0 || Clock.getBytecodesLeft() < 400) continue;
+            if (curVal == 0) continue;
             updateRubbleMapByReadValue(curVal);
         }
     }
 
-
     public static void rubbleMapFormation(RobotController rc) throws GameActionException{
-        // if (RubbleTransmissionIndex == -1){
         int RubbleTransmitterCount = rc.readSharedArray(Comms.CHANNEL_RUBBLE_TRANSMITTER_COUNT);
         // System.out.println(RubbleTransmitterCount);
         RubbleTransmissionIndex = RubbleTransmitterCount++ % Comms.CHANNEL_RUBBLE_STOP;
@@ -101,7 +102,7 @@ public class RubbleMap extends Util{
         // TODO: If rubbleValue == 0, then some other bot's vision's rubble info should be used
         int intMapLoc = intFromMapLocation(currentLocation);
         rc.writeSharedArray(RubbleTransmissionIndex, Comms.createRubbleMessage(intMapLoc, rubbleValue, turnFlag));
-        if (turnCount == 500){
+        if (turnCount == 500 && UNIT_TYPE == RobotType.MINER){
             System.out.println("Printing rubbleMap:");
             System.out.println(Arrays.deepToString(rubbleMap));
         }

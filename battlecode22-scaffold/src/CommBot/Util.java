@@ -71,4 +71,8 @@ public class Util extends Globals {
         return loc.x < rc.getMapWidth() && loc.x >= 0 && loc.y < rc.getMapHeight() && loc.y >= 0;
     }
 
+
+    // String functions
+
+    // Return string of length 
 }

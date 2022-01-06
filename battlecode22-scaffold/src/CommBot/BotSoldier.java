@@ -4,6 +4,11 @@ import battlecode.common.*;
 
 public class BotSoldier extends Util{
 
+
+    public static void initBotSoldier(){
+        RubbleMap.initRubbleMap();
+    }
+
     /**
     * Run a single turn for a Soldier.
     * This code is wrapped inside the infinite loop in run(), so it is called once per turn.
@@ -19,7 +24,8 @@ public class BotSoldier extends Util{
                 rc.attack(toAttack);
             }
         }
-
         Movement.goToDirect(Globals.rememberedEnemyArchonLocation);
+        if(turnCount != BIRTH_ROUND) RubbleMap.rubbleMapFormation(rc);
+        if(turnCount != BIRTH_ROUND) RubbleMap.updateRubbleMap();
     }
 }

@@ -51,8 +51,9 @@ public class BotMiner extends Util{
         if (!isMinedThisTurn) Movement.goToDirect(Globals.rememberedEnemyArchonLocation); // Consumes around 400 bytecodes
         // if (Clock.getBytecodesLeft() < 1000) System.out.println("2: " + String.valueOf(Clock.getBytecodesLeft()));
         if(turnCount != BIRTH_ROUND) RubbleMap.rubbleMapFormation(rc); // To skip hungry init turn. Don't write to shared array in birth round since that area is well explored
-        // if (Clock.getBytecodesLeft() < 1000) System.out.println("3: " + String.valueOf(Clock.getBytecodesLeft()));
+        // System.out.println("R1: " + String.valueOf(Clock.getBytecodesLeft()));
         if(turnCount != BIRTH_ROUND) RubbleMap.updateRubbleMap(); // TODO: Optimise, consuming 5000 bytecodes
+        // System.out.println("R2: " + String.valueOf(Clock.getBytecodesLeft()));
     }
 
 }
