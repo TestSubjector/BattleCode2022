@@ -63,12 +63,8 @@ public class Util extends Globals {
         return isValidMapLocation(loc);
     }
 
-    public static boolean isValidMapLocation(MapLocation loc){
-        if (loc.x >= rc.getMapWidth()) return false;
-        if (loc.x < 0 ) return false;
-        if (loc.y >= rc.getMapHeight()) return false;
-        if (loc.y < 0 ) return false;
-        return true;
+    public static boolean isValidMapLocation(MapLocation loc){ 
+        return loc.x < rc.getMapWidth() && loc.x >= 0 && loc.y < rc.getMapHeight() && loc.y >= 0;
     }
 
 }
