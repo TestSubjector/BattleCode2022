@@ -20,11 +20,6 @@ public class BotSoldier extends Util{
             }
         }
 
-        // Also try to move randomly.
-        Direction dir = Globals.directions[Globals.rng.nextInt(Globals.directions.length)];
-        if (rc.canMove(dir)) {
-            rc.move(dir);
-            // System.out.println("I moved!");
-        }
+        Movement.goToDirect(Globals.rememberedEnemyArchonLocation);
     }
 }

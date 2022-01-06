@@ -50,10 +50,10 @@ public class BotMiner extends Util{
         // TODO: If rubbleValue == 0, then some other bot's vision's rubble info should be used
         int intMapLoc = intFromMapLocation(currentLocation);
         rc.writeSharedArray(commIndex, Comms.createRubbleMessage(intMapLoc, rubbleValue, turnFlag));
-        if (turnCount == 500){
-            System.out.println("Printing rubbleMap:");
-            System.out.println(Arrays.deepToString(rubbleMap));
-        }
+        // if (turnCount == 500){
+        //     System.out.println("Printing rubbleMap:");
+        //     System.out.println(Arrays.deepToString(rubbleMap));
+        // }
     }
 
     /**
@@ -62,6 +62,7 @@ public class BotMiner extends Util{
     */
     static void runMiner(RobotController rc) throws GameActionException {
         // Try to mine on squares around us.
+        //TODO: Move away from Archon to make space for it in first turn
         isMinedThisTurn = false;
         mineAdjacentLocations(); // Consumes around 500 bytecodes
 

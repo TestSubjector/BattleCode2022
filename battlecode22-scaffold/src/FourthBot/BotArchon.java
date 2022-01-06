@@ -1,25 +1,28 @@
 package FourthBot;
 
+import java.util.Arrays;
+
 import battlecode.common.*;
 
 public class BotArchon extends Util{
 
-    enum ArchonBuildUnits {
-        BUILDER, 
+    enum ArchonBuildUnits { 
         MINER, 
-        SAGE, 
-        SOLDIER, 
+        SOLDIER,
+        BUILDER,
+        SAGE,  
     }
 
-    ArchonBuildUnits[] archonBuildUnits = ArchonBuildUnits.values();
+    public static ArchonBuildUnits[] archonBuildUnits = ArchonBuildUnits.values();
     public static double[] aBUWeights = new double[ArchonBuildUnits.values().length];
+    public static double[] currentWeights = new double[ArchonBuildUnits.values().length];
 
-    void updateArchonBuildUnits(){
-        int lTurnCount = turnCount;
-        aBUWeights[ArchonBuildUnits.BUILDER.ordinal()] = Math.min(2.5, 2.0 + lTurnCount/100);
-        aBUWeights[ArchonBuildUnits.MINER.ordinal()] = Math.max(3.0, 3.5 - lTurnCount/200);
-        aBUWeights[ArchonBuildUnits.SAGE.ordinal()] = Math.min(1.5, 1.5 + lTurnCount/100);
-        aBUWeights[ArchonBuildUnits.SOLDIER.ordinal()] = Math.min(3.5, 2.0 + lTurnCount/100);
+    public static void updateArchonBuildUnits(){
+        int lTC = turnCount;
+        aBUWeights[ArchonBuildUnits.BUILDER.ordinal()] = Math.min(2.5, 1.5 + lTC/200);
+        aBUWeights[ArchonBuildUnits.MINER.ordinal()] = Math.max(2.5, 4.5 - lTC/100);
+        aBUWeights[ArchonBuildUnits.SAGE.ordinal()] = Math.max(2.5, 4.5 - lTC/100);
+        aBUWeights[ArchonBuildUnits.SOLDIER.ordinal()] = Math.min(7.5, 1.5 + lTC/50);
     }
 
     /**
@@ -27,36 +30,101 @@ public class BotArchon extends Util{
     * This code is wrapped inside the infinite loop in run(), so it is called once per turn.
     */
     public static void runArchon(RobotController rc) throws GameActionException {
-        
-        // Pick a direction to build in.
-        randomBuild();
+        updateArchonBuildUnits();
+        buildDivision();
+        // randomBuild();
     }
     
-    public static void buildDivision(){
-        if (!rc.isActionReady()) return;
-
-        // standardOrder();
-
+    public static void buildDivision() throws GameActionException{
+        if (!rc.isActionReady() || currentLeadReserves < RobotType.MINER.buildCostLead) return;
+        else buildUnit();
     }
 
-    // public static ArchonBuildUnits standardOrder(){
-    //     boolean canBuild[] = new boolean[aBUWeights.length];
-        // if(shoudBuildSoldier()) canBuild[ArchonBuildUnits.SOLDIER.ordinal()] = true;
-        // if(shoudBuildBuilder()) canBuild[ArchonBuildUnits.BUILDER.ordinal()] = true;
-        // if(shoudBuildMiner()) canBuild[ArchonBuildUnits.MINER.ordinal()] = true;
-        // if(shoudBuildSage()) canBuild[ArchonBuildUnits.SAGE.ordinal()] = true;
+    public static void buildUnit() throws GameActionException{
+        try {
+            ArchonBuildUnits unitToBuild = standardOrder();
+            if (unitToBuild == null) return;
+            Direction bestSpawnDir = null;
+            double bestSpawnValue = 0;
+            double SpawnValue = 0;
+            MapLocation lCR = currentLocation; 
 
-        // ArchonBuildUnits unitToBuild = null;
-        // double maxWeight = 0;
+            RobotType unitType=null;
+            switch(unitToBuild){
+                case BUILDER: unitType = RobotType.BUILDER; break;
+                case MINER:   unitType = RobotType.MINER;   break;
+                case SAGE:    unitType = RobotType.SAGE;    break;
+                case SOLDIER: unitType = RobotType.SOLDIER; break;
+            }
 
-        // for(int i = 0; i < aBUWeights.length; ++i){
-        //     if(canBuild[i] && aBUWeights[i] > maxWeight){
-        //         maxWeight = aBUWeights[i];
-        //         unitToBuild = archonBuildUnits[i];
-        //     }
-        // }
+            for (Direction dir : directions) {
+                if (!rc.canBuildRobot(unitType, dir)) continue;
+                SpawnValue = getValue(lCR, rememberedEnemyArchonLocation, dir); // TODO: Change destination
+                if (bestSpawnDir == null || SpawnValue < bestSpawnValue) {
+                    bestSpawnDir = dir;
+                    bestSpawnValue = SpawnValue;
+                }
+            }
 
-    // }
+            if (bestSpawnDir != null){
+                rc.buildRobot(unitType, bestSpawnDir);
+                // System.out.println("Unit to build is " + unitType + " with weight " + currentWeights[unitToBuild.ordinal()]);
+                currentWeights[unitToBuild.ordinal()] += 1.0/aBUWeights[unitToBuild.ordinal()];
+                // if(ID ==2) System.out.println("Unit built is " + unitType + " Weights are " + Arrays.toString(currentWeights));
+            }
+        } catch (Exception e) {
+            System.out.println("Archon buildUnit() Exception");
+            e.printStackTrace();
+        }
+    }
+
+    static double getValue(MapLocation archonLocation, MapLocation dest, Direction dir) throws GameActionException {
+        double dist = 1;
+        if (dest != null){
+            dist = archonLocation.add(dir).distanceSquaredTo(dest);
+        }
+        return dist/rc.senseRubble(archonLocation.add(dir));
+    }
+
+    public static ArchonBuildUnits standardOrder(){
+        boolean canBuild[] = new boolean[aBUWeights.length];
+        if(shouldBuildBuilder()) canBuild[ArchonBuildUnits.BUILDER.ordinal()] = true;
+        if(shouldBuildMiner()) canBuild[ArchonBuildUnits.MINER.ordinal()] = true;
+        if(shouldBuildSoldier()) canBuild[ArchonBuildUnits.SOLDIER.ordinal()] = true;
+        if(shouldBuildSage()) canBuild[ArchonBuildUnits.SAGE.ordinal()] = true;
+
+        ArchonBuildUnits unitToBuild = null;
+        double minWeight = 1000;
+
+        //TODO : Loop unrolling
+        for(int i = 0; i < archonBuildUnits.length; i++){
+            if(!canBuild[i]) continue;
+            if(unitToBuild == null || minWeight > currentWeights[i]){  // If unitToBuild is null, or this unit weight is *lesser*
+                minWeight = currentWeights[i];
+                unitToBuild = archonBuildUnits[i];
+            }
+        }
+        // System.out.println("Unit to build is " + unitToBuild + " with weight " + minWeight);
+        return unitToBuild;
+    }
+
+    public static boolean shouldBuildBuilder(){
+        if (turnCount < 10) return false;
+        return true;
+    }
+
+    public static boolean shouldBuildMiner(){
+        return currentLeadReserves >= RobotType.MINER.buildCostLead;
+    }
+
+    public static boolean shouldBuildSoldier(){
+        if (turnCount < 10) return false;
+        return true;
+    }
+
+    public static boolean shouldBuildSage(){
+        return false;
+    }
 
     public static void randomBuild() throws GameActionException{
         Direction dir = Globals.directions[Globals.rng.nextInt(Globals.directions.length)];

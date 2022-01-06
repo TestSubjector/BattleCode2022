@@ -29,6 +29,7 @@ public class Globals {
     public static boolean botFreeze;
 
     public static boolean underAttack;
+    public static boolean isSafe=false;
 	
     //// ---------------------Droids Globals---------------------
 	// Miner Globals
@@ -103,6 +104,7 @@ public class Globals {
     public static int MAP_SIZE;
     public static boolean isMapSquare = true;
     public static int mapSymmetry = 0; // 0 = vertical symmetry, 1 = horizontal symmetry, 2 = rotational symmetry
+    public static int currentLeadReserves;
     // TODO: Flag for shape of map (square, rectangle, very rectangle(thin))
 
     // Rubble Parameters
@@ -211,6 +213,7 @@ public class Globals {
         myHealth = rc.getHealth();
         underAttack = false;
         visibleAllies = rc.senseNearbyRobots(-1, MY_TEAM);
+        
         if (UNIT_TYPE == RobotType.ARCHON) rememberedArchonLocation = currentLocation;
         for (RobotInfo ally : visibleAllies) {
             if (ally.getType() == RobotType.ARCHON) {
@@ -238,6 +241,8 @@ public class Globals {
         int curHealth = rc.getHealth();
         if (curHealth < myHealth) underAttack = true;
         myHealth = curHealth;
+
+        currentLeadReserves = rc.getTeamLeadAmount(MY_TEAM);
 	}
 
     // Heavy bytecode method

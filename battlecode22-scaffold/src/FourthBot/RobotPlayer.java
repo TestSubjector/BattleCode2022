@@ -20,7 +20,7 @@ public strictfp class RobotPlayer {
                     case SOLDIER:    BotSoldier.runSoldier(rc); break;
                     case LABORATORY: // Examplefuncsplayer doesn't use any of these robot types below.
                     case WATCHTOWER: // You might want to give them a try!
-                    case BUILDER:
+                    case BUILDER:    BotBuilder.runBuilder(rc); break;
                     case SAGE:       break;
                 }
             } catch (GameActionException e) {
@@ -33,7 +33,7 @@ public strictfp class RobotPlayer {
 
             } finally {
                 if (Clock.getBytecodesLeft() < 500) System.out.println("Warning, bytecodes left this turn is: " + Clock.getBytecodesLeft());
-                // if(rc.getRoundNum() > 9) return;
+                // if(rc.getRoundNum() > 39) return;
                 Clock.yield();
             }
         }
