@@ -5,3 +5,4 @@
 * Have 1x1, 2x2, 3x3, 4x4 fixed arrays representing archon locations on map an the default policy ot use then, for
     map takeover. Has to be generic.
 * After some number of reads of the rubble map, stop reading and updating the map. You're done.
+* Voronoi type partitions of the maps

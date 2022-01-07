@@ -10,7 +10,36 @@ public class Comms extends Util{
     public static final int CHANNEL_RUBBLE_STOP = 32;
     public static final int CHANNEL_RUBBLE_TRANSMITTER_COUNT = 32;
     
+    /// Message Info
+    /*
+        We have three types of messages:
+        1) First 32 indexes to fill rubbleMap
+        2) (x,y) << 4 | (SHAFlag) messages that deal with different type of locations
+        3) Non SHAFlag messages (NOT_A_LOCATION_MESSAGE) that with unit_counts, mapsymmetry etc 
+    */
+    enum SHAFlag { 
+        ARCHON_LOCATION, // 0x0
+        POTENTIAL_ENEMY_ARCHON_LOCATION, //0x1
+        CONFIRMED_ENEMY_ARCHON_LOCATION, //0x2
+        LEAD_LOCATION, //0x3
+        REQUEST_FOR_LEAD_LOCATION, //0x4
+        IDEAL_WATCHTOWER_BUILD_LOCATION, //0x5
+        ENEMY_WATCHTOWER_BUILD_LOCATION,
+        ENEMY_NEAR_ARCHON_LOCATION,
+        NOT_A_LOCATION_MESSAGE,  //0xF
+    }
+
+    public static SHAFlag[] SHAFlags = SHAFlag.values();
+
+    public static MapLocation readLocationFromMessage(int message){
+        return mapLocationFromInt((message >> 4));
+    }
+
     
+    public static SHAFlag readSHAFlagFromMessage(int message){
+        return SHAFlags[message & 0xF];
+    }
+
     // 0 <= type < 16
     public static void writeLocation(MapLocation loc, int type, int index) throws GameActionException{
         int value = intFromMapLocation(loc);
@@ -28,11 +57,6 @@ public class Comms extends Util{
 
     public static MapLocation readLocation(int index) throws GameActionException{
         return mapLocationFromInt((rc.readSharedArray(index) >> 4));
-    }
-
-
-    public static MapLocation readLocationFromMessage(int message){
-        return mapLocationFromInt((message >> 4));
     }
 
 
