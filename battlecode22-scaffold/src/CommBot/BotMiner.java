@@ -42,8 +42,8 @@ public class BotMiner extends Util{
         isMinedThisTurn = false;
         mineAdjacentLocations(); // Consumes around 500 bytecodes
 
-        // Direction dir = PathFinder.findPath(Globals.currentLocation, Globals.rememberedEnemyArchonLocation);
-        // if (rc.canMove(dir)) {
+        // Direction dir = PathFinder.findPathAStar(Globals.currentLocation, Globals.rememberedEnemyArchonLocation);
+        // if (!isMinedThisTurn && rc.canMove(dir)) {
         //     rc.move(dir);
         //     // System.out.println("I moved!");
         // }

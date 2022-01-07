@@ -32,7 +32,7 @@ public strictfp class RobotPlayer {
                 e.printStackTrace();
 
             } finally {
-                if (Clock.getBytecodesLeft() < 500) System.out.println("Warning, bytecodes left this turn is: " + Clock.getBytecodesLeft());
+                if (Clock.getBytecodesLeft() < 2000) System.out.println("Warning, bytecodes left this turn is: " + Clock.getBytecodesLeft());
                 // if(rc.getRoundNum() > 39) return;
                 Clock.yield();
             }

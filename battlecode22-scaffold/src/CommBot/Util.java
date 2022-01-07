@@ -32,6 +32,28 @@ public class Util extends Globals {
         return coords;
     }
 
+    // public static boolean isEquals(MapLocation loc1, MapLocation loc2){
+    //     return (loc1.x == loc2.x && loc1.y == loc2.y);
+    // }
+
+    public static int manhattanDistance(MapLocation first, MapLocation second){
+        return (Math.abs(first.x - second.x) + Math.abs(first.y - second.y));
+    }
+
+
+    public static int findPointByRatio(MapLocation src, MapLocation dest, int dist){
+        int tot = src.distanceSquaredTo(dest);
+        int diff = tot - dist;
+        int x1 = src.x;
+        int y1 = src.y;
+        int x2 = dest.x;
+        int y2 = dest.y;
+        int x = (int)(((float)(diff * x1 + dist * x2)) / ((float) tot));
+        int y = (int)(((float)(diff * y1 + dist * y2)) / ((float) tot));
+        return intFromMapLocation(x, y);
+    }
+
+
     public static final int getTurnFlag(){
         return (turnCount % 2);
     }
