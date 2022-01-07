@@ -2,12 +2,13 @@ package CommBot;
 
 import battlecode.common.*;
 
+import org.apache.commons.lang3.StringUtils;
+
 public strictfp class RobotPlayer {
     @SuppressWarnings("unused")
     public static void run(RobotController rc) throws GameActionException {
         Globals.initGlobals(rc);
-        // PathFinder.initPathFinder();
-        Globals.updateEnemyArchonLocation();
+        
         switch (rc.getType()) {
             case MINER:      BotMiner.initBotMiner();       break;
             case BUILDER:    BotBuilder.initBotBuilder();   break;
@@ -25,6 +26,9 @@ public strictfp class RobotPlayer {
                     case BUILDER:    BotBuilder.runBuilder(rc); break;
                     case SAGE:       break;
                 }
+                // Bytecode Testing Area
+                // Util.byteCodeTest();
+                // if(rc.getRoundNum() > 4) return;
             } catch (GameActionException e) {
                 System.out.println(rc.getType() + " Exception");
                 e.printStackTrace();
@@ -40,4 +44,5 @@ public strictfp class RobotPlayer {
             }
         }
     }
+
 }

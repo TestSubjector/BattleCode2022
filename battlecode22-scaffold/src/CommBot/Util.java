@@ -1,6 +1,7 @@
 package CommBot;
 
 import battlecode.common.MapLocation;
+import battlecode.common.Clock;
 // import utility.Globals;
 
 public class Util extends Globals {
@@ -40,7 +41,6 @@ public class Util extends Globals {
         return (Math.abs(first.x - second.x) + Math.abs(first.y - second.y));
     }
 
-
     public static int findPointByRatio(MapLocation src, MapLocation dest, int dist){
         int tot = src.distanceSquaredTo(dest);
         int diff = tot - dist;
@@ -52,7 +52,6 @@ public class Util extends Globals {
         int y = (int)(((float)(diff * y1 + dist * y2)) / ((float) tot));
         return intFromMapLocation(x, y);
     }
-
 
     public static final int getTurnFlag(){
         return (turnCount % 2);
@@ -93,6 +92,27 @@ public class Util extends Globals {
         return loc.x < rc.getMapWidth() && loc.x >= 0 && loc.y < rc.getMapHeight() && loc.y >= 0;
     }
 
+    public static void byteCodeTest(){
+        int temp = 1;
+        int index_i = 0, index_j =0;
+        // int holder_1[] = new int[10];
+        int holder_2[][] = new int[10][10];
+        StringBuilder sb = new StringBuilder("111111111111111111111111111111111111111111111111111111111111");
+        StringBuilder s = sb.delete(20, 60); // 12 bytecodes irrespective of length of string
+        System.out.println("Bytecodes left before testing area: " + Clock.getBytecodesLeft()); // 7 bytecodes
+        // StringBuilder s = sb.delete(20, 60); // 12 bytecodes irrespective of length of string
+        // s.setCharAt(1, '2'); // 10 bytecodes (2/3 in reality)
+        // s.setCharAt(2, '2');
+        // s.setCharAt(3, '2');
+        // s.replace(1,3,"2");
+        // int holder_1[]; // 7 bytecodes (actual is 0 or 1)
+        // holder_1 = new int[10]; //19 bytecodes (actual is 12/13) 
+        // temp = holder_1[index_i]; // 11 bytecodes (actual is 4/5)
+        // holder_1[index_i] = temp; // 11 bytecodes (actual is 4/5)
+        // temp = holder_2[index_i][index_j]; // 13 bytecodes (actual is 6/7)
+        // holder_2[index_i][index_j] = temp; // 13 bytecodes (actual is 6/7)
+        System.out.println("Bytecodes left after testing area: " + Clock.getBytecodesLeft());
+    }
 
     // String functions
 

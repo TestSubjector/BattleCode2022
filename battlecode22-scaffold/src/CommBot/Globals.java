@@ -23,13 +23,15 @@ public class Globals {
     public static int myHealth;
     public static MapLocation START_LOCATION;
     public static MapLocation currentLocation;
+    public static MapLocation currentDestination = null;
     public static MapLocation rememberedArchonLocation = null;
-    public static MapLocation rememberedEnemyArchonLocation = null;
+    public static MapLocation rememberedEnemyArchonLocation[];
 
     public static boolean botFreeze;
 
     public static boolean underAttack;
     public static boolean isSafe=false;
+    public static boolean hasMoved=false;
 	
     //// ---------------------Droids Globals---------------------
 	// Miner Globals
@@ -222,8 +224,15 @@ public class Globals {
             }
         }
         isMapSquare = (MAP_WIDTH == MAP_HEIGHT);
-        mapSymmetry = (BIRTH_ROUND % 2 == 0) ? 0 : 2;
-        if(mapSymmetry == 1 && !isMapSquare) mapSymmetry = 2; // TODO: Junk code to make bot run, change later
+        // mapSymmetry = (BIRTH_ROUND % 2 == 0) ? 0 : 2;
+        // if(mapSymmetry == 1 && !isMapSquare) mapSymmetry = 2; // TODO: Junk code to make bot run, change later
+        rememberedEnemyArchonLocation = new MapLocation[4];
+        updateEnemyArchonLocation();
+        if(BIRTH_ROUND % 2 == 0) {
+            currentDestination = ratioPointBetweenTwoMapLocations(rememberedArchonLocation, rememberedEnemyArchonLocation[0], 0.3);
+        } else {
+            currentDestination = ratioPointBetweenTwoMapLocations(rememberedArchonLocation, rememberedEnemyArchonLocation[1], 0.3);
+        }
     }
 
     public static void updateGlobals() {
@@ -253,17 +262,18 @@ public class Globals {
     }
 
     public static void updateEnemyArchonLocation() {
-        switch(mapSymmetry){
-        case 0:
-            rememberedEnemyArchonLocation = new MapLocation(MAP_WIDTH - rememberedArchonLocation.x, rememberedArchonLocation.y);
-            break;
-        case 1:
-            // System.out.println("Map symmetry 2 not implemented " + MAP_WIDTH + " " + MAP_HEIGHT + " " + rememberedArchonLocation.x + " " + rememberedArchonLocation.y);
-            rememberedEnemyArchonLocation = new MapLocation(MAP_WIDTH - rememberedArchonLocation.x, MAP_HEIGHT - rememberedArchonLocation.y);
-            break;
-        case 2:
-            rememberedEnemyArchonLocation = new MapLocation(rememberedArchonLocation.x, MAP_HEIGHT - rememberedArchonLocation.y);
-            break;
-        }
+        rememberedEnemyArchonLocation[0] = new MapLocation(MAP_WIDTH - rememberedArchonLocation.x, rememberedArchonLocation.y);
+        rememberedEnemyArchonLocation[1] = new MapLocation(rememberedArchonLocation.x, MAP_HEIGHT - rememberedArchonLocation.y);
+        rememberedEnemyArchonLocation[2] = new MapLocation(MAP_WIDTH - rememberedArchonLocation.x, MAP_HEIGHT - rememberedArchonLocation.y);
+    }
+
+    public static MapLocation ratioPointBetweenTwoMapLocations(MapLocation src, MapLocation dest, double ratio){
+        int x1 = src.x;
+        int y1 = src.y;
+        int x2 = dest.x;
+        int y2 = dest.y;
+        int x = (int)((double) ratio * x1 + (1-ratio) * x2);
+        int y = (int)((double) ratio * y1 + (1-ratio) * y2);
+        return new MapLocation(x, y);
     }
 }

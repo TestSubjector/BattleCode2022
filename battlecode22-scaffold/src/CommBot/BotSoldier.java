@@ -24,7 +24,7 @@ public class BotSoldier extends Util{
                 rc.attack(toAttack);
             }
         }
-        Movement.goToDirect(Globals.rememberedEnemyArchonLocation);
+        Movement.goToDirect(Globals.currentDestination);
         if(turnCount != BIRTH_ROUND) RubbleMap.rubbleMapFormation(rc);
         if(turnCount != BIRTH_ROUND) RubbleMap.updateRubbleMap();
     }

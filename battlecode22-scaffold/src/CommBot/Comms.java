@@ -13,7 +13,9 @@ public class Comms extends Util{
     public static final int CHANNEL_SOLDIER_COUNT = 34;
     public static final int CHANNEL_BUILDER_COUNT = 35;
     public static final int CHANNEL_WATCHTOWER_COUNT = 36;
-    public static final int CHANNEL_ARCHON_STOP = 50;
+    // All Archons will have minimum 4 channels from 37-52 until they die
+    public static final int CHANNEL_ARCHON_START = 37;
+    public static final int channelArchonStop = 53; 
     
     /// Message Info
     /*

@@ -42,13 +42,13 @@ public class BotMiner extends Util{
         isMinedThisTurn = false;
         mineAdjacentLocations(); // Consumes around 500 bytecodes
 
-        // Direction dir = PathFinder.findPathAStar(Globals.currentLocation, Globals.rememberedEnemyArchonLocation);
+        // Direction dir = PathFinder.findPathAStar(Globals.currentLocation, Globals.currentDestination);
         // if (!isMinedThisTurn && rc.canMove(dir)) {
         //     rc.move(dir);
         //     // System.out.println("I moved!");
         // }
         // if (Clock.getBytecodesLeft() < 1000) System.out.println("1: " + String.valueOf(Clock.getBytecodesLeft()));
-        if (!isMinedThisTurn) Movement.goToDirect(Globals.rememberedEnemyArchonLocation); // Consumes around 400 bytecodes
+        if (!isMinedThisTurn) Movement.goToDirect(Globals.currentDestination); // Consumes around 400 bytecodes
         // if (Clock.getBytecodesLeft() < 1000) System.out.println("2: " + String.valueOf(Clock.getBytecodesLeft()));
         if(turnCount != BIRTH_ROUND) RubbleMap.rubbleMapFormation(rc); // To skip hungry init turn. Don't write to shared array in birth round since that area is well explored
         // System.out.println("R1: " + String.valueOf(Clock.getBytecodesLeft()));

@@ -1,7 +1,5 @@
 package CommBot;
 
-import java.util.Arrays;
-
 import battlecode.common.*;
 
 public class BotArchon extends Util{
@@ -18,35 +16,28 @@ public class BotArchon extends Util{
     public static double[] currentWeights = new double[ArchonBuildUnits.values().length];
     public static int myArchonID; // Each Archon will have their commID
     public static int commID; // Each Archon will have their commID
+    public static int startingArchons;
 
+    // This will give each Archon which number it is in the queue
     public static void initBotArchon() throws GameActionException {
         int transmitterCount = rc.readSharedArray(Comms.CHANNEL_TRANSMITTER_COUNT);
         myArchonID = transmitterCount % archonCount;
         commID = myArchonID;
+        startingArchons = rc.getArchonCount();
     }
 
+    // Update weights of each Archon
+    // TODO: Link currentweights with comms counter
+    // TODO: Let resources pile up for watchtowers
     public static void updateArchonBuildUnits(){
         int lTC = turnCount;
         aBUWeights[ArchonBuildUnits.BUILDER.ordinal()] = Math.min(2.5, 1.5 + lTC/200);
         aBUWeights[ArchonBuildUnits.MINER.ordinal()] = Math.max(2.5, 4.5 - lTC/100);
         aBUWeights[ArchonBuildUnits.SAGE.ordinal()] = Math.max(2.5, 4.5 - lTC/100);
-        aBUWeights[ArchonBuildUnits.SOLDIER.ordinal()] = Math.min(7.5, 1.5 + lTC/50);
-    }
-
-    /**
-    * Run a single turn for an Archon.
-    * This code is wrapped inside the infinite loop in run(), so it is called once per turn.
-    */
-    public static void runArchon(RobotController rc) throws GameActionException {
-        int transmitterCount = rc.readSharedArray(Comms.CHANNEL_TRANSMITTER_COUNT);
-        // I'm first Archon (by birth or death of ones before me). I'm number zero transmitter.
-        if(transmitterCount > commID) commID = 0;
-        rc.writeSharedArray(Comms.CHANNEL_TRANSMITTER_COUNT, commID+1);
-        updateArchonBuildUnits();
-        buildDivision();
-        // randomBuild();
+        aBUWeights[ArchonBuildUnits.SOLDIER.ordinal()] = Math.min(4.5, 2 + lTC/50);
     }
     
+
     public static void buildDivision() throws GameActionException{
         if (!rc.isActionReady() || currentLeadReserves < RobotType.MINER.buildCostLead) return;
         else buildUnit();
@@ -71,7 +62,7 @@ public class BotArchon extends Util{
 
             for (Direction dir : directions) {
                 if (!rc.canBuildRobot(unitType, dir)) continue;
-                SpawnValue = getValue(lCR, rememberedEnemyArchonLocation, dir); // TODO: Change destination
+                SpawnValue = getValue(lCR, currentDestination, dir); // TODO: Change destination
                 if (bestSpawnDir == null || SpawnValue < bestSpawnValue) {
                     bestSpawnDir = dir;
                     bestSpawnValue = SpawnValue;
@@ -144,5 +135,26 @@ public class BotArchon extends Util{
             rc.buildRobot(RobotType.MINER, dir);
         else if (rc.canBuildRobot(RobotType.SOLDIER, dir)) 
             rc.buildRobot(RobotType.SOLDIER, dir);
+    }
+
+    public static void archonComms() throws GameActionException{
+        int transmitterCount = rc.readSharedArray(Comms.CHANNEL_TRANSMITTER_COUNT);
+        // I'm first Archon (by birth or death of ones before me). I'm number zero transmitter.
+        if(transmitterCount > commID) commID = 0;
+        rc.writeSharedArray(Comms.CHANNEL_TRANSMITTER_COUNT, commID+1);
+        if (turnCount < 3 || hasMoved)
+            Comms.writeSHAFlagMessage(currentLocation, Comms.SHAFlag.ARCHON_LOCATION, Comms.CHANNEL_ARCHON_START+ archonCount* 4);        
+    
+    }
+
+    /**
+    * Run a single turn for an Archon.
+    * This code is wrapped inside the infinite loop in run(), so it is called once per turn.
+    */
+    public static void runArchon(RobotController rc) throws GameActionException {
+        archonComms() ;
+        updateArchonBuildUnits();
+        buildDivision();
+        // randomBuild();
     }
 }
