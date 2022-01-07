@@ -16,6 +16,14 @@ public class BotArchon extends Util{
     public static ArchonBuildUnits[] archonBuildUnits = ArchonBuildUnits.values();
     public static double[] aBUWeights = new double[ArchonBuildUnits.values().length];
     public static double[] currentWeights = new double[ArchonBuildUnits.values().length];
+    public static int myArchonID; // Each Archon will have their commID
+    public static int commID; // Each Archon will have their commID
+
+    public static void initBotArchon() throws GameActionException {
+        int transmitterCount = rc.readSharedArray(Comms.CHANNEL_TRANSMITTER_COUNT);
+        myArchonID = transmitterCount % archonCount;
+        commID = myArchonID;
+    }
 
     public static void updateArchonBuildUnits(){
         int lTC = turnCount;
@@ -30,7 +38,10 @@ public class BotArchon extends Util{
     * This code is wrapped inside the infinite loop in run(), so it is called once per turn.
     */
     public static void runArchon(RobotController rc) throws GameActionException {
-        rc.writeSharedArray(Comms.CHANNEL_RUBBLE_TRANSMITTER_COUNT, 0);
+        int transmitterCount = rc.readSharedArray(Comms.CHANNEL_TRANSMITTER_COUNT);
+        // I'm first Archon (by birth or death of ones before me). I'm number zero transmitter.
+        if(transmitterCount > commID) commID = 0;
+        rc.writeSharedArray(Comms.CHANNEL_TRANSMITTER_COUNT, commID+1);
         updateArchonBuildUnits();
         buildDivision();
         // randomBuild();
