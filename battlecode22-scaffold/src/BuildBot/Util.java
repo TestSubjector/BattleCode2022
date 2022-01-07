@@ -1,4 +1,4 @@
-package CommBot;
+package BuildBot;
 
 import battlecode.common.MapLocation;
 import battlecode.common.Clock;
