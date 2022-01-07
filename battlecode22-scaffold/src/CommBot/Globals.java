@@ -24,7 +24,7 @@ public class Globals {
     public static MapLocation START_LOCATION;
     public static MapLocation currentLocation;
     public static MapLocation currentDestination = null;
-    public static MapLocation rememberedArchonLocation = null;
+    public static MapLocation parentArchonLocation = null;
     public static MapLocation rememberedEnemyArchonLocation[];
 
     public static boolean botFreeze;
@@ -217,10 +217,10 @@ public class Globals {
         underAttack = false;
         visibleAllies = rc.senseNearbyRobots(-1, MY_TEAM);
         
-        if (UNIT_TYPE == RobotType.ARCHON) rememberedArchonLocation = currentLocation;
+        if (UNIT_TYPE == RobotType.ARCHON) parentArchonLocation = currentLocation;
         for (RobotInfo ally : visibleAllies) {
             if (ally.getType() == RobotType.ARCHON) {
-                rememberedArchonLocation = ally.getLocation();
+                parentArchonLocation = ally.getLocation();
             }
         }
         isMapSquare = (MAP_WIDTH == MAP_HEIGHT);
@@ -229,9 +229,9 @@ public class Globals {
         rememberedEnemyArchonLocation = new MapLocation[4];
         updateEnemyArchonLocation();
         if(BIRTH_ROUND % 2 == 0) {
-            currentDestination = ratioPointBetweenTwoMapLocations(rememberedArchonLocation, rememberedEnemyArchonLocation[0], 0.3);
+            currentDestination = ratioPointBetweenTwoMapLocations(parentArchonLocation, rememberedEnemyArchonLocation[0], 0.3);
         } else {
-            currentDestination = ratioPointBetweenTwoMapLocations(rememberedArchonLocation, rememberedEnemyArchonLocation[1], 0.3);
+            currentDestination = ratioPointBetweenTwoMapLocations(parentArchonLocation, rememberedEnemyArchonLocation[1], 0.3);
         }
     }
 
@@ -262,9 +262,9 @@ public class Globals {
     }
 
     public static void updateEnemyArchonLocation() {
-        rememberedEnemyArchonLocation[0] = new MapLocation(MAP_WIDTH - rememberedArchonLocation.x, rememberedArchonLocation.y);
-        rememberedEnemyArchonLocation[1] = new MapLocation(rememberedArchonLocation.x, MAP_HEIGHT - rememberedArchonLocation.y);
-        rememberedEnemyArchonLocation[2] = new MapLocation(MAP_WIDTH - rememberedArchonLocation.x, MAP_HEIGHT - rememberedArchonLocation.y);
+        rememberedEnemyArchonLocation[0] = new MapLocation(MAP_WIDTH - parentArchonLocation.x, parentArchonLocation.y);
+        rememberedEnemyArchonLocation[1] = new MapLocation(parentArchonLocation.x, MAP_HEIGHT - parentArchonLocation.y);
+        rememberedEnemyArchonLocation[2] = new MapLocation(MAP_WIDTH - parentArchonLocation.x, MAP_HEIGHT - parentArchonLocation.y);
     }
 
     public static MapLocation ratioPointBetweenTwoMapLocations(MapLocation src, MapLocation dest, double ratio){
