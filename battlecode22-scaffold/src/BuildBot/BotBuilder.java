@@ -10,6 +10,7 @@ public class BotBuilder extends Util{
     private static int desperationIndex;
     private static boolean healMode;
     private static MapLocation healLocation;
+    private static final int MIN_LATTICE_DIST = 10;
 
     public static void initBotBuilder(){
         if (isRubbleMapEnabled) RubbleMap.initRubbleMap();
@@ -92,6 +93,48 @@ public class BotBuilder extends Util{
     }
 
 
+    public static MapLocation buildInLattice(){
+        try {
+            MapLocation lCurrentLocation = currentLocation;
+            MapLocation lArchonLocation = Util.getClosestArchonLocation();
+            MapLocation bestLoc = null;
+            MapLocation myLoc = rc.getLocation();
+
+            int bestDist = 0;
+            if (lArchonLocation == null) return null;
+            int congruence = (lArchonLocation.x + lArchonLocation.y + 1) % 2;
+
+            if ((myLoc.x + myLoc.y)%2 == congruence && myLoc.distanceSquaredTo(lArchonLocation) >= MIN_LATTICE_DIST){
+                bestDist = myLoc.distanceSquaredTo(lArchonLocation);
+                bestLoc = myLoc;
+            }
+
+            for (int i = droidVisionDirs.length; i-- > 0; ) {
+                if (Clock.getBytecodesLeft() < 2000) break;
+                lCurrentLocation = lCurrentLocation.add(droidVisionDirs[i]);
+                if ((lCurrentLocation.x + lCurrentLocation.y) % 2 != congruence) continue;
+                if (!rc.onTheMap(lCurrentLocation)) continue;
+                if (rc.isLocationOccupied(lCurrentLocation)) continue;
+
+                int d = lCurrentLocation.distanceSquaredTo(lArchonLocation);
+
+                if (d < MIN_LATTICE_DIST) continue;
+
+                if (bestLoc == null  || d < bestDist){
+                    bestLoc = lCurrentLocation;
+                    bestDist = d;
+                }
+            }
+            if (bestLoc != null){
+                return bestLoc;
+            }
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+
     static void runBuilder(RobotController rc) throws GameActionException {
         builderComms();
         // TODO: Tackle cases when makaBuilding can't make the building
@@ -101,17 +144,17 @@ public class BotBuilder extends Util{
             return;
         }
 
-        // if(buildLocation == null){}
+        if(buildLocation == null) buildLocation = buildInLattice();
 
         if (buildLocation != null){
             if (moveToLocationForBuilding(buildLocation))
-                makeBuilding(buildLocation, buildType);
+                if(makeBuilding(buildLocation, buildType)) buildLocation = null;
             else{
                 desperationIndex++;
             }
             if (desperationIndex > 2){
                 destAdjacent = null;
-                createBuildingInRandomDirection(buildType);
+                if(createBuildingInRandomDirection(buildType)) buildLocation = null;
             }
         }
     

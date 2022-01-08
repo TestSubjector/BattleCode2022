@@ -194,6 +194,27 @@ public class Globals {
     public static final Direction NORTHWEST = Direction.NORTHWEST;
     public static final Direction CENTER = Direction.CENTER;
 
+    // Confirmed, this is correct
+    public static final Direction droidVisionDirs[] = new Direction[]{
+        Direction.NORTHWEST, Direction.NORTHWEST, Direction.NORTH, Direction.NORTH, 
+        Direction.NORTH, Direction.NORTH, Direction.NORTHEAST, Direction.NORTHEAST, 
+        Direction.EAST, Direction.EAST, Direction.EAST, Direction.EAST, 
+        Direction.SOUTHEAST, Direction.SOUTHEAST, Direction.SOUTH, Direction.SOUTH, 
+        Direction.SOUTH, Direction.SOUTH, Direction.SOUTHWEST, Direction.SOUTHWEST, 
+        Direction.WEST, Direction.WEST, Direction.WEST, Direction.NORTHWEST, 
+        Direction.NORTHWEST, Direction.NORTH, Direction.NORTH, Direction.NORTH, 
+        Direction.NORTH, Direction.NORTHEAST, Direction.EAST, Direction.EAST, 
+        Direction.EAST, Direction.EAST, Direction.SOUTHEAST, Direction.SOUTH, 
+        Direction.SOUTH, Direction.SOUTH, Direction.SOUTH, Direction.SOUTHWEST, 
+        Direction.WEST, Direction.WEST, Direction.WEST, Direction.NORTHWEST, 
+        Direction.NORTH, Direction.NORTH, Direction.NORTH, Direction.NORTH, 
+        Direction.EAST, Direction.EAST, Direction.EAST, Direction.EAST, 
+        Direction.SOUTH, Direction.SOUTH, Direction.SOUTH, Direction.SOUTH, 
+        Direction.WEST, Direction.WEST, Direction.WEST, Direction.NORTH, 
+        Direction.NORTH, Direction.NORTH, Direction.EAST, Direction.EAST,
+        Direction.SOUTH, Direction.SOUTH, Direction.WEST, Direction.NORTH, Direction.CENTER};
+
+
     /** Array containing all the possible movement directions. */
     public static final Direction[] directions = {
         NORTH,
