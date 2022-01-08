@@ -138,4 +138,15 @@ public class Comms extends Util{
     public static void updateChannelValueBy1(int channel) throws GameActionException{
         rc.writeSharedArray(channel, rc.readSharedArray(channel) + 1);
     }
+
+    public static void updateArchonLocations() throws GameActionException{
+        int count = 0;
+        for(int i = CHANNEL_ARCHON_START; i < channelArchonStop; i+=4){
+            int message = rc.readSharedArray(i);
+            if (readSHAFlagFromMessage(message) == SHAFlag.ARCHON_LOCATION){
+                archonLocations[count] = readLocationFromMessage(message);
+                count++;
+            }
+        }
+    }
 }

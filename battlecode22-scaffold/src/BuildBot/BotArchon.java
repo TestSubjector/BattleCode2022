@@ -192,6 +192,7 @@ public class BotArchon extends Util{
 
         // If you're the last Archon, clean the counts for this new turn
         if(commID + 1 == archonCount)  clearCommCounts();
+        Comms.updateArchonLocations();
     }
 
     /**

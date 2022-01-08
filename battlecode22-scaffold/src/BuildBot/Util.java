@@ -92,6 +92,20 @@ public class Util extends Globals {
         return loc.x < rc.getMapWidth() && loc.x >= 0 && loc.y < rc.getMapHeight() && loc.y >= 0;
     }
 
+    public static MapLocation getClosestArchonLocation(){
+        int minDistance = MAX_DISTANCE;
+        int curDistance = 0;
+        MapLocation closest = null;
+        for(int i = 0; i < archonCount; i++){
+            curDistance = rc.getLocation().distanceSquaredTo(archonLocations[i]);
+            if (curDistance < minDistance){
+                minDistance = curDistance;
+                closest = archonLocations[i];
+            }
+        }
+        return closest;
+    }
+
     public static void byteCodeTest(){
         int temp = 1;
         int index_i = 0, index_j =0;

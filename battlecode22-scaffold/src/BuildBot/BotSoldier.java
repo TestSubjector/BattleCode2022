@@ -6,11 +6,11 @@ public class BotSoldier extends Util{
 
 
     public static void initBotSoldier(){
-        RubbleMap.initRubbleMap();
+        if (isRubbleMapEnabled) RubbleMap.initRubbleMap();
     }
 
-
     public static void soldierComms() throws GameActionException {
+        Comms.updateArchonLocations();
         Comms.updateChannelValueBy1(Comms.CHANNEL_SOLDIER_COUNT);
         Comms.channelArchonStop = Comms.CHANNEL_ARCHON_START + 4*archonCount;
         Comms.commChannelStart = Comms.channelArchonStop; 
@@ -33,7 +33,9 @@ public class BotSoldier extends Util{
             }
         }
         Movement.goToDirect(Globals.currentDestination);
-        if(turnCount != BIRTH_ROUND) RubbleMap.rubbleMapFormation(rc);
-        if(turnCount != BIRTH_ROUND) RubbleMap.updateRubbleMap();
+        if (isRubbleMapEnabled && turnCount != BIRTH_ROUND){
+            RubbleMap.rubbleMapFormation(rc);
+            RubbleMap.updateRubbleMap();
+        }
     }
 }

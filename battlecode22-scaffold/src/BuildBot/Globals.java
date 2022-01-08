@@ -28,7 +28,8 @@ public class Globals {
     public static MapLocation currentLocation;
     public static MapLocation currentDestination = null;
     public static MapLocation parentArchonLocation = null;
-    public static MapLocation rememberedEnemyArchonLocation[];
+    public static MapLocation archonLocations[];
+    public static MapLocation rememberedEnemyArchonLocations[];
 
     public static boolean botFreeze;
 
@@ -104,6 +105,8 @@ public class Globals {
     /** The maximum amount of rubble per square. */
     public static final int MAX_RUBBLE = GameConstants.MAX_RUBBLE;
 
+    public static final int MAX_DISTANCE = 7201;
+
     public static int MAP_WIDTH;
     public static int MAP_HEIGHT;
     public static int MAP_SIZE;
@@ -114,7 +117,7 @@ public class Globals {
     // TODO: Flag for shape of map (square, rectangle, very rectangle(thin))
 
     // Rubble Parameters
-
+    public static boolean isRubbleMapEnabled;
     public static float[][] rubbleMap; 
     public static boolean[][] isRubbleLocRead; // Defaults to false
     public static int[][] convolutionKernel;
@@ -213,44 +216,41 @@ public class Globals {
         MAP_SIZE = MAP_WIDTH * MAP_HEIGHT;
         MY_TEAM = rc.getTeam();
         ENEMY_TEAM = MY_TEAM.opponent();
-        archonCount = rc.getArchonCount(); // 20 bytecodes
+        START_LOCATION = rc.getLocation();
         ID = rc.getID();
+
+        archonCount = rc.getArchonCount(); // 20 bytecodes
         robotLevel = rc.getLevel();
         myRobotCount = rc.getRobotCount(); // 20 bytecodes
-        START_LOCATION = rc.getLocation();
         currentLocation = START_LOCATION;
         botFreeze = false;
         myHealth = rc.getHealth();
         underAttack = false;
         visibleAllies = rc.senseNearbyRobots(-1, MY_TEAM);
         centerOfTheWorld = new MapLocation(MAP_WIDTH/2, MAP_HEIGHT/2);
+        isRubbleMapEnabled = true;
         Comms.initComms();
         
-        if (UNIT_TYPE == RobotType.ARCHON) 
-            parentArchonLocation = currentLocation;
-        // WatchTowers won't have parents a lot of times // TODO - Improve this, takes first Archon as parent currently
-        else if (UNIT_TYPE == RobotType.WATCHTOWER)  {
-            parentArchonLocation = Comms.readLocation(Comms.CHANNEL_ARCHON_START);
-        }
-        // TODO - Labs won't have parents
-        else {
-            for (RobotInfo ally : visibleAllies) {
-                if (ally.getType() == RobotType.ARCHON) {
-                    parentArchonLocation = ally.getLocation();
-                }
-            }
-        }
+        archonLocations = new MapLocation[archonCount];
+        getParentArchonLocation();
         isMapSquare = (MAP_WIDTH == MAP_HEIGHT);
-        // mapSymmetry = (BIRTH_ROUND % 2 == 0) ? 0 : 2;
-        // if(mapSymmetry == 1 && !isMapSquare) mapSymmetry = 2; // TODO: Junk code to make bot run, change later
-        rememberedEnemyArchonLocation = new MapLocation[4];
+        rememberedEnemyArchonLocations = new MapLocation[4];
         updateEnemyArchonLocation();
         if(BIRTH_ROUND % 2 == 0) {
-            currentDestination = ratioPointBetweenTwoMapLocations(parentArchonLocation, rememberedEnemyArchonLocation[0], 0.3);
+            currentDestination = ratioPointBetweenTwoMapLocations(parentArchonLocation, rememberedEnemyArchonLocations[0], 0.3);
         } else {
-            currentDestination = ratioPointBetweenTwoMapLocations(parentArchonLocation, rememberedEnemyArchonLocation[1], 0.3);
+            currentDestination = ratioPointBetweenTwoMapLocations(parentArchonLocation, rememberedEnemyArchonLocations[1], 0.3);
         }
     }
+
+    public static void getParentArchonLocation() throws GameActionException{
+        if (UNIT_TYPE == RobotType.ARCHON) parentArchonLocation = currentLocation;
+        else {
+            Comms.updateArchonLocations();
+            parentArchonLocation = Util.getClosestArchonLocation();
+        }
+    }
+
 
     public static void updateGlobals() {
         // TODO: Check if unit moved last turn
@@ -281,9 +281,9 @@ public class Globals {
 
     // This function can error when we suicide Archon after creating a unit
     public static void updateEnemyArchonLocation() throws NullPointerException {
-        rememberedEnemyArchonLocation[0] = new MapLocation(MAP_WIDTH - parentArchonLocation.x, parentArchonLocation.y);
-        rememberedEnemyArchonLocation[1] = new MapLocation(parentArchonLocation.x, MAP_HEIGHT - parentArchonLocation.y);
-        rememberedEnemyArchonLocation[2] = new MapLocation(MAP_WIDTH - parentArchonLocation.x, MAP_HEIGHT - parentArchonLocation.y);
+        rememberedEnemyArchonLocations[0] = new MapLocation(MAP_WIDTH - parentArchonLocation.x, parentArchonLocation.y);
+        rememberedEnemyArchonLocations[1] = new MapLocation(parentArchonLocation.x, MAP_HEIGHT - parentArchonLocation.y);
+        rememberedEnemyArchonLocations[2] = new MapLocation(MAP_WIDTH - parentArchonLocation.x, MAP_HEIGHT - parentArchonLocation.y);
     }
 
     public static MapLocation ratioPointBetweenTwoMapLocations(MapLocation src, MapLocation dest, double ratio){
