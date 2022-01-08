@@ -14,8 +14,8 @@ public class Comms extends Util{
     public static final int CHANNEL_WATCHTOWER_COUNT = 36;
     // All Archons will have minimum 4 channels from 37-52 until they die
     public static final int CHANNEL_ARCHON_START = 37;
-    public static final int channelArchonStop = 53;
-    public static final int commChannelStart = channelArchonStop;
+    public static int channelArchonStop = 53; // Can change depending on number of Archons alive, updated in BotComms()
+    public static int commChannelStart = channelArchonStop; // Can change depending on number of Archons alive, updated in BotComms()
     public static int commChannelHead;
     public static final int COMM_CHANNEL_STOP = 64;
     

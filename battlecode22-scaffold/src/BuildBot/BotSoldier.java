@@ -12,6 +12,8 @@ public class BotSoldier extends Util{
 
     public static void soldierComms() throws GameActionException {
         Comms.updateChannelValueBy1(Comms.CHANNEL_SOLDIER_COUNT);
+        Comms.channelArchonStop = Comms.CHANNEL_ARCHON_START + 4*archonCount;
+        Comms.commChannelStart = Comms.channelArchonStop; 
     }
 
     /**

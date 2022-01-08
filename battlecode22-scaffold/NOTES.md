@@ -6,3 +6,4 @@
     map takeover. Has to be generic.
 * After some number of reads of the rubble map, stop reading and updating the map. You're done.
 * Voronoi type partitions of the maps
+* * Set max bytecode that every function can use, so the no function of bot starves

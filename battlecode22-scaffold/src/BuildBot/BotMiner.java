@@ -48,6 +48,8 @@ public class BotMiner extends Util{
 
     public static void minerComms() throws GameActionException {
         Comms.updateChannelValueBy1(Comms.CHANNEL_MINER_COUNT);
+        Comms.channelArchonStop = Comms.CHANNEL_ARCHON_START + 4*archonCount;
+        Comms.commChannelStart = Comms.channelArchonStop; 
     }
 
 

@@ -157,7 +157,6 @@ public class BotArchon extends Util{
         minerCount = rc.readSharedArray(Comms.CHANNEL_MINER_COUNT); 
         builderCount = rc.readSharedArray(Comms.CHANNEL_BUILDER_COUNT); 
         soldierCount = rc.readSharedArray(Comms.CHANNEL_SOLDIER_COUNT); 
-        // sageCount = rc.readSharedArray(Comms._); 
         watchTowerCount = rc.readSharedArray(Comms.CHANNEL_WATCHTOWER_COUNT); 
     }
 
@@ -171,17 +170,20 @@ public class BotArchon extends Util{
     }
 
     public static void archonComms() throws GameActionException{
+        Comms.channelArchonStop = Comms.CHANNEL_ARCHON_START + 4*archonCount;
+        Comms.commChannelStart = Comms.channelArchonStop; 
+        
         int transmitterCount = rc.readSharedArray(Comms.CHANNEL_TRANSMITTER_COUNT);
         // I'm first Archon (by birth or death of ones before me). I'm number zero transmitter.
-        if(transmitterCount > commID) 
-            commID = 0;
-        else
-            commID = transmitterCount; 
-        // System.out.println("My CommId is" + commID);
+        if(transmitterCount > commID) commID = 0;
+        else commID = transmitterCount; 
+    
+
         rc.writeSharedArray(Comms.CHANNEL_TRANSMITTER_COUNT, commID+1);
         if (turnCount < 3 || hasMoved)
-            Comms.writeSHAFlagMessage(currentLocation, Comms.SHAFlag.ARCHON_LOCATION, Comms.CHANNEL_ARCHON_START + archonCount*4);        
-            getCommCounts();
+            Comms.writeSHAFlagMessage(currentLocation, Comms.SHAFlag.ARCHON_LOCATION, Comms.CHANNEL_ARCHON_START + commID*4);        
+        
+        getCommCounts();
 
         // If you're the last Archon, clean the counts for this new turn
         if(commID + 1 == archonCount)  clearCommCounts();

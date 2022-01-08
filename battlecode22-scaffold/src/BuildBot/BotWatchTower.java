@@ -11,6 +11,8 @@ public class BotWatchTower extends Util{
 
     public static void watchTowerComms() throws GameActionException {
         Comms.updateChannelValueBy1(Comms.CHANNEL_WATCHTOWER_COUNT);
+        Comms.channelArchonStop = Comms.CHANNEL_ARCHON_START + 4*archonCount;
+        Comms.commChannelStart = Comms.channelArchonStop; 
     }
 
 

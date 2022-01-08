@@ -2,8 +2,6 @@ package BuildBot;
 
 import battlecode.common.*;
 
-import org.apache.commons.lang3.StringUtils;
-
 public strictfp class RobotPlayer {
     @SuppressWarnings("unused")
     public static void run(RobotController rc) throws GameActionException {
