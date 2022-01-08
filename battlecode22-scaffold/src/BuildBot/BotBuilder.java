@@ -83,7 +83,7 @@ public class BotBuilder extends Util{
         // Movement.goToDirect(centerOfTheWorld);
         // Movement.moveRandomly();
         // Receive buildLocation and buildType somehow;
-        if (moveToLocationForBuilding(buildLocation)){
+        if (buildLocation != null && moveToLocationForBuilding(buildLocation)){
             makeBuilding(buildLocation, buildType);
         }
 

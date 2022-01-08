@@ -1,6 +1,9 @@
 package BuildBot;
 
 import java.util.Random;
+
+import org.apache.commons.lang3.ObjectUtils.Null;
+
 import battlecode.common.*;
 
 public class Globals {
@@ -200,7 +203,7 @@ public class Globals {
         NORTHWEST,
     };
 
-    public static void initGlobals(RobotController rc1){
+    public static void initGlobals(RobotController rc1) throws GameActionException{
         rc = rc1;
         BIRTH_ROUND = rc.getRoundNum();
         turnCount = BIRTH_ROUND;
@@ -222,10 +225,18 @@ public class Globals {
         visibleAllies = rc.senseNearbyRobots(-1, MY_TEAM);
         centerOfTheWorld = new MapLocation(MAP_WIDTH/2, MAP_HEIGHT/2);
 
-        if (UNIT_TYPE == RobotType.ARCHON) parentArchonLocation = currentLocation;
-        for (RobotInfo ally : visibleAllies) {
-            if (ally.getType() == RobotType.ARCHON) {
-                parentArchonLocation = ally.getLocation();
+        if (UNIT_TYPE == RobotType.ARCHON) 
+            parentArchonLocation = currentLocation;
+        // WatchTowers won't have parents a lot of times // TODO - Improve this, takes first Archon as parent currently
+        else if (UNIT_TYPE == RobotType.WATCHTOWER)  {
+            parentArchonLocation = Comms.readLocation(Comms.CHANNEL_ARCHON_START);
+        }
+        // TODO - Labs won't have parents
+        else {
+            for (RobotInfo ally : visibleAllies) {
+                if (ally.getType() == RobotType.ARCHON) {
+                    parentArchonLocation = ally.getLocation();
+                }
             }
         }
         isMapSquare = (MAP_WIDTH == MAP_HEIGHT);
@@ -267,7 +278,7 @@ public class Globals {
         visibleAllies = rc.senseNearbyRobots(-1, MY_TEAM); // 100 bytecodes
     }
 
-    public static void updateEnemyArchonLocation() {
+    public static void updateEnemyArchonLocation(){
         rememberedEnemyArchonLocation[0] = new MapLocation(MAP_WIDTH - parentArchonLocation.x, parentArchonLocation.y);
         rememberedEnemyArchonLocation[1] = new MapLocation(parentArchonLocation.x, MAP_HEIGHT - parentArchonLocation.y);
         rememberedEnemyArchonLocation[2] = new MapLocation(MAP_WIDTH - parentArchonLocation.x, MAP_HEIGHT - parentArchonLocation.y);

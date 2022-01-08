@@ -22,6 +22,8 @@ public class BotArchon extends Util{
     public static int soldierCount;
     public static int sageCount;
     public static int watchTowerCount;
+    public static int watchTowerWeight;
+    public static int turnsWaitingToBuild;
 
 
     // This will give each Archon which number it is in the queue
@@ -37,16 +39,27 @@ public class BotArchon extends Util{
     // TODO: Let resources pile up for watchtowers
     public static void updateArchonBuildUnits(){
         int lTC = turnCount;
+        watchTowerWeight = watchTowerCount;
         aBUWeights[ArchonBuildUnits.BUILDER.ordinal()] = Math.min(2.5, 1.5 + lTC/200);
         aBUWeights[ArchonBuildUnits.MINER.ordinal()] = Math.max(2.5, 4.5 - lTC/100);
         aBUWeights[ArchonBuildUnits.SAGE.ordinal()] = Math.max(2.5, 4.5 - lTC/100);
         aBUWeights[ArchonBuildUnits.SOLDIER.ordinal()] = Math.min(4.5, 2 + lTC/50);
     }
-    
+
 
     public static void buildDivision() throws GameActionException{
         if (!rc.isActionReady() || currentLeadReserves < RobotType.MINER.buildCostLead) return;
         else buildUnit();
+    }
+
+    public static RobotType giveUnitType(ArchonBuildUnits unitToBuild) throws GameActionException{
+        switch(unitToBuild){
+            case BUILDER: return RobotType.BUILDER; 
+            case MINER:   return RobotType.MINER;   
+            case SAGE:    return RobotType.SAGE;    
+            case SOLDIER: return RobotType.SOLDIER; 
+            default: return RobotType.SOLDIER; 
+        }
     }
 
     public static void buildUnit() throws GameActionException{
@@ -58,13 +71,7 @@ public class BotArchon extends Util{
             double SpawnValue = 0;
             MapLocation lCR = currentLocation; 
 
-            RobotType unitType=null;
-            switch(unitToBuild){
-                case BUILDER: unitType = RobotType.BUILDER; break;
-                case MINER:   unitType = RobotType.MINER;   break;
-                case SAGE:    unitType = RobotType.SAGE;    break;
-                case SOLDIER: unitType = RobotType.SOLDIER; break;
-            }
+            RobotType unitType=giveUnitType(unitToBuild);
 
             for (Direction dir : directions) {
                 if (!rc.canBuildRobot(unitType, dir)) continue;
@@ -77,6 +84,7 @@ public class BotArchon extends Util{
 
             if (bestSpawnDir != null){
                 rc.buildRobot(unitType, bestSpawnDir);
+                turnsWaitingToBuild = 0;
                 // System.out.println("Unit to build is " + unitType + " with weight " + currentWeights[unitToBuild.ordinal()]);
                 currentWeights[unitToBuild.ordinal()] += 1.0/aBUWeights[unitToBuild.ordinal()];
                 // if(ID ==2) System.out.println("Unit built is " + unitType + " Weights are " + Arrays.toString(currentWeights));
@@ -95,7 +103,7 @@ public class BotArchon extends Util{
         return dist/rc.senseRubble(archonLocation.add(dir));
     }
 
-    public static ArchonBuildUnits standardOrder(){
+    public static ArchonBuildUnits standardOrder() throws GameActionException{
         boolean canBuild[] = new boolean[aBUWeights.length];
         if(shouldBuildBuilder()) canBuild[ArchonBuildUnits.BUILDER.ordinal()] = true;
         if(shouldBuildMiner()) canBuild[ArchonBuildUnits.MINER.ordinal()] = true;
@@ -103,15 +111,22 @@ public class BotArchon extends Util{
         if(shouldBuildSage()) canBuild[ArchonBuildUnits.SAGE.ordinal()] = true;
 
         ArchonBuildUnits unitToBuild = null;
-        double minWeight = 1000;
+        double minWeight = 100000;
 
-        //TODO : Loop unrolling
+        // TODO : Loop unrolling
         for(int i = 0; i < archonBuildUnits.length; i++){
             if(!canBuild[i]) continue;
             if(unitToBuild == null || minWeight > currentWeights[i]){  // If unitToBuild is null, or this unit weight is *lesser*
                 minWeight = currentWeights[i];
                 unitToBuild = archonBuildUnits[i];
             }
+        }
+
+        if (minWeight < 100000 && watchTowerWeight < minWeight && builderCount != 0 && 
+            currentLeadReserves < giveUnitType(unitToBuild).buildCostLead + RobotType.WATCHTOWER.buildCostLead && turnsWaitingToBuild < 50) {
+                // System.out.println("Building watchtower");
+                turnsWaitingToBuild++;
+                return null;
         }
         // System.out.println("Unit to build is " + unitToBuild + " with weight " + minWeight);
         return unitToBuild;
@@ -123,6 +138,7 @@ public class BotArchon extends Util{
     }
 
     public static boolean shouldBuildMiner(){
+        // TODO: Add turnsWaitingToBuild because of less lead here
         return currentLeadReserves >= RobotType.MINER.buildCostLead;
     }
 
