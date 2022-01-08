@@ -101,29 +101,35 @@ public class BotBuilder extends Util{
             MapLocation myLoc = rc.getLocation();
 
             int bestDist = 0;
+            int byteCodeSaver=0;
             if (lArchonLocation == null) return null;
             int congruence = (lArchonLocation.x + lArchonLocation.y + 1) % 2;
 
             if ((myLoc.x + myLoc.y)%2 == congruence && myLoc.distanceSquaredTo(lArchonLocation) >= MIN_LATTICE_DIST){
                 bestDist = myLoc.distanceSquaredTo(lArchonLocation);
                 bestLoc = myLoc;
+                // return bestLoc;
             }
 
             for (int i = droidVisionDirs.length; i-- > 0; ) {
-                if (Clock.getBytecodesLeft() < 2000) break;
+                if (Clock.getBytecodesLeft() < 2000) return bestLoc;
                 lCurrentLocation = lCurrentLocation.add(droidVisionDirs[i]);
                 if ((lCurrentLocation.x + lCurrentLocation.y) % 2 != congruence) continue;
                 if (!rc.onTheMap(lCurrentLocation)) continue;
                 if (rc.isLocationOccupied(lCurrentLocation)) continue;
 
-                int d = lCurrentLocation.distanceSquaredTo(lArchonLocation);
+                int estimatedDistance = lCurrentLocation.distanceSquaredTo(lArchonLocation);
 
-                if (d < MIN_LATTICE_DIST) continue;
+                if (estimatedDistance < MIN_LATTICE_DIST) continue;
 
-                if (bestLoc == null  || d < bestDist){
+                if (bestLoc == null  || estimatedDistance < bestDist){
                     bestLoc = lCurrentLocation;
-                    bestDist = d;
+                    bestDist = estimatedDistance;
+                    byteCodeSaver++;
                 }
+                // if(byteCodeSaver == 5){
+                //     return bestLoc;
+                // }
             }
             if (bestLoc != null){
                 return bestLoc;
@@ -137,30 +143,32 @@ public class BotBuilder extends Util{
 
     static void runBuilder(RobotController rc) throws GameActionException {
         builderComms();
-        // TODO: Tackle cases when makaBuilding can't make the building
+        // TODO: Tackle cases when makeBuilding can't make the building
 
         if (healMode){
             healBuilding();
             return;
         }
 
+        // System.out.println("Bytecodes left: " + Clock.getBytecodesLeft());
         if(buildLocation == null) buildLocation = buildInLattice();
+        // System.out.println("Bytecodes left: " + Clock.getBytecodesLeft());
 
         if (buildLocation != null){
             if (moveToLocationForBuilding(buildLocation))
                 if(makeBuilding(buildLocation, buildType)) buildLocation = null;
-            else{
-                desperationIndex++;
-            }
-            if (desperationIndex > 2){
-                destAdjacent = null;
-                if(createBuildingInRandomDirection(buildType)) buildLocation = null;
-            }
+            // else{
+                // desperationIndex++;
+            // }
+            // if (desperationIndex > 10){
+            //     destAdjacent = null;
+            //     if(createBuildingInRandomDirection(buildType)) buildLocation = null;
+            // }
         }
     
         if (isRubbleMapEnabled && turnCount != BIRTH_ROUND){
             RubbleMap.rubbleMapFormation(rc);
-            RubbleMap.updateRubbleMap();
+            // RubbleMap.updateRubbleMap();
         }
     }
 }

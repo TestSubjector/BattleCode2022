@@ -38,7 +38,7 @@ public class BotArchon extends Util{
     public static void updateArchonBuildUnits(){
         int lTC = turnCount;
         watchTowerWeight = watchTowerCount;
-        aBUWeights[ArchonBuildUnits.BUILDER.ordinal()] = Math.min(2.5, 1.5 + lTC/200);
+        aBUWeights[ArchonBuildUnits.BUILDER.ordinal()] = Math.min(2.5, 0.75 + lTC/200);
         aBUWeights[ArchonBuildUnits.MINER.ordinal()] = Math.max(2.5, 4.5 - lTC/100);
         aBUWeights[ArchonBuildUnits.SAGE.ordinal()] = Math.max(2.5, 4.5 - lTC/100);
         aBUWeights[ArchonBuildUnits.SOLDIER.ordinal()] = Math.min(4.5, 2 + lTC/50);

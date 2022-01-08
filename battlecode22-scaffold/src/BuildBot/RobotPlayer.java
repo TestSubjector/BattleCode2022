@@ -14,7 +14,7 @@ public strictfp class RobotPlayer {
             case WATCHTOWER: BotWatchTower.initBotWatchTower(); break;
         }
         while (true) {
-
+            // if(rc.getRoundNum() > 80) return;
             Globals.updateGlobals();
             try {
                 switch (rc.getType()) {
