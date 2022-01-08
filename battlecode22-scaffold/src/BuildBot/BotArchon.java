@@ -25,7 +25,6 @@ public class BotArchon extends Util{
     public static int watchTowerWeight;
     public static int turnsWaitingToBuild;
 
-
     // This will give each Archon which number it is in the queue
     public static void initBotArchon() throws GameActionException {    
         int transmitterCount = rc.readSharedArray(Comms.CHANNEL_TRANSMITTER_COUNT);
@@ -36,7 +35,6 @@ public class BotArchon extends Util{
 
     // Update weights of each Archon
     // TODO: Link currentweights with comms counter
-    // TODO: Let resources pile up for watchtowers
     public static void updateArchonBuildUnits(){
         int lTC = turnCount;
         watchTowerWeight = watchTowerCount;
@@ -45,7 +43,6 @@ public class BotArchon extends Util{
         aBUWeights[ArchonBuildUnits.SAGE.ordinal()] = Math.max(2.5, 4.5 - lTC/100);
         aBUWeights[ArchonBuildUnits.SOLDIER.ordinal()] = Math.min(4.5, 2 + lTC/50);
     }
-
 
     public static void buildDivision() throws GameActionException{
         if (!rc.isActionReady() || currentLeadReserves < RobotType.MINER.buildCostLead) return;
@@ -65,7 +62,10 @@ public class BotArchon extends Util{
     public static void buildUnit() throws GameActionException{
         try {
             ArchonBuildUnits unitToBuild = standardOrder();
-            if (unitToBuild == null) return;
+            if (unitToBuild == null) {
+                turnsWaitingToBuild++;
+                return;
+            }
             Direction bestSpawnDir = null;
             double bestSpawnValue = 0;
             double SpawnValue = 0;
@@ -122,14 +122,21 @@ public class BotArchon extends Util{
             }
         }
 
-        if (minWeight < 100000 && watchTowerWeight < minWeight && builderCount != 0 && 
-            currentLeadReserves < giveUnitType(unitToBuild).buildCostLead + RobotType.WATCHTOWER.buildCostLead && turnsWaitingToBuild < 100) {
+        if (watchTowerDebt(minWeight, unitToBuild)) {
                 // System.out.println("Building watchtower instead of " + giveUnitType(unitToBuild));
                 turnsWaitingToBuild++;
                 return null;
         }
         // System.out.println("Unit to build is " + unitToBuild + " with weight " + minWeight);
         return unitToBuild;
+    }
+
+    public static boolean watchTowerDebt(double minWeight, ArchonBuildUnits unitToBuild) throws GameActionException{
+        return minWeight < 100000 && 
+                watchTowerWeight < minWeight && 
+                builderCount != 0 && 
+                currentLeadReserves < giveUnitType(unitToBuild).buildCostLead + RobotType.WATCHTOWER.buildCostLead && 
+                turnsWaitingToBuild < 100;
     }
 
     public static boolean shouldBuildBuilder(){
@@ -151,7 +158,6 @@ public class BotArchon extends Util{
         return false;
     }
 
-
     // Read the unit counts this round
     public static void getCommCounts() throws GameActionException{
         minerCount = rc.readSharedArray(Comms.CHANNEL_MINER_COUNT); 
@@ -159,7 +165,6 @@ public class BotArchon extends Util{
         soldierCount = rc.readSharedArray(Comms.CHANNEL_SOLDIER_COUNT); 
         watchTowerCount = rc.readSharedArray(Comms.CHANNEL_WATCHTOWER_COUNT); 
     }
-
 
     public static void clearCommCounts() throws GameActionException{
         rc.writeSharedArray(Comms.CHANNEL_MINER_COUNT, 0);
@@ -197,15 +202,6 @@ public class BotArchon extends Util{
         archonComms() ;
         updateArchonBuildUnits();
         buildDivision();
-        // randomBuild();
     }
 
-
-    // public static void randomBuild() throws GameActionException{
-    //     Direction dir = Globals.directions[Globals.rng.nextInt(Globals.directions.length)];
-    //     if (Globals.rng.nextBoolean() && rc.canBuildRobot(RobotType.MINER, dir)) 
-    //         rc.buildRobot(RobotType.MINER, dir);
-    //     else if (rc.canBuildRobot(RobotType.SOLDIER, dir)) 
-    //         rc.buildRobot(RobotType.SOLDIER, dir);
-    // }
 }
