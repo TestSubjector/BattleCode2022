@@ -124,7 +124,7 @@ public class BotArchon extends Util{
 
         if (minWeight < 100000 && watchTowerWeight < minWeight && builderCount != 0 && 
             currentLeadReserves < giveUnitType(unitToBuild).buildCostLead + RobotType.WATCHTOWER.buildCostLead && turnsWaitingToBuild < 100) {
-                // System.out.println("Building watchtower");
+                // System.out.println("Building watchtower instead of " + giveUnitType(unitToBuild));
                 turnsWaitingToBuild++;
                 return null;
         }
@@ -152,6 +152,24 @@ public class BotArchon extends Util{
     }
 
 
+    // Read the unit counts this round
+    public static void getCommCounts() throws GameActionException{
+        minerCount = rc.readSharedArray(Comms.CHANNEL_MINER_COUNT); 
+        builderCount = rc.readSharedArray(Comms.CHANNEL_BUILDER_COUNT); 
+        soldierCount = rc.readSharedArray(Comms.CHANNEL_SOLDIER_COUNT); 
+        // sageCount = rc.readSharedArray(Comms._); 
+        watchTowerCount = rc.readSharedArray(Comms.CHANNEL_WATCHTOWER_COUNT); 
+    }
+
+
+    public static void clearCommCounts() throws GameActionException{
+        rc.writeSharedArray(Comms.CHANNEL_MINER_COUNT, 0);
+        rc.writeSharedArray(Comms.CHANNEL_BUILDER_COUNT, 0);
+        rc.writeSharedArray(Comms.CHANNEL_SOLDIER_COUNT, 0);
+        // rc.writeSharedArray(Comms._, 0);
+        rc.writeSharedArray(Comms.CHANNEL_WATCHTOWER_COUNT, 0);
+    }
+
     public static void archonComms() throws GameActionException{
         int transmitterCount = rc.readSharedArray(Comms.CHANNEL_TRANSMITTER_COUNT);
         // I'm first Archon (by birth or death of ones before me). I'm number zero transmitter.
@@ -163,21 +181,10 @@ public class BotArchon extends Util{
         rc.writeSharedArray(Comms.CHANNEL_TRANSMITTER_COUNT, commID+1);
         if (turnCount < 3 || hasMoved)
             Comms.writeSHAFlagMessage(currentLocation, Comms.SHAFlag.ARCHON_LOCATION, Comms.CHANNEL_ARCHON_START + archonCount*4);        
-        // Read the unit counts this round
-        minerCount = rc.readSharedArray(Comms.CHANNEL_MINER_COUNT); 
-        builderCount = rc.readSharedArray(Comms.CHANNEL_BUILDER_COUNT); 
-        soldierCount = rc.readSharedArray(Comms.CHANNEL_SOLDIER_COUNT); 
-        // sageCount = rc.readSharedArray(Comms._); 
-        watchTowerCount = rc.readSharedArray(Comms.CHANNEL_WATCHTOWER_COUNT); 
+            getCommCounts();
+
         // If you're the last Archon, clean the counts for this new turn
-        if(commID + 1 == archonCount)
-        {
-            rc.writeSharedArray(Comms.CHANNEL_MINER_COUNT, 0);
-            rc.writeSharedArray(Comms.CHANNEL_BUILDER_COUNT, 0);
-            rc.writeSharedArray(Comms.CHANNEL_SOLDIER_COUNT, 0);
-            // rc.writeSharedArray(Comms._, 0);
-            rc.writeSharedArray(Comms.CHANNEL_WATCHTOWER_COUNT, 0);
-        }
+        if(commID + 1 == archonCount)  clearCommCounts();
     }
 
     /**

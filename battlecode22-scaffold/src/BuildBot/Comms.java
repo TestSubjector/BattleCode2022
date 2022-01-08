@@ -15,8 +15,8 @@ public class Comms extends Util{
     // All Archons will have minimum 4 channels from 37-52 until they die
     public static final int CHANNEL_ARCHON_START = 37;
     public static final int channelArchonStop = 53;
-    public static final int COMM_CHANNEL_START = channelArchonStop;
-    public static int COMM_CHANNEL_HEAD;
+    public static final int commChannelStart = channelArchonStop;
+    public static int commChannelHead;
     public static final int COMM_CHANNEL_STOP = 64;
     
     /// Message Info
@@ -44,7 +44,7 @@ public class Comms extends Util{
 
 
     public static void initComms(){
-        COMM_CHANNEL_HEAD = channelArchonStop;
+        commChannelHead = channelArchonStop;
     }
 
 
@@ -71,7 +71,7 @@ public class Comms extends Util{
 
 
     public static boolean checkIfLeadLocationTaken(MapLocation leadLocation) throws GameActionException{
-        for(int i = COMM_CHANNEL_START; i < COMM_CHANNEL_STOP; ++i){
+        for(int i = commChannelStart; i < COMM_CHANNEL_STOP; ++i){
             int message = rc.readSharedArray(i);
             if (readSHAFlagFromMessage(message) == SHAFlag.TAKEN_LEAD_LOCATION && leadLocation.equals(readLocationFromMessage(message))){
                 return true;
@@ -82,9 +82,9 @@ public class Comms extends Util{
 
 
     public static int getCommChannel(){
-        int channel = COMM_CHANNEL_HEAD++;
-        if (COMM_CHANNEL_HEAD == COMM_CHANNEL_STOP)
-            COMM_CHANNEL_HEAD = COMM_CHANNEL_START;
+        int channel = commChannelHead++;
+        if (commChannelHead == COMM_CHANNEL_STOP)
+            commChannelHead = commChannelStart;
         return channel;
     }
 

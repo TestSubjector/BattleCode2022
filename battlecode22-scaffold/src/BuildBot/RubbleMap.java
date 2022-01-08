@@ -1,7 +1,5 @@
 package BuildBot;
 
-import java.util.Arrays;
-
 import battlecode.common.*;
 
 public class RubbleMap extends Util {

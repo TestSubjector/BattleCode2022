@@ -279,7 +279,8 @@ public class Globals {
         visibleAllies = rc.senseNearbyRobots(-1, MY_TEAM); // 100 bytecodes
     }
 
-    public static void updateEnemyArchonLocation(){
+    // This function can error when we suicide Archon after creating a unit
+    public static void updateEnemyArchonLocation() throws NullPointerException {
         rememberedEnemyArchonLocation[0] = new MapLocation(MAP_WIDTH - parentArchonLocation.x, parentArchonLocation.y);
         rememberedEnemyArchonLocation[1] = new MapLocation(parentArchonLocation.x, MAP_HEIGHT - parentArchonLocation.y);
         rememberedEnemyArchonLocation[2] = new MapLocation(MAP_WIDTH - parentArchonLocation.x, MAP_HEIGHT - parentArchonLocation.y);

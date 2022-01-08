@@ -4,7 +4,7 @@ import battlecode.common.*;
 
 public class BotWatchTower extends Util{
 
-    public static void initBotBuilder(){
+    public static void initBotWatchTower(){
         RubbleMap.initRubbleMap();
     }
 
@@ -14,7 +14,7 @@ public class BotWatchTower extends Util{
     }
 
 
-    static void runBuilder(RobotController rc) throws GameActionException {
+    static void runWatchTower(RobotController rc) throws GameActionException {
         watchTowerComms();
 
         if(turnCount != BIRTH_ROUND) RubbleMap.rubbleMapFormation(rc);
