@@ -12,6 +12,7 @@ public class PathFinder extends Util {
     private static int maxSquaredDist = 100;
     // private static PriorityQueue<node> pq;
 
+
     private static void initPathFinder(){
         Heap.initHeap();
         // closedList.initHeap();
@@ -22,6 +23,29 @@ public class PathFinder extends Util {
         // System.out.println("4: " + Clock.getBytecodesLeft()+ " TurnCount: " + rc.getRoundNum());
         // parent = new int[MAP_WIDTH][MAP_HEIGHT];
         
+    }
+
+
+    // Currently searches for the adjacent location with least rubble acc. to RubbleMap
+    public static MapLocation findOptimumAdjacentLocation(MapLocation dest){
+        int x = dest.x, y = dest.y;
+        float minVal = 10;
+        int minX = -1, minY = -1;
+        for (int dx = -2; dx++ < 1;){
+            for (int dy = -2; dy++ < 1;){
+                int curX = x + dx, curY = y + dy;
+                if (!isValidMapLocation(curX, curY)) continue;
+                float curRubble = rubbleMap[curX][curY];
+                if (curRubble < minVal){
+                    minVal = curRubble;
+                    minX = curX;
+                    minY = curY;
+                }
+            }
+        }
+        if (minVal != 10)
+            return new MapLocation(minX, minY);
+        else return null;
     }
 
 

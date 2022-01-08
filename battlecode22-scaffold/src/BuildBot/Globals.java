@@ -105,6 +105,7 @@ public class Globals {
     public static int MAP_HEIGHT;
     public static int MAP_SIZE;
     public static boolean isMapSquare = true;
+    public static MapLocation centerOfTheWorld;
     public static int mapSymmetry = 0; // 0 = vertical symmetry, 1 = horizontal symmetry, 2 = rotational symmetry
     public static int currentLeadReserves;
     // TODO: Flag for shape of map (square, rectangle, very rectangle(thin))
@@ -115,6 +116,9 @@ public class Globals {
     public static boolean[][] isRubbleLocRead; // Defaults to false
     public static int[][] convolutionKernel;
     public static int RubbleTransmissionIndex;
+
+    // PathFinder Parameters:
+    public static final boolean usingOnlyBugNav = true;
 
     // Game Parameters
     
@@ -216,7 +220,8 @@ public class Globals {
         myHealth = rc.getHealth();
         underAttack = false;
         visibleAllies = rc.senseNearbyRobots(-1, MY_TEAM);
-        
+        centerOfTheWorld = new MapLocation(MAP_WIDTH/2, MAP_HEIGHT/2);
+
         if (UNIT_TYPE == RobotType.ARCHON) parentArchonLocation = currentLocation;
         for (RobotInfo ally : visibleAllies) {
             if (ally.getType() == RobotType.ARCHON) {

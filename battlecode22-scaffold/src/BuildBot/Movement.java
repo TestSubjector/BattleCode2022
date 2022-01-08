@@ -62,6 +62,22 @@ public class Movement extends Util{
     	return false;
     }
 
+
+	public static boolean moveToDest(MapLocation dest) throws GameActionException{
+		if (usingOnlyBugNav){
+			return goToDirect(dest);
+		}
+		else{
+			Direction dir = PathFinder.findPathAStar(currentLocation, dest);
+			if (rc.canMove(dir)){
+				rc.move(dir);
+				return true;
+			}
+			else return false;
+		}
+	}
+
+	
     private static boolean preferLeft(MapLocation dest) {
         Direction toDest = currentLocation.directionTo(dest);
         MapLocation leftLoc = currentLocation.add(toDest.rotateLeft());
