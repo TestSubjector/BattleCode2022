@@ -4,20 +4,24 @@ import battlecode.common.*;
 
 public class BotBuilder extends Util{
 
-    private static boolean RubbleEnabled;
+    private static boolean RubbleMapEnabled;
     private static MapLocation destAdjacent;
     private static MapLocation buildLocation;
     private static RobotType buildType;
     private static int desperationIndex;
+    private static boolean healMode;
+    private static MapLocation healLocation;
 
     public static void initBotBuilder(){
-        RubbleEnabled = true;
-        if (RubbleEnabled) RubbleMap.initRubbleMap();
+        RubbleMapEnabled = true;
+        if (RubbleMapEnabled) RubbleMap.initRubbleMap();
         destAdjacent = null;
 
         // TODO: Remove Hardcoded Init:
         buildLocation = centerOfTheWorld;
         buildType = RobotType.WATCHTOWER;
+        healMode = false;
+        healLocation = null;
     }
 
 
@@ -40,13 +44,23 @@ public class BotBuilder extends Util{
     }
 
 
+    public static boolean buildRobot(RobotType type, Direction dir) throws GameActionException{
+        if (rc.canBuildRobot(type, dir)){
+            rc.buildRobot(type, dir);
+            desperationIndex = 0;
+            healMode = true;
+            healLocation = currentLocation.add(dir);
+            return true;
+        }
+        return false;
+    }
+
+
+
     public static boolean createBuildingInRandomDirection(RobotType type) throws GameActionException{
-        for (Direction direc : directions) {
-            if (rc.canBuildRobot(type, direc)){
-                rc.buildRobot(type, direc);
-                desperationIndex = 0;
+        for (Direction dir : directions) {
+            if (buildRobot(type, dir))
                 return true;
-            }
         }
         return false;
     }
@@ -55,19 +69,33 @@ public class BotBuilder extends Util{
     private static boolean makeBuilding(MapLocation dest, RobotType type) throws GameActionException{
         Direction dir = currentLocation.directionTo(dest);
         destAdjacent = null;
-        if (rc.canBuildRobot(type, dir)){
-            rc.buildRobot(type, dir);
-            desperationIndex = 0;
-            return true;
-        }
-        else{
+        if (!buildRobot(type, dir))
             return createBuildingInRandomDirection(type);
-        }
+        return true;
     }
     
     
     public static void builderComms() throws GameActionException {
         Comms.updateChannelValueBy1(Comms.CHANNEL_BUILDER_COUNT);
+    }
+
+
+    public static void repair(MapLocation loc) throws GameActionException{
+        if (rc.canRepair(loc))
+            rc.repair(loc);
+    }
+
+
+    public static void healBuilding() throws GameActionException{
+        // TODO: Add code for actual healing of injured buildings; Currently it only repairs prototypes
+        RobotInfo target = rc.senseRobotAtLocation(healLocation);
+        if (target != null && target.getMode() == RobotMode.PROTOTYPE){
+            repair(healLocation);
+        }
+        else{
+            healLocation = null;
+            healMode = false;
+        }
     }
 
 
@@ -78,6 +106,12 @@ public class BotBuilder extends Util{
         // Receive buildLocation and buildType somehow;
         
         // TODO: Tackle cases when makaBuilding can't make the building
+
+        if (healMode){
+            healBuilding();
+            return;
+        }
+
         if (buildLocation != null){
             if (moveToLocationForBuilding(buildLocation))
                 makeBuilding(buildLocation, buildType);
@@ -91,7 +125,7 @@ public class BotBuilder extends Util{
         }
 
     
-        if (RubbleEnabled && turnCount != BIRTH_ROUND){
+        if (RubbleMapEnabled && turnCount != BIRTH_ROUND){
             RubbleMap.rubbleMapFormation(rc);
             RubbleMap.updateRubbleMap();
         }
