@@ -224,7 +224,8 @@ public class Globals {
         underAttack = false;
         visibleAllies = rc.senseNearbyRobots(-1, MY_TEAM);
         centerOfTheWorld = new MapLocation(MAP_WIDTH/2, MAP_HEIGHT/2);
-
+        Comms.initComms();
+        
         if (UNIT_TYPE == RobotType.ARCHON) 
             parentArchonLocation = currentLocation;
         // WatchTowers won't have parents a lot of times // TODO - Improve this, takes first Archon as parent currently
