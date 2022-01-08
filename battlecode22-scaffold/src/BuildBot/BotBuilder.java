@@ -71,21 +71,23 @@ public class BotBuilder extends Util{
         destAdjacent = null;
         return false;
     }
+    
+    
+    public static void builderComms() throws GameActionException {
+        Comms.updateChannelValueBy1(Comms.CHANNEL_BUILDER_COUNT);
+    }
 
 
     static void runBuilder(RobotController rc) throws GameActionException {
-        
+        builderComms();
         // Movement.goToDirect(centerOfTheWorld);
-
         // Movement.moveRandomly();
-
         // Receive buildLocation and buildType somehow;
         if (moveToLocationForBuilding(buildLocation)){
             makeBuilding(buildLocation, buildType);
         }
 
-        
-        
+    
         if (RubbleEnabled && turnCount != BIRTH_ROUND){
             RubbleMap.rubbleMapFormation(rc);
             RubbleMap.updateRubbleMap();

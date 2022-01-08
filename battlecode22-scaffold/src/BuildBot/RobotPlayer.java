@@ -13,6 +13,7 @@ public strictfp class RobotPlayer {
             case MINER:      BotMiner.initBotMiner();       break;
             case BUILDER:    BotBuilder.initBotBuilder();   break;
             case SOLDIER:    BotSoldier.initBotSoldier();   break;
+            case ARCHON:     BotArchon.initBotArchon();     break;
         }
         while (true) {
             Globals.updateGlobals();

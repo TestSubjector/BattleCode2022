@@ -5,7 +5,7 @@ import battlecode.common.*;
 public class BotMiner extends Util{
 
     public static boolean isMinedThisTurn;
-    
+    public static int numOfMiners;
 
     public static void initBotMiner(){
         isMinedThisTurn = false;
@@ -32,6 +32,11 @@ public class BotMiner extends Util{
     }
 
 
+    public static void minerComms() throws GameActionException {
+        Comms.updateChannelValueBy1(Comms.CHANNEL_MINER_COUNT);
+    }
+
+
     /**
     * Run a single turn for a Miner.
     * This code is wrapped inside the infinite loop in run(), so it is called once per turn.
@@ -39,6 +44,7 @@ public class BotMiner extends Util{
     static void runMiner(RobotController rc) throws GameActionException {
         // Try to mine on squares around us.
         //TODO: Move away from Archon to make space for it in first turn
+        minerComms();
         isMinedThisTurn = false;
         mineAdjacentLocations(); // Consumes around 500 bytecodes
 

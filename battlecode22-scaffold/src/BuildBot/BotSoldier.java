@@ -9,11 +9,17 @@ public class BotSoldier extends Util{
         RubbleMap.initRubbleMap();
     }
 
+
+    public static void soldierComms() throws GameActionException {
+        Comms.updateChannelValueBy1(Comms.CHANNEL_SOLDIER_COUNT);
+    }
+
     /**
     * Run a single turn for a Soldier.
     * This code is wrapped inside the infinite loop in run(), so it is called once per turn.
     */
     static void runSoldier(RobotController rc) throws GameActionException {
+        soldierComms();
         // Try to attack someone
         int radius = rc.getType().actionRadiusSquared;
         Team opponent = rc.getTeam().opponent();

@@ -2,7 +2,6 @@ package BuildBot;
 
 import battlecode.common.*;
 
-
 // TODO: Add storage of type of robot count
 public class Comms extends Util{
 
@@ -85,5 +84,9 @@ public class Comms extends Util{
     
     public static MapLocation getLocFromRubbleMessage(int loc) throws GameActionException{
         return mapLocationFromInt((loc & (0x7FF8))>>>3);
+    }
+
+    public static void updateChannelValueBy1(int channel) throws GameActionException{
+        rc.writeSharedArray(channel, rc.readSharedArray(channel) + 1);
     }
 }

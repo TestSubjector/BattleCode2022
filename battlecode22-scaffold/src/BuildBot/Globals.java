@@ -258,6 +258,7 @@ public class Globals {
         myHealth = curHealth;
 
         currentLeadReserves = rc.getTeamLeadAmount(MY_TEAM);
+        archonCount = rc.getArchonCount();
 	}
 
     // Heavy bytecode method

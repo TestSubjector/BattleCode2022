@@ -17,9 +17,15 @@ public class BotArchon extends Util{
     public static int myArchonID; // Each Archon will have their commID
     public static int commID; // Each Archon will have their commID
     public static int startingArchons;
+    public static int minerCount;
+    public static int builderCount;
+    public static int soldierCount;
+    public static int sageCount;
+    public static int watchTowerCount;
+
 
     // This will give each Archon which number it is in the queue
-    public static void initBotArchon() throws GameActionException {
+    public static void initBotArchon() throws GameActionException {    
         int transmitterCount = rc.readSharedArray(Comms.CHANNEL_TRANSMITTER_COUNT);
         myArchonID = transmitterCount % archonCount;
         commID = myArchonID;
@@ -129,22 +135,33 @@ public class BotArchon extends Util{
         return false;
     }
 
-    public static void randomBuild() throws GameActionException{
-        Direction dir = Globals.directions[Globals.rng.nextInt(Globals.directions.length)];
-        if (Globals.rng.nextBoolean() && rc.canBuildRobot(RobotType.MINER, dir)) 
-            rc.buildRobot(RobotType.MINER, dir);
-        else if (rc.canBuildRobot(RobotType.SOLDIER, dir)) 
-            rc.buildRobot(RobotType.SOLDIER, dir);
-    }
 
     public static void archonComms() throws GameActionException{
         int transmitterCount = rc.readSharedArray(Comms.CHANNEL_TRANSMITTER_COUNT);
         // I'm first Archon (by birth or death of ones before me). I'm number zero transmitter.
-        if(transmitterCount > commID) commID = 0;
+        if(transmitterCount > commID) 
+            commID = 0;
+        else
+            commID = transmitterCount; 
+        // System.out.println("My CommId is" + commID);
         rc.writeSharedArray(Comms.CHANNEL_TRANSMITTER_COUNT, commID+1);
         if (turnCount < 3 || hasMoved)
-            Comms.writeSHAFlagMessage(currentLocation, Comms.SHAFlag.ARCHON_LOCATION, Comms.CHANNEL_ARCHON_START+ archonCount* 4);        
-    
+            Comms.writeSHAFlagMessage(currentLocation, Comms.SHAFlag.ARCHON_LOCATION, Comms.CHANNEL_ARCHON_START + archonCount*4);        
+        // Read the unit counts this round
+        minerCount = rc.readSharedArray(Comms.CHANNEL_MINER_COUNT); 
+        builderCount = rc.readSharedArray(Comms.CHANNEL_BUILDER_COUNT); 
+        soldierCount = rc.readSharedArray(Comms.CHANNEL_SOLDIER_COUNT); 
+        // sageCount = rc.readSharedArray(Comms._); 
+        watchTowerCount = rc.readSharedArray(Comms.CHANNEL_WATCHTOWER_COUNT); 
+        // If you're the last Archon, clean the counts for this new turn
+        if(commID + 1 == archonCount)
+        {
+            rc.writeSharedArray(Comms.CHANNEL_MINER_COUNT, 0);
+            rc.writeSharedArray(Comms.CHANNEL_BUILDER_COUNT, 0);
+            rc.writeSharedArray(Comms.CHANNEL_SOLDIER_COUNT, 0);
+            // rc.writeSharedArray(Comms._, 0);
+            rc.writeSharedArray(Comms.CHANNEL_WATCHTOWER_COUNT, 0);
+        }
     }
 
     /**
@@ -157,4 +174,13 @@ public class BotArchon extends Util{
         buildDivision();
         // randomBuild();
     }
+
+
+    // public static void randomBuild() throws GameActionException{
+    //     Direction dir = Globals.directions[Globals.rng.nextInt(Globals.directions.length)];
+    //     if (Globals.rng.nextBoolean() && rc.canBuildRobot(RobotType.MINER, dir)) 
+    //         rc.buildRobot(RobotType.MINER, dir);
+    //     else if (rc.canBuildRobot(RobotType.SOLDIER, dir)) 
+    //         rc.buildRobot(RobotType.SOLDIER, dir);
+    // }
 }
