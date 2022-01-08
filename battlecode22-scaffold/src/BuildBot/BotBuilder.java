@@ -8,6 +8,7 @@ public class BotBuilder extends Util{
     private static MapLocation destAdjacent;
     private static MapLocation buildLocation;
     private static RobotType buildType;
+    private static int desperationIndex;
 
     public static void initBotBuilder(){
         RubbleEnabled = true;
@@ -17,19 +18,6 @@ public class BotBuilder extends Util{
         // TODO: Remove Hardcoded Init:
         buildLocation = centerOfTheWorld;
         buildType = RobotType.WATCHTOWER;
-    }
-
-
-    public static MapLocation findAdjacentLocationForBuilding(MapLocation dest){
-        int x = dest.x, y = dest.y;
-        for (int dx = -2; dx++ < 1;)
-            for (int dy = -2; dy++ < 1;){
-                int curX = dx + x, curY = dy + y;
-                MapLocation loc = new MapLocation(curX, curY);
-                if (!rc.canSenseRobotAtLocation(loc))
-                    return loc;
-            }
-        return null;
     }
 
 
@@ -52,24 +40,29 @@ public class BotBuilder extends Util{
     }
 
 
+    public static boolean createBuildingInRandomDirection(RobotType type) throws GameActionException{
+        for (Direction direc : directions) {
+            if (rc.canBuildRobot(type, direc)){
+                rc.buildRobot(type, direc);
+                desperationIndex = 0;
+                return true;
+            }
+        }
+        return false;
+    }
+
+
     private static boolean makeBuilding(MapLocation dest, RobotType type) throws GameActionException{
         Direction dir = currentLocation.directionTo(dest);
-        // if (rc.)
+        destAdjacent = null;
         if (rc.canBuildRobot(type, dir)){
             rc.buildRobot(type, dir);
+            desperationIndex = 0;
             return true;
         }
         else{
-            dest = findAdjacentLocationForBuilding(dest);
-            if (dest == null) return false;
-            if (rc.canBuildRobot(type, dir)){
-                rc.buildRobot(type, dir);
-                return true;
-            }
-            // makeBuilding(dest, type);
+            return createBuildingInRandomDirection(type);
         }
-        destAdjacent = null;
-        return false;
     }
     
     
@@ -83,8 +76,18 @@ public class BotBuilder extends Util{
         // Movement.goToDirect(centerOfTheWorld);
         // Movement.moveRandomly();
         // Receive buildLocation and buildType somehow;
-        if (buildLocation != null && moveToLocationForBuilding(buildLocation)){
-            makeBuilding(buildLocation, buildType);
+        
+        // TODO: Tackle cases when makaBuilding can't make the building
+        if (buildLocation != null){
+            if (moveToLocationForBuilding(buildLocation))
+                makeBuilding(buildLocation, buildType);
+            else{
+                desperationIndex++;
+            }
+            if (desperationIndex > 2){
+                destAdjacent = null;
+                createBuildingInRandomDirection(buildType);
+            }
         }
 
     

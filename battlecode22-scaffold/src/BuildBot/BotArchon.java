@@ -123,7 +123,7 @@ public class BotArchon extends Util{
         }
 
         if (minWeight < 100000 && watchTowerWeight < minWeight && builderCount != 0 && 
-            currentLeadReserves < giveUnitType(unitToBuild).buildCostLead + RobotType.WATCHTOWER.buildCostLead && turnsWaitingToBuild < 50) {
+            currentLeadReserves < giveUnitType(unitToBuild).buildCostLead + RobotType.WATCHTOWER.buildCostLead && turnsWaitingToBuild < 100) {
                 // System.out.println("Building watchtower");
                 turnsWaitingToBuild++;
                 return null;
