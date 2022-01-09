@@ -226,6 +226,7 @@ public class BotMiner extends Util{
             System.out.println("Suicide Attempt Failed!");
             commitSuicide = false;
             desperationIndex++;
+            Movement.moveToDest(parentArchonLocation);
         }
     }
 

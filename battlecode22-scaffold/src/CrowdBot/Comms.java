@@ -192,7 +192,7 @@ public class Comms extends Util{
 
 
     // This still consumes ~1250 bytecodes at maximum!!! Trying out Comms channel head concept now.
-    // Experiment Conclusion: 
+    // Experiment Conclusion: Success!!! Look at the functions below
     public static int writeCommMessageOverrwriteLesserPriorityMessage(int message, SHAFlag flag) throws GameActionException{
         int channel = getCommChannelOfLesserPriority(flag);
         if (channel == -1) return channel;
