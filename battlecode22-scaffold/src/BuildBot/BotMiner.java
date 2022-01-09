@@ -9,16 +9,24 @@ public class BotMiner extends Util{
     public static int numOfMiners;
     private static MapLocation miningLocation;
     private static boolean inPlaceForMining;
-    // private static int numMineStoppings;
-    private static int toWipeChannel;
+    private static boolean commitSuicide;
+    private static MapLocation suicideLocation;
+    public static int desperationIndex;
+
 
     public static void initBotMiner(){
         isMinedThisTurn = false;
         if (isRubbleMapEnabled) RubbleMap.initRubbleMap();
+        resetVariables();
+    }
+
+
+    private static void resetVariables(){
         miningLocation = null;
         inPlaceForMining = false;
-        // numMineStoppings = 0;
-        toWipeChannel = -1;
+        commitSuicide = false;
+        suicideLocation = null;
+        desperationIndex = 0;
     }
 
     
@@ -33,12 +41,10 @@ public class BotMiner extends Util{
         if (leadAmount == 0) {  // No more lead on location for some reason
             miningLocation = null;
             inPlaceForMining = false;
+            desperationIndex++;
         }
         while (rc.canMineLead(loc)) {
-            if (leadAmount == 1){
-                // numMineStoppings++;
-                break;
-            }
+            if (leadAmount == 1) break;
             isMinedThisTurn = true;
             rc.mineLead(loc);
             leadAmount--;
@@ -54,52 +60,14 @@ public class BotMiner extends Util{
     }
 
 
-    public static void setIndex(int[] arr, int val, int x, int y){
-        arr[x] = (arr[x] | (val << y));
-    }
-
-
-    public static boolean nearbyMiner(int x, int y, int[] tally){
-        // int curX = 4000, curY = 4000;
-        // int dx, dy;
-        boolean answer = ((tally[x] & (1 << y)) == 1);
-        // System.out.println("The tally answer is : " + answer);
-        return answer;
-        // for(dx = -2; dx++ < 1;){
-        //     for(dy = -2; dy++ < 1;){
-        //         curX = x + dx;
-        //         curY = y + dy;
-        //         if (curX < 0 || curX > 8 || curY < 0 || curY > 8)
-        //             continue;
-        //         if ((tally[curX] & (1 << curY)) == 1){
-        //             return true;
-        //         }
-        //     }
-        // }
-        // return false;
-    }
-
-
     public static MapLocation findOpenMiningLocationNearby() throws GameActionException{
-        // TODO: Could implement proper vetting of PotentialOpenMining Locations by tracking its lead values
+        if (rc.senseLead(currentLocation) > 0 && parentArchonLocation.distanceSquaredTo(currentLocation) > 1){
+            return currentLocation;
+        }
         MapLocation[] potentialMiningLocations = rc.senseNearbyLocationsWithLead(MINER_VISION_RADIUS);
-        int[] tally = new int[9];
-
-        // int x = currentLocation.x, y = currentLocation.y;
-        // int ox = x-4, oy = y-4;
-        // visibleAllies = rc.senseNearbyRobots(-1, MY_TEAM);
-        // for (RobotInfo info : visibleAllies){
-        //     MapLocation loc = info.location;
-        //     setIndex(tally, 1, loc.x - ox, loc.y - oy);
-        // }
-        // MapLocation viableLocation = null;
-        for (MapLocation loc : potentialMiningLocations){
-            // System.out.println("The tally answer is : " +);
-            // if (!nearbyMiner(loc.x - ox, loc.y - oy, tally) && !Comms.checkIfLeadLocationTaken(loc)){
-            //     return loc;
-            // }   
-            if(!rc.isLocationOccupied(loc))
-            {
+        
+        for (MapLocation loc : potentialMiningLocations){   
+            if(!rc.isLocationOccupied(loc) && parentArchonLocation.distanceSquaredTo(loc) > 1){
                 return loc;
             }
         }
@@ -113,7 +81,6 @@ public class BotMiner extends Util{
                 int curDist = currentLocation.distanceSquaredTo(miningLocation);
                 if (curDist == 0) { // Reached location
                     inPlaceForMining = true;
-                    Comms.wipeChannel(toWipeChannel);
                     mine(miningLocation);
                 }
                 // If outside of vision radius and the location has lead and is unoccupied
@@ -123,7 +90,6 @@ public class BotMiner extends Util{
                 else{ // Location is occupied or no lead // TODO: Check if occupied by miner/enemy miner, mine adjacent to deplete it
                     miningLocation = null;
                     getMiningLocation(); // Get new mining location
-                    Comms.wipeChannel(toWipeChannel);
                     inPlaceForMining = false;
                 }
             }
@@ -133,16 +99,90 @@ public class BotMiner extends Util{
         }
     }
 
+
+    public static MapLocation checkCommsForMiningLocation() throws GameActionException{
+        for(int i = Comms.commChannelStart; i < Comms.COMM_CHANNEL_STOP; ++i){
+            int message = rc.readSharedArray(i);
+            // TODO: Make it a non-greedy selection sometime.
+            if (Comms.readSHAFlagFromMessage(message) == SHAFlag.LEAD_LOCATION){
+                return Comms.readLocationFromMessage(message);
+            }
+        }
+        return null;
+    }
+
+
+    public static MapLocation findGoodPlaceToDie() throws GameActionException{
+        // int x = currentLocation.x, y = currentLocation.y;
+        
+        return BotBuilder.buildInLattice();
+
+        // MapLocation[] allLocations = rc.getAllLocationsWithinRadiusSquared(currentLocation, MINER_VISION_RADIUS);
+        // for(MapLocation loc : allLocations)
+        //     if (rc.canSenseLocation(loc) && !rc.isLocationOccupied(loc) && goodSpot(loc))
+        //         return loc;
+
+
+
+        // TODO: Why does the following fail?
+        // for (int curX = x - 4; curX < x + 5; curX++){
+        //     for (int curY = y-4; curY < x + 5; curY++){
+        //         MapLocation curLoc = new MapLocation(curX, curY);
+        //         if (rc.canSenseLocation(curLoc) && (!rc.isLocationOccupied(curLoc)))
+        //             return curLoc;
+        //     }
+        // }
+        // return null;
+    }
+
+
+    public static int getCountOfAdjacentBots(MapLocation location) throws GameActionException{
+        int count = 0;
+        for (Direction dir: directions){
+            MapLocation loc = location.add(dir);
+            if (rc.canSenseLocation(loc) && rc.isLocationOccupied(loc))
+                count++;
+        }
+        return count;
+    }
+
+
+    public static boolean goodSpot(MapLocation loc) throws GameActionException{
+        if (getCountOfAdjacentBots(loc) > 4)
+            return false;
+        return true;
+    } 
+
+
     public static void getMiningLocation() throws GameActionException{
         MapLocation dest = null;
-        if (miningLocation == null // || numMineStoppings > 2
-        ) dest = findOpenMiningLocationNearby();
-        // moveToDes either runs BugNav or PathFinder's AStar based on usingOnlyBugNav global boolean flag
+        if (miningLocation == null) dest = findOpenMiningLocationNearby();
         if (dest != null){ 
             miningLocation = dest;
-            toWipeChannel = Comms.writeCommMessage(intFromMapLocation(miningLocation), SHAFlag.TAKEN_LEAD_LOCATION);
+            desperationIndex = 0;
+        }
+        else{
+            dest = findGoodPlaceToDie();
+            if (dest != null){
+                commitSuicide = true;
+                suicideLocation = dest;
+            }
+            else{
+                desperationIndex++;
+            }
+            
         }
     }
+
+
+    public static void surveyForOpenMiningLocationsNearby() throws GameActionException{
+        MapLocation[] potentialMiningLocations = rc.senseNearbyLocationsWithLead(MINER_VISION_RADIUS);
+        for (MapLocation loc : potentialMiningLocations){
+            if (!rc.isLocationOccupied(loc))
+                Comms.writeCommMessage(intFromMapLocation(loc), SHAFlag.LEAD_LOCATION);
+        }
+    }
+
 
     /**
     * Run a single turn for a Miner.
@@ -152,10 +192,35 @@ public class BotMiner extends Util{
         // Try to mine on squares around us.
         //TODO: Move away from Archon to make space for it in first turn
         minerComms();
-
-        isMinedThisTurn = false;
-        getMiningLocation();
-        goToMine();
+        if (desperationIndex > 7)
+            rc.disintegrate();
+        if (commitSuicide){
+            if (currentLocation.equals(suicideLocation)){
+                rc.disintegrate();
+                // BOT'S DEAD!
+            }
+            else if (!rc.canSenseLocation(suicideLocation) || rc.isLocationOccupied(suicideLocation)){
+                resetVariables();
+                getMiningLocation();
+            }
+            else{
+                desperationIndex++;
+                Movement.moveToDest(suicideLocation);
+            }
+        }
+        else{
+            isMinedThisTurn = false;
+            if (miningLocation == null){
+                getMiningLocation();
+                goToMine();
+            }
+            else{
+                if (!inPlaceForMining)
+                    goToMine();
+                else
+                    mine(currentLocation);
+            }
+        }
         
         if (isRubbleMapEnabled && turnCount != BIRTH_ROUND){
             RubbleMap.rubbleMapFormation(rc);

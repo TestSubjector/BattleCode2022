@@ -31,10 +31,9 @@ public class Comms extends Util{
         ARCHON_LOCATION, // 0x1
         POTENTIAL_ENEMY_ARCHON_LOCATION, //0x2
         CONFIRMED_ENEMY_ARCHON_LOCATION, //0x3
-        VIABLE_LEAD_LOCATION, //0x4
+        LEAD_LOCATION, //0x4
         REQUEST_FOR_LEAD_LOCATION, //0x5
-        TAKEN_LEAD_LOCATION, //0x6 // Note that this is only set by the miners who are travelling to their miningLocation
-        IDEAL_WATCHTOWER_BUILD_LOCATION, //0x7
+        IDEAL_WATCHTOWER_BUILD_LOCATION, //0x6
         ENEMY_WATCHTOWER_BUILD_LOCATION,
         ENEMY_NEAR_ARCHON_LOCATION,
         NOT_A_LOCATION_MESSAGE,  //0xF
@@ -70,14 +69,14 @@ public class Comms extends Util{
     }
 
 
-    public static boolean checkIfLeadLocationTaken(MapLocation leadLocation) throws GameActionException{
+    public static MapLocation checkIfCommMessagePresent(SHAFlag flag) throws GameActionException{
         for(int i = commChannelStart; i < COMM_CHANNEL_STOP; ++i){
             int message = rc.readSharedArray(i);
-            if (readSHAFlagFromMessage(message) == SHAFlag.TAKEN_LEAD_LOCATION && leadLocation.equals(readLocationFromMessage(message))){
-                return true;
+            if (readSHAFlagFromMessage(message) == flag){
+                return readLocationFromMessage(message);
             }
         }
-        return false;
+        return null;
     }
 
 

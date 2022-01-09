@@ -38,6 +38,10 @@ public strictfp class RobotPlayer {
                 e.printStackTrace();
 
             } finally {
+                // if (Globals.MY_TEAM == Team.A && Globals.UNIT_TYPE == RobotType.ARCHON && BotArchon.myArchonID == 0){
+                //     // System.out.print("TurnCount: "  + rc.getRoundNum() + "\r");
+                //     System.out.print("\r");
+                // }
                 if (Clock.getBytecodesLeft() < 500) System.out.println("Warning, bytecodes left this turn is: " + Clock.getBytecodesLeft());
                 Clock.yield();
             }

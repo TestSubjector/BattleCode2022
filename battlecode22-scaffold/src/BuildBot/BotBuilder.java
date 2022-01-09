@@ -60,9 +60,10 @@ public class BotBuilder extends Util{
     private static boolean makeBuilding(MapLocation dest, RobotType type) throws GameActionException{
         Direction dir = currentLocation.directionTo(dest);
         destAdjacent = null;
-        if (!buildRobot(type, dir))
-            return createBuildingInRandomDirection(type);
-        return true;
+        return buildRobot(type, dir);
+        // if (!buildRobot(type, dir))
+        //     return createBuildingInRandomDirection(type);
+        // return true;
     }
     
     

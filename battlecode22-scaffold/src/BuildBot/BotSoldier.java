@@ -25,13 +25,13 @@ public class BotSoldier extends Util{
         // Try to attack someone
         int radius = rc.getType().actionRadiusSquared;
         Team opponent = rc.getTeam().opponent();
-        // RobotInfo[] enemies = rc.senseNearbyRobots(radius, opponent);
-        // if (enemies.length > 0) {
-        //     MapLocation toAttack = enemies[0].location;
-        //     if (rc.canAttack(toAttack)) {
-        //         rc.attack(toAttack);
-        //     }
-        // }
+        RobotInfo[] enemies = rc.senseNearbyRobots(radius, opponent);
+        if (enemies.length > 0) {
+            MapLocation toAttack = enemies[0].location;
+            if (rc.canAttack(toAttack)) {
+                rc.attack(toAttack);
+            }
+        }
         Movement.goToDirect(Globals.currentDestination);
         if (isRubbleMapEnabled && turnCount != BIRTH_ROUND){
             RubbleMap.rubbleMapFormation(rc);
