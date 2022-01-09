@@ -72,7 +72,7 @@ public class Globals {
 	public static final int WATCHTOWER_VISION_RADIUS = RobotType.WATCHTOWER.visionRadiusSquared;
 
     //// ---------------------Vision Globals---------------------
-	public static RobotInfo[] visibleEnemies = null;
+	// public static RobotInfo[] visibleEnemies = null;
 	public static RobotInfo[] visibleAllies = null;
 
 
@@ -285,6 +285,10 @@ public class Globals {
             Comms.updateArchonLocations();
             parentArchonLocation = Util.getClosestArchonLocation();
         }
+        if (parentArchonLocation == null) {
+            parentArchonLocation =  new MapLocation(0,0);
+            System.out.println("Parent Archon Location is null");
+        }
     }
 
 
@@ -303,6 +307,7 @@ public class Globals {
         //TODO: Warn if unit is under attack and cannot see enemy
         int curHealth = rc.getHealth();
         if (curHealth < myHealth) underAttack = true;
+        else underAttack = false;
         myHealth = curHealth;
 
         currentLeadReserves = rc.getTeamLeadAmount(MY_TEAM);
@@ -311,7 +316,7 @@ public class Globals {
 
     // Heavy bytecode method
     public static void updateSurroundings() {
-        visibleEnemies = rc.senseNearbyRobots(-1, ENEMY_TEAM); // 100 bytecodes
+        // visibleEnemies = rc.senseNearbyRobots(-1, ENEMY_TEAM); // 100 bytecodes
         visibleAllies = rc.senseNearbyRobots(-1, MY_TEAM); // 100 bytecodes
     }
 

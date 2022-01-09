@@ -10,3 +10,5 @@
 * Teach Miners to avoid mining locations where there's enemy presence without proper ally defense present. Should give that awareness to all non combat units.
 * While comms seems efficient at the moment, I think it's going to blow up in bytecode consumption as soon as there's proper communication going through it. Might need correction.
 * Perfect Lead Farms generation.
+* Put everything in try/catch exception
+* Factor in rubble to mine location, attack location, watchtower placement, miner suicide location etc

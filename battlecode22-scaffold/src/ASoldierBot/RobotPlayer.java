@@ -20,7 +20,7 @@ public strictfp class RobotPlayer {
         // if (rc.getType() == RobotType.MINER) 
             // System.out.println(" Byte code C: " + Clock.getBytecodesLeft());
         while (true) {
-            // if(rc.getRoundNum() > 100) return;
+            // if(rc.getRoundNum() > 28) return;
             Globals.updateGlobals();
             try {
                 switch (rc.getType()) {

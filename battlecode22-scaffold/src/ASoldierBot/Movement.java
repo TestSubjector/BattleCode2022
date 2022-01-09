@@ -24,6 +24,7 @@ public class Movement extends Util{
     // Takes around 400 bytecodes to run 
     public static boolean goToDirect(MapLocation dest) throws GameActionException {
         try{
+            if(!rc.isMovementReady()) return false;
     	    if (currentLocation.equals(dest)) return false;
             Direction forward = currentLocation.directionTo(dest);
     	    if (currentLocation.isAdjacentTo(dest)) {
@@ -115,7 +116,7 @@ public class Movement extends Util{
                 // return bestLoc;
             }
 
-            for (int i = droidVisionDirs.length; i-- > 0; ) { //TODO: Maybe add a rubbleCheck
+            for (int i = droidVisionDirs.length; i-- > 0; ) { //TODO: Add a bytecode check
                 if (Clock.getBytecodesLeft() < 2000) return bestLoc;
                 lCurrentLocation = lCurrentLocation.add(droidVisionDirs[i]);
                 if ((lCurrentLocation.x + lCurrentLocation.y) % 2 != congruence) continue;
@@ -130,11 +131,7 @@ public class Movement extends Util{
                 if (bestLoc == null  || estimatedDistance < bestDist){
                     bestLoc = lCurrentLocation;
                     bestDist = estimatedDistance;
-                    // byteCodeSaver++;
                 }
-                // if(byteCodeSaver == 5){
-                //     return bestLoc;
-                // }
             }
             if (bestLoc != null){
                 return bestLoc;

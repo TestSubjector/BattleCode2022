@@ -15,7 +15,7 @@ public class Comms extends Util{
     public static final int CHANNEL_WATCHTOWER_COUNT = CHANNEL_BUILDER_COUNT + 1;
     public static final int CHANNEL_LABORATORY_COUNT = CHANNEL_WATCHTOWER_COUNT + 1;
     public static final int CHANNEL_SAGE_COUNT = CHANNEL_LABORATORY_COUNT + 1;
-    // All Archons will have minimum 4 channels from 37-52 until they die
+    // All Archons will have minimum 4 channels until they die
     public static final int CHANNEL_ARCHON_START = CHANNEL_SAGE_COUNT + 1;
     // Archon Channels Format: 
     // Channel 1: Our Archon's Location

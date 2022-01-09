@@ -269,6 +269,7 @@ public class BotMiner extends Util{
         //TODO: Move away from Archon to make space for it in first turn
         // TODO: Check if for Archon's move away command.
         minerComms();
+        isMinedThisTurn = false;
         if (desperationIndex > 7){
             Comms.writeCommMessageOverrwriteLesserPriorityMessageToHead(currentLocation, SHAFlag.LEAD_LOCATION);
             // Comms.writeCommMessageToHead(currentLocation, SHAFlag.LEAD_LOCATION);
@@ -279,7 +280,6 @@ public class BotMiner extends Util{
         }
         
         if (!commitSuicide){
-            isMinedThisTurn = false;
             if (miningLocation == null){
                 getMiningLocation();
                 goToMine();
@@ -291,7 +291,7 @@ public class BotMiner extends Util{
                     mine(currentLocation);
             }
         }
-        else{
+        if (commitSuicide){
             if (currentLocation.equals(suicideLocation)){
                 Comms.writeCommMessageOverrwriteLesserPriorityMessageToHead(currentLocation, SHAFlag.LEAD_LOCATION);
                 // Comms.writeCommMessageToHead(currentLocation, SHAFlag.LEAD_LOCATION);
