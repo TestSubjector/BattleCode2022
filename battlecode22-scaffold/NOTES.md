@@ -7,3 +7,6 @@
 * After some number of reads of the rubble map, stop reading and updating the map. You're done.
 * Voronoi type partitions of the maps
 * Set max bytecode that every function can use, so the no function of bot starves (in the loops)
+* Teach Miners to avoid mining locations where there's enemy presence without proper ally defense present. Should give that awareness to all non combat units.
+* While comms seems efficient at the moment, I think it's going to blow up in bytecode consumption as soon as there's proper communication going through it. Might need correction.
+* Perfect Lead Farms generation.
