@@ -23,43 +23,50 @@ public class Movement extends Util{
 
     // Takes around 400 bytecodes to run 
     public static boolean goToDirect(MapLocation dest) throws GameActionException {
-    	if (currentLocation.equals(dest)) return false;
-        Direction forward = currentLocation.directionTo(dest);
-    	if (currentLocation.isAdjacentTo(dest)) {
-    		if (rc.canMove(forward)) {
-    			rc.move(forward);
-    			return true;
-    		}
-    	}	
-    
-    	Direction[] dirs;
-    	if (preferLeft(dest)) {
-    		dirs = new Direction[] { forward, forward.rotateLeft(), forward.rotateRight(),
-    				forward.rotateLeft().rotateLeft(), forward.rotateRight().rotateRight()};			
-    	} else {
-    		dirs = new Direction[] { forward, forward.rotateRight(), forward.rotateLeft(), 
-    				forward.rotateRight().rotateRight(), forward.rotateLeft().rotateLeft()};
-    	}
-    
-    	Direction bestDir = null;
-    	double bestRubble = MAX_RUBBLE+1;
-    	int currentDistSq = currentLocation.distanceSquaredTo(dest);
-    	for (Direction dir : dirs) {
-    		MapLocation dirLoc = currentLocation.add(dir);
-            if (!isValidMapLocation(dirLoc)) continue;
-    		if (dirLoc.distanceSquaredTo(dest) > currentDistSq) continue;
-    		double rubble = rc.senseRubble(dirLoc);
-            if (rubble < bestRubble && rc.canMove(dir)) {
-                bestRubble = rubble;
-                bestDir = dir;
-            }
-    	}
-    
-    	if (bestDir != null) {
-    		rc.move(bestDir);
-    		return true;
-    	}
-    	return false;
+        try{
+    	    if (currentLocation.equals(dest)) return false;
+            Direction forward = currentLocation.directionTo(dest);
+    	    if (currentLocation.isAdjacentTo(dest)) {
+    	    	if (rc.canMove(forward)) {
+    	    		rc.move(forward);
+    	    		return true;
+    	    	}
+    	    }	
+            
+    	    Direction[] dirs;
+    	    if (preferLeft(dest)) {
+    	    	dirs = new Direction[] { forward, forward.rotateLeft(), forward.rotateRight(),
+    	    			forward.rotateLeft().rotateLeft(), forward.rotateRight().rotateRight()};			
+    	    } else {
+    	    	dirs = new Direction[] { forward, forward.rotateRight(), forward.rotateLeft(), 
+    	    			forward.rotateRight().rotateRight(), forward.rotateLeft().rotateLeft()};
+    	    }
+        
+    	    Direction bestDir = null;
+    	    double bestRubble = MAX_RUBBLE+1;
+    	    int currentDistSq = currentLocation.distanceSquaredTo(dest);
+    	    for (Direction dir : dirs) {
+    	    	MapLocation dirLoc = currentLocation.add(dir);
+                if (!isValidMapLocation(dirLoc)) continue;
+    	    	if (dirLoc.distanceSquaredTo(dest) > currentDistSq) continue;
+    	    	double rubble = rc.senseRubble(dirLoc);
+                if (rubble < bestRubble && rc.canMove(dir)) {
+                    bestRubble = rubble;
+                    bestDir = dir;
+                }
+    	    }
+        
+    	    if (bestDir != null) {
+    	    	rc.move(bestDir);
+    	    	return true;
+    	    }
+    	    return false;
+        }
+        catch (Exception e) {
+            System.out.println("Exception in goToDirect: " + e.getMessage());
+            e.printStackTrace();
+            return false;
+        }
     }
 
 
@@ -78,7 +85,7 @@ public class Movement extends Util{
 	}
 
 	
-    private static boolean preferLeft(MapLocation dest) {
+    public static boolean preferLeft(MapLocation dest) {
         Direction toDest = currentLocation.directionTo(dest);
         MapLocation leftLoc = currentLocation.add(toDest.rotateLeft());
         MapLocation rightLoc = currentLocation.add(toDest.rotateRight());

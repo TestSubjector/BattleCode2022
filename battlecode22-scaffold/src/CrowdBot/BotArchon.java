@@ -140,8 +140,8 @@ public class BotArchon extends Util{
     }
 
     public static boolean shouldBuildBuilder(){
-        if (turnCount < 10) return false;
-        return true;
+        // if (turnCount < 500) return false;
+        return false;
     }
 
     public static boolean shouldBuildMiner(){

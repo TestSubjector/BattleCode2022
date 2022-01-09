@@ -5,14 +5,14 @@ import battlecode.common.*;
 public class RubbleMap extends Util {
 
     public static void initRubbleMap() {
-        rubbleMap = new float[MAP_WIDTH][MAP_HEIGHT];
-        isRubbleLocRead = new boolean[MAP_WIDTH][MAP_HEIGHT];
-        convolutionKernel = new int[3][3];
-        RubbleTransmissionIndex = -1;
+        // rubbleMap = new float[MAP_WIDTH][MAP_HEIGHT];
+        // isRubbleLocRead = new boolean[MAP_WIDTH][MAP_HEIGHT];
+        // convolutionKernel = new int[3][3];
+        // RubbleTransmissionIndex = -1;
 
-        for (int i = 0; i < 3; ++i)
-            for (int j = 0; j < 3; ++j)
-                convolutionKernel[i][j] = 1;
+        // for (int i = 0; i < 3; ++i)
+        //     for (int j = 0; j < 3; ++j)
+        //         convolutionKernel[i][j] = 1;
     }
 
     public static int computeGradedRubbleValue(int rubbleValue) throws GameActionException {
@@ -94,16 +94,16 @@ public class RubbleMap extends Util {
         RubbleTransmissionIndex = transmitterCount++ % Comms.CHANNEL_RUBBLE_STOP;
         rc.writeSharedArray(Comms.CHANNEL_TRANSMITTER_COUNT, transmitterCount);
 
-        if (isOnEdge(currentLocation))
-            return; // Do not send information when on edge of Map
+        // if (isOnEdge(currentLocation))
+            // return; // Do not send information when on edge of Map
         // System.out.println("1: " + String.valueOf(Clock.getBytecodesLeft()));
-        int rubbleValue = RubbleMap.computeRubbleValue(currentLocation);
+        // int rubbleValue = RubbleMap.computeRubbleValue(currentLocation);
         // System.out.println("2: " + String.valueOf(Clock.getBytecodesLeft()));
-        int turnFlag = (turnCount % 2);
+        // int turnFlag = (turnCount % 2);
         // TODO: If rubbleValue == 0, then some other bot's vision's rubble info should
         // be used
-        int intMapLoc = intFromMapLocation(currentLocation);
-        rc.writeSharedArray(RubbleTransmissionIndex, Comms.createRubbleMessage(intMapLoc, rubbleValue, turnFlag));
+        // int intMapLoc = intFromMapLocation(currentLocation);
+        // rc.writeSharedArray(RubbleTransmissionIndex, Comms.createRubbleMessage(intMapLoc, rubbleValue, turnFlag));
         // if (turnCount == 500 && UNIT_TYPE == RobotType.MINER) {
         //     System.out.println("Printing rubbleMap:");
         //     System.out.println(Arrays.deepToString(rubbleMap));

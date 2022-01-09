@@ -32,7 +32,9 @@ public class BotSoldier extends Util{
                 rc.attack(toAttack);
             }
         }
+        // System.out.println(" Byte code A: " + Clock.getBytecodesLeft());
         Movement.goToDirect(Globals.currentDestination);
+
         if (isRubbleMapEnabled && turnCount != BIRTH_ROUND){
             RubbleMap.rubbleMapFormation(rc);
             // RubbleMap.updateRubbleMap();

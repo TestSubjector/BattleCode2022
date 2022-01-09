@@ -5,7 +5,11 @@ import battlecode.common.*;
 public strictfp class RobotPlayer {
     @SuppressWarnings("unused")
     public static void run(RobotController rc) throws GameActionException {
+        // if (rc.getType() == RobotType.SOLDIER) 
+            // System.out.println(" Byte code A: " + Clock.getBytecodesLeft());
         Globals.initGlobals(rc);
+        // if (rc.getType() == RobotType.MINER) 
+            // System.out.println(" Byte code B: " + Clock.getBytecodesLeft());
         switch (rc.getType()) {
             case MINER:      BotMiner.initBotMiner();           break;
             case BUILDER:    BotBuilder.initBotBuilder();       break;
@@ -13,8 +17,10 @@ public strictfp class RobotPlayer {
             case ARCHON:     BotArchon.initBotArchon();         break;
             case WATCHTOWER: BotWatchTower.initBotWatchTower(); break;
         }
+        // if (rc.getType() == RobotType.MINER) 
+            // System.out.println(" Byte code C: " + Clock.getBytecodesLeft());
         while (true) {
-            // if(rc.getRoundNum() > 80) return;
+            // if(rc.getRoundNum() > 100) return;
             Globals.updateGlobals();
             try {
                 switch (rc.getType()) {
