@@ -4,6 +4,8 @@ import battlecode.common.*;
 
 public class BotArchon extends Util{
 
+    // Credits to @IvanGeffner for a major chunk of this code
+
     enum ArchonBuildUnits { 
         MINER, 
         SOLDIER,

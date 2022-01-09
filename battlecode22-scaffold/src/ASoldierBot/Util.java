@@ -2,6 +2,7 @@ package ASoldierBot;
 
 import battlecode.common.MapLocation;
 import battlecode.common.Clock;
+import battlecode.common.RobotInfo;
 // import utility.Globals;
 
 public class Util extends Globals {
@@ -110,6 +111,21 @@ public class Util extends Globals {
         return closest;
     }
 
+    public static RobotInfo getClosestUnit(RobotInfo[] units) {
+		RobotInfo closestUnit = null;
+		int minDistSq = Integer.MAX_VALUE;
+        int distSq = 0;
+        MapLocation lCR = currentLocation;
+		for (int i = units.length; i --> 0; ) {
+			distSq = lCR.distanceSquaredTo(units[i].location);
+			if (distSq < minDistSq) {
+				minDistSq = distSq;
+				closestUnit = units[i];
+			}
+		}
+		return closestUnit;
+	}
+
     public static void byteCodeTest(){
         int temp = 1;
         int index_i = 0, index_j =0;
@@ -128,7 +144,7 @@ public class Util extends Globals {
         // temp = holder_1[index_i]; // 11 bytecodes (actual is 4/5)
         // holder_1[index_i] = temp; // 11 bytecodes (actual is 4/5)
         // temp = holder_2[index_i][index_j]; // 13 bytecodes (actual is 6/7)
-        // holder_2[index_i][index_j] = temp; // 13 bytecodes (actual is 6/7)
+        // holder_2[index_i][index_j] = temp; // 13 bytecodes (actual is 6/7)	
         System.out.println("Bytecodes left after testing area: " + Clock.getBytecodesLeft());
     }
 

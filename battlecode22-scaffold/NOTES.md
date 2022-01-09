@@ -12,3 +12,4 @@
 * Perfect Lead Farms generation.
 * Put everything in try/catch exception
 * Factor in rubble to mine location, attack location, watchtower placement, miner suicide location etc
+* Read all the comms at the start of the turn in your range and store in an array, then process the messages one by one.
