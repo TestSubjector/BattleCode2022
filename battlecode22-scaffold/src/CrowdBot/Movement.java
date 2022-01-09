@@ -98,7 +98,7 @@ public class Movement extends Util{
     }
 
     public static MapLocation moveToLattice(int minLatticeDist, int weights){
-        try {
+        try { 
             MapLocation lCurrentLocation = currentLocation;
             MapLocation lArchonLocation = Util.getClosestArchonLocation();
             MapLocation bestLoc = null;
@@ -115,7 +115,7 @@ public class Movement extends Util{
                 // return bestLoc;
             }
 
-            for (int i = droidVisionDirs.length; i-- > 0; ) {
+            for (int i = droidVisionDirs.length; i-- > 0; ) { //TODO: Maybe add a rubbleCheck
                 if (Clock.getBytecodesLeft() < 2000) return bestLoc;
                 lCurrentLocation = lCurrentLocation.add(droidVisionDirs[i]);
                 if ((lCurrentLocation.x + lCurrentLocation.y) % 2 != congruence) continue;

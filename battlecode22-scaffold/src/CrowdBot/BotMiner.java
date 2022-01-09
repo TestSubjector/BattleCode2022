@@ -300,7 +300,7 @@ public class BotMiner extends Util{
                 rc.disintegrate();
                 // Adios!
             }
-            else if (!rc.canSenseLocation(suicideLocation) || rc.isLocationOccupied(suicideLocation)){
+            else if (rc.canSenseLocation(suicideLocation) && rc.isLocationOccupied(suicideLocation)){ // Reset only if location in vision and occupied
                 resetVariables();
                 getMiningLocation();
             }

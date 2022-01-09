@@ -150,7 +150,7 @@ public class BotArchon extends Util{
     }
 
     public static boolean shouldBuildSoldier(){
-        if (turnCount < 10) return false;
+        if (turnCount < 15) return false;
         return true;
     }
 
