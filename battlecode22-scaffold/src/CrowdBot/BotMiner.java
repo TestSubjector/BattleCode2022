@@ -18,7 +18,7 @@ public class BotMiner extends Util{
 
     public static boolean areMiningLocationsAbundant(){
         try{
-            return (rc.senseNearbyLocationsWithLead(MINER_VISION_RADIUS).length > 50);
+            return (rc.senseNearbyLocationsWithLead(MINER_VISION_RADIUS).length > 30);
         } catch (Exception e){
             e.printStackTrace();
         }
@@ -31,6 +31,7 @@ public class BotMiner extends Util{
         if (isRubbleMapEnabled) RubbleMap.initRubbleMap();
         prolificMiningLocationsAtBirth = areMiningLocationsAbundant();
         resetVariables();
+        // byteCodeTest();
     }
 
 
@@ -85,7 +86,7 @@ public class BotMiner extends Util{
         MapLocation[] potentialMiningLocations = rc.senseNearbyLocationsWithLead(MINER_VISION_RADIUS);
         
         for (MapLocation loc : potentialMiningLocations){   
-            if(!rc.isLocationOccupied(loc) && parentArchonLocation.distanceSquaredTo(loc) > 1){
+            if(!rc.isLocationOccupied(loc) && parentArchonLocation.distanceSquaredTo(loc) > 2){
                 // && (currentLocation.x + currentLocation.y) % 2 == parentArchonCongruence) {
                 return loc;
             }
@@ -120,14 +121,25 @@ public class BotMiner extends Util{
 
 
     public static MapLocation checkCommsForMiningLocation() throws GameActionException{
+        MapLocation loc = null;
+        int selectedChannel = -1;
         for(int i = Comms.commChannelStart; i < Comms.COMM_CHANNEL_STOP; ++i){
             int message = rc.readSharedArray(i);
-            // TODO: Make it a non-greedy selection sometime.
+            // TODO: Which is better: a greedy choice or an optimal choice? Currently, taking the optimal choice.
+
             if (Comms.readSHAFlagFromMessage(message) == SHAFlag.LEAD_LOCATION){
-                return Comms.readLocationFromMessage(message);
+                MapLocation tempLoc = Comms.readLocationFromMessage(message);
+                if (loc == null || tempLoc.distanceSquaredTo(currentLocation) < loc.distanceSquaredTo(currentLocation)){
+                    loc = tempLoc;
+                    selectedChannel = i;
+                }
+                // return Comms.readLocationFromMessage(message);
             }
         }
-        return null;
+        if (selectedChannel != -1){
+            Comms.wipeChannel(selectedChannel);
+        }
+        return loc;
     }
 
 
@@ -170,7 +182,27 @@ public class BotMiner extends Util{
         if (getCountOfAdjacentBots(loc) > 4)
             return false;
         return true;
-    } 
+    }
+
+
+    public static boolean foundMiningLocationFromComms() throws GameActionException{
+        miningLocation = checkCommsForMiningLocation();
+        if (miningLocation != null){
+            desperationIndex = 0;
+            return true;
+        }
+        return false;
+    }
+
+
+    public static boolean goAheadAndDie() throws GameActionException{
+        commitSuicide = true;
+        suicideLocation = findGoodPlaceToDie();
+        if (suicideLocation != null){
+            return true;
+        }
+        return false;
+    }
 
 
     public static void getMiningLocation() throws GameActionException{
@@ -179,27 +211,50 @@ public class BotMiner extends Util{
         if (dest != null){ 
             miningLocation = dest;
             desperationIndex = 0;
+            // System.out.println("miningLocation Found");
         }
         else{
-            commitSuicide = true;
-            dest = findGoodPlaceToDie();
-            if (dest != null){
-                suicideLocation = dest;
-            }
-            else{
-                commitSuicide = false;
-                desperationIndex++;
+            if (foundMiningLocationFromComms()){
+                // System.out.println("Mining Location found from Comms");
+                return;
             }
             
+            if (goAheadAndDie()){
+                // System.out.println("Suicide seems successfull: " + suicideLocation);
+                return;
+            }
+            System.out.println("Suicide Attempt Failed!");
+            commitSuicide = false;
+            desperationIndex++;
         }
     }
 
 
+    // Bytecode Cost: ~1150 in average in intersection if called during init.
     public static void surveyForOpenMiningLocationsNearby() throws GameActionException{
+        // System.out.println("A: Bytecode remaining: " + Clock.getBytecodesLeft());
         MapLocation[] potentialMiningLocations = rc.senseNearbyLocationsWithLead(MINER_VISION_RADIUS);
+        // System.out.println("B: Bytecode remaining: " + Clock.getBytecodesLeft());
         for (MapLocation loc : potentialMiningLocations){
-            if (!rc.isLocationOccupied(loc))
-                Comms.writeCommMessage(intFromMapLocation(loc), SHAFlag.LEAD_LOCATION);
+            // int bytecodeC = Clock.getBytecodesLeft();
+            // System.out.println("C: Bytecode remaining: " + Clock.getBytecodesLeft());
+            if (Clock.getBytecodesLeft() < 1000)
+                break;
+            if (!rc.isLocationOccupied(loc)){
+                // This is best: Takes ~200 bytecodes at max.
+                Comms.writeCommMessageOverrwriteLesserPriorityMessageToHead(loc, SHAFlag.LEAD_LOCATION);
+
+                // Takes ~1650 bytecodes at max.
+                // Comms.writeCommMessageToHead(loc, SHAFlag.LEAD_LOCATION);
+
+                // Takes ~1200 bytecodes
+                // Comms.writeCommMessageOverrwriteLesserPriorityMessage(intFromMapLocation(loc), SHAFlag.LEAD_LOCATION);
+                
+                // Takes ~2100 bytecodes at max.
+                // Comms.writeCommMessage(intFromMapLocation(loc), SHAFlag.LEAD_LOCATION);
+            }
+            // bytecodediff = Math.max(bytecodeC - Clock.getBytecodesLeft(), bytecodediff);
+            // System.out.println("D: Bytecode remaining: " + Clock.getBytecodesLeft());
         }
     }
 
@@ -211,9 +266,16 @@ public class BotMiner extends Util{
     static void runMiner(RobotController rc) throws GameActionException {
         // Try to mine on squares around us.
         //TODO: Move away from Archon to make space for it in first turn
+        // TODO: Check if for Archon's move away command.
         minerComms();
-        if (desperationIndex > 7)
-            rc.disintegrate();
+        if (desperationIndex > 7){
+            Comms.writeCommMessageOverrwriteLesserPriorityMessageToHead(currentLocation, SHAFlag.LEAD_LOCATION);
+            // Comms.writeCommMessageToHead(currentLocation, SHAFlag.LEAD_LOCATION);
+            // Comms.writeCommMessageOverrwriteLesserPriorityMessage(intFromMapLocation(currentLocation), SHAFlag.LEAD_LOCATION);
+            // Comms.writeCommMessage(intFromMapLocation(currentLocation), SHAFlag.LEAD_LOCATION);
+            rc.disintegrate(); 
+            // You killed me! :(
+        }
         
         if (!commitSuicide){
             isMinedThisTurn = false;
@@ -230,8 +292,12 @@ public class BotMiner extends Util{
         }
         else{
             if (currentLocation.equals(suicideLocation)){
+                Comms.writeCommMessageOverrwriteLesserPriorityMessageToHead(currentLocation, SHAFlag.LEAD_LOCATION);
+                // Comms.writeCommMessageToHead(currentLocation, SHAFlag.LEAD_LOCATION);
+                // Comms.writeCommMessageOverrwriteLesserPriorityMessage(intFromMapLocation(currentLocation), SHAFlag.LEAD_LOCATION);
+                // Comms.writeCommMessage(intFromMapLocation(currentLocation), SHAFlag.LEAD_LOCATION);
                 rc.disintegrate();
-                // BOT'S DEAD!
+                // Adios!
             }
             else if (!rc.canSenseLocation(suicideLocation) || rc.isLocationOccupied(suicideLocation)){
                 resetVariables();
@@ -247,6 +313,7 @@ public class BotMiner extends Util{
             RubbleMap.rubbleMapFormation(rc);
             RubbleMap.updateRubbleMap();
         }
+        surveyForOpenMiningLocationsNearby();
     }
 
 }
