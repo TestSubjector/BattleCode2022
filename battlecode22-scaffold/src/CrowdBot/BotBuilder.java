@@ -10,7 +10,7 @@ public class BotBuilder extends Util{
     private static int desperationIndex;
     private static boolean healMode;
     private static MapLocation healLocation;
-    private static final int MIN_LATTICE_DIST = 10;
+    private static final int MIN_LATTICE_DIST = 15;
 
     public static void initBotBuilder(){
         if (isRubbleMapEnabled) RubbleMap.initRubbleMap();
@@ -94,54 +94,6 @@ public class BotBuilder extends Util{
     }
 
 
-    public static MapLocation buildInLattice(){
-        try {
-            MapLocation lCurrentLocation = currentLocation;
-            MapLocation lArchonLocation = Util.getClosestArchonLocation();
-            MapLocation bestLoc = null;
-            MapLocation myLoc = rc.getLocation();
-
-            int bestDist = 0;
-            int byteCodeSaver=0;
-            if (lArchonLocation == null) return null;
-            int congruence = (lArchonLocation.x + lArchonLocation.y + 1) % 2;
-
-            if ((myLoc.x + myLoc.y)%2 == congruence && myLoc.distanceSquaredTo(lArchonLocation) >= MIN_LATTICE_DIST){
-                bestDist = myLoc.distanceSquaredTo(lArchonLocation);
-                bestLoc = myLoc;
-                // return bestLoc;
-            }
-
-            for (int i = droidVisionDirs.length; i-- > 0; ) {
-                if (Clock.getBytecodesLeft() < 2000) return bestLoc;
-                lCurrentLocation = lCurrentLocation.add(droidVisionDirs[i]);
-                if ((lCurrentLocation.x + lCurrentLocation.y) % 2 != congruence) continue;
-                if (!rc.onTheMap(lCurrentLocation)) continue;
-                if (rc.isLocationOccupied(lCurrentLocation)) continue;
-
-                int estimatedDistance = lCurrentLocation.distanceSquaredTo(lArchonLocation);
-
-                if (estimatedDistance < MIN_LATTICE_DIST) continue;
-
-                if (bestLoc == null  || estimatedDistance < bestDist){
-                    bestLoc = lCurrentLocation;
-                    bestDist = estimatedDistance;
-                    byteCodeSaver++;
-                }
-                // if(byteCodeSaver == 5){
-                //     return bestLoc;
-                // }
-            }
-            if (bestLoc != null){
-                return bestLoc;
-            }
-        } catch (Exception e){
-            e.printStackTrace();
-        }
-        return null;
-    }
-
-
     static void runBuilder(RobotController rc) throws GameActionException {
         builderComms();
         // TODO: Tackle cases when makeBuilding can't make the building
@@ -152,11 +104,15 @@ public class BotBuilder extends Util{
         }
 
         // System.out.println("Bytecodes left: " + Clock.getBytecodesLeft());
-        if(buildLocation == null) buildLocation = buildInLattice();
+        if (buildLocation == null) buildLocation = Movement.moveToLattice(MIN_LATTICE_DIST, 0);
+        if (buildLocation == null) Movement.moveToDest(centerOfTheWorld);
         // System.out.println("Bytecodes left: " + Clock.getBytecodesLeft());
 
         if (buildLocation != null){
-            if (moveToLocationForBuilding(buildLocation))
+            if(rc.canSenseLocation(buildLocation) && rc.canSenseRobotAtLocation(buildLocation)){
+                buildLocation = null;
+            }
+            else if (moveToLocationForBuilding(buildLocation))
                 if(makeBuilding(buildLocation, buildType)) buildLocation = null;
             // else{
                 // desperationIndex++;

@@ -35,7 +35,7 @@ public class BotSoldier extends Util{
         Movement.goToDirect(Globals.currentDestination);
         if (isRubbleMapEnabled && turnCount != BIRTH_ROUND){
             RubbleMap.rubbleMapFormation(rc);
-            RubbleMap.updateRubbleMap();
+            // RubbleMap.updateRubbleMap();
         }
     }
 }

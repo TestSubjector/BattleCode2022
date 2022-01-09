@@ -12,6 +12,7 @@ public class BotMiner extends Util{
     private static boolean commitSuicide;
     private static MapLocation suicideLocation;
     public static int desperationIndex;
+    private static final int MIN_SUICIDE_DIST = 4;
 
 
     public static void initBotMiner(){
@@ -61,13 +62,14 @@ public class BotMiner extends Util{
 
 
     public static MapLocation findOpenMiningLocationNearby() throws GameActionException{
-        if (rc.senseLead(currentLocation) > 0 && parentArchonLocation.distanceSquaredTo(currentLocation) > 1){
+        if (rc.senseLead(currentLocation) > 0 && parentArchonLocation.distanceSquaredTo(currentLocation) > 2){
             return currentLocation;
         }
         MapLocation[] potentialMiningLocations = rc.senseNearbyLocationsWithLead(MINER_VISION_RADIUS);
         
         for (MapLocation loc : potentialMiningLocations){   
             if(!rc.isLocationOccupied(loc) && parentArchonLocation.distanceSquaredTo(loc) > 1){
+                // && (currentLocation.x + currentLocation.y) % 2 == parentArchonCongruence) {
                 return loc;
             }
         }
@@ -115,7 +117,7 @@ public class BotMiner extends Util{
     public static MapLocation findGoodPlaceToDie() throws GameActionException{
         // int x = currentLocation.x, y = currentLocation.y;
         
-        return BotBuilder.buildInLattice();
+        return Movement.moveToLattice(MIN_SUICIDE_DIST, 0);
 
         // MapLocation[] allLocations = rc.getAllLocationsWithinRadiusSquared(currentLocation, MINER_VISION_RADIUS);
         // for(MapLocation loc : allLocations)
@@ -168,6 +170,7 @@ public class BotMiner extends Util{
                 suicideLocation = dest;
             }
             else{
+                // Movement.moveToDest(centerOfTheWorld);
                 desperationIndex++;
             }
             
@@ -224,7 +227,7 @@ public class BotMiner extends Util{
         
         if (isRubbleMapEnabled && turnCount != BIRTH_ROUND){
             RubbleMap.rubbleMapFormation(rc);
-            RubbleMap.updateRubbleMap();
+            // RubbleMap.updateRubbleMap();
         }
     }
 

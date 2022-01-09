@@ -30,7 +30,7 @@ public class Globals {
     public static MapLocation parentArchonLocation = null;
     public static MapLocation archonLocations[];
     public static MapLocation rememberedEnemyArchonLocations[];
-
+    public static int parentArchonCongruence;
     public static boolean botFreeze;
 
     public static boolean underAttack;
@@ -254,6 +254,7 @@ public class Globals {
         
         archonLocations = new MapLocation[archonCount];
         getParentArchonLocation();
+        parentArchonCongruence = (parentArchonLocation.x + parentArchonLocation.y + 1) % 2;
         isMapSquare = (MAP_WIDTH == MAP_HEIGHT);
         rememberedEnemyArchonLocations = new MapLocation[4];
         updateEnemyArchonLocation();

@@ -89,4 +89,51 @@ public class Movement extends Util{
         Direction dir = Globals.directions[Globals.rng.nextInt(Globals.directions.length)];
         if (rc.canMove(dir)) rc.move(dir);
     }
+
+    public static MapLocation moveToLattice(int minLatticeDist, int weights){
+        try {
+            MapLocation lCurrentLocation = currentLocation;
+            MapLocation lArchonLocation = Util.getClosestArchonLocation();
+            MapLocation bestLoc = null;
+            MapLocation myLoc = rc.getLocation();
+
+            int bestDist = 0;
+            // int byteCodeSaver=0;
+            if (lArchonLocation == null) return null;
+            int congruence = (lArchonLocation.x + lArchonLocation.y + 1) % 2;
+
+            if ((myLoc.x + myLoc.y)%2 == congruence && myLoc.distanceSquaredTo(lArchonLocation) >= minLatticeDist + weights){
+                bestDist = myLoc.distanceSquaredTo(lArchonLocation);
+                bestLoc = myLoc;
+                // return bestLoc;
+            }
+
+            for (int i = droidVisionDirs.length; i-- > 0; ) {
+                if (Clock.getBytecodesLeft() < 2000) return bestLoc;
+                lCurrentLocation = lCurrentLocation.add(droidVisionDirs[i]);
+                if ((lCurrentLocation.x + lCurrentLocation.y) % 2 != congruence) continue;
+                if (!rc.onTheMap(lCurrentLocation)) continue;
+                if (rc.isLocationOccupied(lCurrentLocation)) continue;
+
+                int estimatedDistance = lCurrentLocation.distanceSquaredTo(lArchonLocation);
+
+                if (estimatedDistance < minLatticeDist + weights) continue;
+
+                if (bestLoc == null  || estimatedDistance < bestDist){
+                    bestLoc = lCurrentLocation;
+                    bestDist = estimatedDistance;
+                    // byteCodeSaver++;
+                }
+                // if(byteCodeSaver == 5){
+                //     return bestLoc;
+                // }
+            }
+            if (bestLoc != null){
+                return bestLoc;
+            }
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+        return null;
+    }
 }
