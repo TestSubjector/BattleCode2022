@@ -177,8 +177,7 @@ public class BotArchon extends Util{
     }
 
     public static void archonComms() throws GameActionException{
-        Comms.channelArchonStop = Comms.CHANNEL_ARCHON_START + 4*archonCount;
-        Comms.commChannelStart = Comms.channelArchonStop; 
+        Comms.updateComms();
         
         int transmitterCount = rc.readSharedArray(Comms.CHANNEL_TRANSMITTER_COUNT);
         // I'm first Archon (by birth or death of ones before me). I'm number zero transmitter.

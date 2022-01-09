@@ -38,7 +38,7 @@ public class Globals {
     public static boolean hasMoved=false;
 
     // For bytecode comparison of functions
-    // public static int bytecodediff = 0;
+    public static int bytecodediff = 0;
 	
     //// ---------------------Droids Globals---------------------
 	// Miner Globals
@@ -244,7 +244,7 @@ public class Globals {
         ID = rc.getID();
 
         // For bytecode comparison of functions
-        // bytecodediff = Math.max(bytecodediff, 0);
+        bytecodediff = Math.max(bytecodediff, 0);
 
         archonCount = rc.getArchonCount(); // 20 bytecodes
 
@@ -252,8 +252,7 @@ public class Globals {
         //                                                                                                 Comms.java: line 159: archonLocations[count] = ... 
         // The above error occurrs only when one of our archons is destroyed.
         // TODO: Should this line be shifted somewhere else?
-        Comms.channelArchonStop = Comms.CHANNEL_ARCHON_START + 4 * archonCount;
-        Comms.commChannelStart = Comms.channelArchonStop;
+        Comms.initComms();
         robotLevel = rc.getLevel();
         myRobotCount = rc.getRobotCount(); // 20 bytecodes
         currentLocation = START_LOCATION;
@@ -276,7 +275,7 @@ public class Globals {
         } else {
             currentDestination = ratioPointBetweenTwoMapLocations(parentArchonLocation, rememberedEnemyArchonLocations[1], 0.2);
         }
-        Comms.initComms();
+        
     }
 
     public static void getParentArchonLocation() throws GameActionException{

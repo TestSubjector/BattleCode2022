@@ -69,8 +69,7 @@ public class BotMiner extends Util{
     public static void minerComms() throws GameActionException {
         Comms.updateArchonLocations();
         Comms.updateChannelValueBy1(Comms.CHANNEL_MINER_COUNT);
-        Comms.channelArchonStop = Comms.CHANNEL_ARCHON_START + 4*archonCount;
-        Comms.commChannelStart = Comms.channelArchonStop; 
+        Comms.updateComms();
     }
 
 
@@ -123,7 +122,7 @@ public class BotMiner extends Util{
     public static MapLocation checkCommsForMiningLocation() throws GameActionException{
         MapLocation loc = null;
         int selectedChannel = -1;
-        for(int i = Comms.commChannelStart; i < Comms.COMM_CHANNEL_STOP; ++i){
+        for(int i = Comms.commType.LEAD.commChannelStart; i < Comms.commType.LEAD.commChannelStop; ++i){
             int message = rc.readSharedArray(i);
             // TODO: Which is better: a greedy choice or an optimal choice? Currently, taking the optimal choice.
 
@@ -137,7 +136,11 @@ public class BotMiner extends Util{
             }
         }
         if (selectedChannel != -1){
+            int bytecodeC = Clock.getBytecodesLeft();
             Comms.wipeChannel(selectedChannel);
+            // Comms.wipeChannelUpdateHead(Comms.commType.LEAD, selectedChannel);
+            bytecodediff = Math.max(bytecodeC - Clock.getBytecodesLeft(), bytecodediff);
+
         }
         return loc;
     }
@@ -242,17 +245,18 @@ public class BotMiner extends Util{
             if (Clock.getBytecodesLeft() < 1000)
                 break;
             if (!rc.isLocationOccupied(loc)){
-                // This is best: Takes ~200 bytecodes at max.
-                Comms.writeCommMessageOverrwriteLesserPriorityMessageToHead(loc, SHAFlag.LEAD_LOCATION);
+                // Takes ~350 bytecodes at max. With wipeChannelUpdateHead() = ~690 at max
+                // Comms.writeCommMessageOverrwriteLesserPriorityMessageToHead(Comms.commType.LEAD, loc, SHAFlag.LEAD_LOCATION);
 
-                // Takes ~1650 bytecodes at max.
-                // Comms.writeCommMessageToHead(loc, SHAFlag.LEAD_LOCATION);
+                // Takes ~840 bytecodes at max. With wipeChannelUpdateHead() = ~1180 at max
+                // Comms.writeCommMessageToHead(Comms.commType.LEAD, loc, SHAFlag.LEAD_LOCATION);
 
-                // Takes ~1200 bytecodes
-                // Comms.writeCommMessageOverrwriteLesserPriorityMessage(intFromMapLocation(loc), SHAFlag.LEAD_LOCATION);
+                // For lead, it turns out this overall consumes the least bytecodes in the worst case:
+                // Takes ~440 bytecodes at max. With wipeChannel() = ~550 bytecodes at max.
+                Comms.writeCommMessageOverrwriteLesserPriorityMessage(Comms.commType.LEAD, intFromMapLocation(loc), SHAFlag.LEAD_LOCATION);
                 
-                // Takes ~2100 bytecodes at max.
-                // Comms.writeCommMessage(intFromMapLocation(loc), SHAFlag.LEAD_LOCATION);
+                // Takes ~600 bytecodes at max. With wipeChannel() = ~710 bytecodes at max.
+                // Comms.writeCommMessage(Comms.commType.LEAD, intFromMapLocation(loc), SHAFlag.LEAD_LOCATION);
             }
             // bytecodediff = Math.max(bytecodeC - Clock.getBytecodesLeft(), bytecodediff);
             // System.out.println("D: Bytecode remaining: " + Clock.getBytecodesLeft());
@@ -271,10 +275,10 @@ public class BotMiner extends Util{
         minerComms();
         isMinedThisTurn = false;
         if (desperationIndex > 7){
-            Comms.writeCommMessageOverrwriteLesserPriorityMessageToHead(currentLocation, SHAFlag.LEAD_LOCATION);
-            // Comms.writeCommMessageToHead(currentLocation, SHAFlag.LEAD_LOCATION);
-            // Comms.writeCommMessageOverrwriteLesserPriorityMessage(intFromMapLocation(currentLocation), SHAFlag.LEAD_LOCATION);
-            // Comms.writeCommMessage(intFromMapLocation(currentLocation), SHAFlag.LEAD_LOCATION);
+            // Comms.writeCommMessageOverrwriteLesserPriorityMessageToHead(Comms.commType.LEAD, currentLocation, SHAFlag.LEAD_LOCATION);
+            // Comms.writeCommMessageToHead(Comms.commType.LEAD, currentLocation, SHAFlag.LEAD_LOCATION);
+            Comms.writeCommMessageOverrwriteLesserPriorityMessage(Comms.commType.LEAD, intFromMapLocation(currentLocation), SHAFlag.LEAD_LOCATION);
+            // Comms.writeCommMessage(Comms.commType.LEAD, intFromMapLocation(currentLocation), SHAFlag.LEAD_LOCATION);
             rc.disintegrate(); 
             // You killed me! :(
         }
@@ -293,10 +297,10 @@ public class BotMiner extends Util{
         }
         if (commitSuicide){
             if (currentLocation.equals(suicideLocation)){
-                Comms.writeCommMessageOverrwriteLesserPriorityMessageToHead(currentLocation, SHAFlag.LEAD_LOCATION);
-                // Comms.writeCommMessageToHead(currentLocation, SHAFlag.LEAD_LOCATION);
-                // Comms.writeCommMessageOverrwriteLesserPriorityMessage(intFromMapLocation(currentLocation), SHAFlag.LEAD_LOCATION);
-                // Comms.writeCommMessage(intFromMapLocation(currentLocation), SHAFlag.LEAD_LOCATION);
+                // Comms.writeCommMessageOverrwriteLesserPriorityMessageToHead(Comms.commType.LEAD, currentLocation, SHAFlag.LEAD_LOCATION);
+                // Comms.writeCommMessageToHead(Comms.commType.LEAD, currentLocation, SHAFlag.LEAD_LOCATION);
+                Comms.writeCommMessageOverrwriteLesserPriorityMessage(Comms.commType.LEAD, intFromMapLocation(currentLocation), SHAFlag.LEAD_LOCATION);
+                // Comms.writeCommMessage(Comms.commType.LEAD, intFromMapLocation(currentLocation), SHAFlag.LEAD_LOCATION);
                 rc.disintegrate();
                 // Adios!
             }

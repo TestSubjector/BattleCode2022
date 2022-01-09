@@ -70,8 +70,7 @@ public class BotBuilder extends Util{
     public static void builderComms() throws GameActionException {
         Comms.updateArchonLocations();
         Comms.updateChannelValueBy1(Comms.CHANNEL_BUILDER_COUNT);
-        Comms.channelArchonStop = Comms.CHANNEL_ARCHON_START + 4*archonCount;
-        Comms.commChannelStart = Comms.channelArchonStop; 
+        Comms.updateComms(); 
     }
 
 

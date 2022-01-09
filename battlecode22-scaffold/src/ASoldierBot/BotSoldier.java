@@ -18,8 +18,7 @@ public class BotSoldier extends Util{
     public static void soldierComms() throws GameActionException {
         Comms.updateArchonLocations();
         Comms.updateChannelValueBy1(Comms.CHANNEL_SOLDIER_COUNT);
-        Comms.channelArchonStop = Comms.CHANNEL_ARCHON_START + 4*archonCount;
-        Comms.commChannelStart = Comms.channelArchonStop; 
+        Comms.updateComms();
     }
 
     public static void updateVision() throws GameActionException {
@@ -183,5 +182,6 @@ public class BotSoldier extends Util{
             RubbleMap.rubbleMapFormation(rc);
             // RubbleMap.updateRubbleMap();
         }
+		// TODO: Add BotMiner.surveyForOpenMiningLocationsNearby() here eventually
     }
 }
