@@ -249,8 +249,7 @@ public class Globals {
         underAttack = false;
         visibleAllies = rc.senseNearbyRobots(-1, MY_TEAM);
         centerOfTheWorld = new MapLocation(MAP_WIDTH/2, MAP_HEIGHT/2);
-        isRubbleMapEnabled = true;
-        Comms.initComms();
+        isRubbleMapEnabled = false;
         
         archonLocations = new MapLocation[archonCount];
         getParentArchonLocation();

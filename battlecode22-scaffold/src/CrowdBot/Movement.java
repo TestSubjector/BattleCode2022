@@ -121,6 +121,7 @@ public class Movement extends Util{
                 if ((lCurrentLocation.x + lCurrentLocation.y) % 2 != congruence) continue;
                 if (!rc.onTheMap(lCurrentLocation)) continue;
                 if (rc.isLocationOccupied(lCurrentLocation)) continue;
+                if (UNIT_TYPE == RobotType.MINER && !BotMiner.commitSuicide && rc.senseLead(lCurrentLocation) == 0) continue;
 
                 int estimatedDistance = lCurrentLocation.distanceSquaredTo(lArchonLocation);
 

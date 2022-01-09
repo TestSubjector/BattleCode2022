@@ -88,10 +88,14 @@ public class Util extends Globals {
         return isValidMapLocation(loc);
     }
 
+
+    // Bytecode Cost: 20-25
     public static boolean isValidMapLocation(MapLocation loc){ 
         return loc.x < rc.getMapWidth() && loc.x >= 0 && loc.y < rc.getMapHeight() && loc.y >= 0;
     }
 
+
+    // Bytecode Cost: 50-60
     public static MapLocation getClosestArchonLocation(){
         int minDistance = MAX_DISTANCE;
         int curDistance = 0;

@@ -9,15 +9,27 @@ public class BotMiner extends Util{
     public static int numOfMiners;
     private static MapLocation miningLocation;
     private static boolean inPlaceForMining;
-    private static boolean commitSuicide;
+    public static boolean commitSuicide;
     private static MapLocation suicideLocation;
     public static int desperationIndex;
     private static final int MIN_SUICIDE_DIST = 4;
+    public static boolean prolificMiningLocationsAtBirth;
+
+
+    public static boolean areMiningLocationsAbundant(){
+        try{
+            return (rc.senseNearbyLocationsWithLead(MINER_VISION_RADIUS).length > 50);
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+        return false;
+    }
 
 
     public static void initBotMiner(){
         isMinedThisTurn = false;
         if (isRubbleMapEnabled) RubbleMap.initRubbleMap();
+        prolificMiningLocationsAtBirth = areMiningLocationsAbundant();
         resetVariables();
     }
 
@@ -65,6 +77,11 @@ public class BotMiner extends Util{
         if (rc.senseLead(currentLocation) > 0 && parentArchonLocation.distanceSquaredTo(currentLocation) > 2){
             return currentLocation;
         }
+
+        if (prolificMiningLocationsAtBirth){
+            return Movement.moveToLattice(2, 0);
+        }
+
         MapLocation[] potentialMiningLocations = rc.senseNearbyLocationsWithLead(MINER_VISION_RADIUS);
         
         for (MapLocation loc : potentialMiningLocations){   
@@ -164,13 +181,13 @@ public class BotMiner extends Util{
             desperationIndex = 0;
         }
         else{
+            commitSuicide = true;
             dest = findGoodPlaceToDie();
             if (dest != null){
-                commitSuicide = true;
                 suicideLocation = dest;
             }
             else{
-                // Movement.moveToDest(centerOfTheWorld);
+                commitSuicide = false;
                 desperationIndex++;
             }
             
@@ -197,7 +214,21 @@ public class BotMiner extends Util{
         minerComms();
         if (desperationIndex > 7)
             rc.disintegrate();
-        if (commitSuicide){
+        
+        if (!commitSuicide){
+            isMinedThisTurn = false;
+            if (miningLocation == null){
+                getMiningLocation();
+                goToMine();
+            }
+            else{
+                if (!inPlaceForMining)
+                    goToMine();
+                else
+                    mine(currentLocation);
+            }
+        }
+        else{
             if (currentLocation.equals(suicideLocation)){
                 rc.disintegrate();
                 // BOT'S DEAD!
@@ -211,23 +242,10 @@ public class BotMiner extends Util{
                 Movement.moveToDest(suicideLocation);
             }
         }
-        else{
-            isMinedThisTurn = false;
-            if (miningLocation == null){
-                getMiningLocation();
-                goToMine();
-            }
-            else{
-                if (!inPlaceForMining)
-                    goToMine();
-                else
-                    mine(currentLocation);
-            }
-        }
         
         if (isRubbleMapEnabled && turnCount != BIRTH_ROUND){
             RubbleMap.rubbleMapFormation(rc);
-            // RubbleMap.updateRubbleMap();
+            RubbleMap.updateRubbleMap();
         }
     }
 

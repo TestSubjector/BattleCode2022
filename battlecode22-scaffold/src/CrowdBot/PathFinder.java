@@ -4,6 +4,9 @@ import battlecode.common.*;
 
 // import java.util.PriorityQueue;
 
+// TODO: Try out Beam Search
+// TODO: Switch Cases for A*?????
+
 public class PathFinder extends Util {
 
     // private static Heap openList, closedList;
