@@ -40,8 +40,8 @@ public class BotArchon extends Util{
     public static void updateArchonBuildUnits(){
         int lTC = turnCount;
         watchTowerWeight = watchTowerCount;
-        aBUWeights[ArchonBuildUnits.BUILDER.ordinal()] = Math.min(1, 0.45 + lTC/400);
-        aBUWeights[ArchonBuildUnits.MINER.ordinal()] = Math.max(2.5, 4.5 - lTC/100);
+        aBUWeights[ArchonBuildUnits.BUILDER.ordinal()] = Math.min(1, 0.35 + lTC/400);
+        aBUWeights[ArchonBuildUnits.MINER.ordinal()] = Math.max(1, 4.5 - lTC/50);
         aBUWeights[ArchonBuildUnits.SAGE.ordinal()] = Math.max(2.5, 4.5 - lTC/100);
         aBUWeights[ArchonBuildUnits.SOLDIER.ordinal()] = Math.min(4.5, 2 + lTC/50);
     }
@@ -150,6 +150,7 @@ public class BotArchon extends Util{
 
     public static boolean shouldBuildMiner(){
         // TODO: Add turnsWaitingToBuild because of less lead here
+        // if (minerCount > 30 * archonCount) return false;
         return currentLeadReserves >= RobotType.MINER.buildCostLead;
     }
 
