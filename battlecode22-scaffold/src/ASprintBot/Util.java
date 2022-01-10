@@ -1,4 +1,4 @@
-package ASoldierBot;
+package ASprintBot;
 
 import battlecode.common.MapLocation;
 import battlecode.common.Clock;

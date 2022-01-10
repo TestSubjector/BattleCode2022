@@ -1,6 +1,6 @@
-package ASoldierBot;
+package ASprintBot;
 
-import ASoldierBot.Comms.SHAFlag;
+import ASprintBot.Comms.SHAFlag;
 import battlecode.common.*;
 
 public class BotMiner extends Util{
@@ -14,6 +14,7 @@ public class BotMiner extends Util{
     public static int desperationIndex;
     private static final int MIN_SUICIDE_DIST = 4;
     public static boolean prolificMiningLocationsAtBirth;
+    private static boolean moveOut;
 
 
     public static boolean areMiningLocationsAbundant(){
@@ -41,6 +42,7 @@ public class BotMiner extends Util{
         commitSuicide = false;
         suicideLocation = null;
         desperationIndex = 0;
+        moveOut = false; 
     }
 
 
@@ -59,6 +61,7 @@ public class BotMiner extends Util{
             return;
         while(rc.canMineGold(loc)){
             isMinedThisTurn = true;
+            desperationIndex = 0;
             rc.mineGold(loc);
         }
         int leadAmount = rc.senseLead(loc);
@@ -70,6 +73,7 @@ public class BotMiner extends Util{
         while (rc.canMineLead(loc)) {
             if (leadAmount == 1) break;
             isMinedThisTurn = true;
+            desperationIndex = 0;
             rc.mineLead(loc);
             leadAmount--;
         }
@@ -114,7 +118,8 @@ public class BotMiner extends Util{
                 }
                 // If outside of vision radius and the location has lead and is unoccupied
                 else if (curDist > MINER_VISION_RADIUS || (rc.senseLead(miningLocation) != 0 && !rc.isLocationOccupied(miningLocation))){
-                    Movement.moveToDest(miningLocation);
+                    if (!Movement.moveToDest(miningLocation)) desperationIndex++;
+                    else desperationIndex = Math.max(0, desperationIndex - 1);
                 }
                 else{ // Location is occupied or no lead // TODO: Check if occupied by miner/enemy miner, mine adjacent to deplete it
                     miningLocation = null;
@@ -282,14 +287,16 @@ public class BotMiner extends Util{
     static void runMiner(RobotController rc) throws GameActionException {
         // Try to mine on squares around us.
         //TODO: Move away from Archon to make space for it in first turn
-        // TODO: Check if for Archon's move away command.
+        // TODO: Check for Archon's move away command.
         minerComms();
         isMinedThisTurn = false;
-        if (desperationIndex > 7){
+        if (desperationIndex > 30){
             // Comms.writeCommMessageOverrwriteLesserPriorityMessageToHead(Comms.commType.LEAD, currentLocation, SHAFlag.LEAD_LOCATION);
             // Comms.writeCommMessageToHead(Comms.commType.LEAD, currentLocation, SHAFlag.LEAD_LOCATION);
+            
             Comms.writeCommMessageOverrwriteLesserPriorityMessage(Comms.commType.LEAD, intFromMapLocation(currentLocation), SHAFlag.LEAD_LOCATION);
             // Comms.writeCommMessage(Comms.commType.LEAD, intFromMapLocation(currentLocation), SHAFlag.LEAD_LOCATION);
+            
             rc.disintegrate(); 
             // You killed me! :(
         }

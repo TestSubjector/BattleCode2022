@@ -1,4 +1,4 @@
-package ASoldierBot;
+package OSoldierBot;
 
 import battlecode.common.*;
 

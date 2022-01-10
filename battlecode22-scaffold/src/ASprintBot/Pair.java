@@ -1,4 +1,4 @@
-package ASoldierBot;
+package ASprintBot;
 
 import java.util.Objects;
 
