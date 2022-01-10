@@ -59,6 +59,58 @@ public class PathFinder extends BotMiner{
     }
 
 
+    // public static Direction spiralIteration(MapLocation src, MapLocation dest){
+    //     int i = dest.x, j = dest.y;
+    //     int radius = 1;
+    //     // maxradiux is the max(dest.x, dest.y, MAP_HEIGHT - dest.y, MAP_WIDTH - dest.x)
+    //     int maxradius = StrictMath.max(dest.x, StrictMath.max(dest.y, StrictMath.max(MAP_HEIGHT - dest.y, MAP_WIDTH - dest.x)));
+    //     System.out.println("1: " + String.valueOf(Clock.getBytecodeNum()));
+    //     System.out.println("maxradius: " + maxradius);
+    //     MapLocation current;
+    //     while (radius <= maxradius){
+    //         i = i - 1;
+    //         System.out.println("infinite loop?");
+
+    //         while (dest.y - j < radius){
+    //             current = mapLocationFromCoords(i, j);
+    //             if (!isValidMapLocation(current)) break;
+    //             relaxTile(current);
+    //             --j;
+    //         }
+    //         j = dest.y - radius;
+    //         while(i - dest.x < radius){
+    //             current = mapLocationFromCoords(i, j);
+    //             if (!isValidMapLocation(current)) break;
+    //             relaxTile(current);
+    //             ++i;
+    //         }
+    //         i = radius + dest.x;
+    //         while(j - dest.y < radius){
+    //             current = mapLocationFromCoords(i, j);
+    //             if (!isValidMapLocation(current)) break;
+    //             relaxTile(current);
+    //             ++j;
+    //         }
+    //         j = radius + dest.y;
+    //         while(dest.x - i < radius){
+    //             current = mapLocationFromCoords(i, j);
+    //             if (!isValidMapLocation(current)) break;
+    //             relaxTile(current);
+    //             --i;
+    //         }
+    //         i = dest.x - radius;
+    //         current = mapLocationFromCoords(i, j);
+    //         if (isValidMapLocation(current))
+    //             relaxTile(current);
+    //         radius++;
+    //         System.out.println("1b: " + String.valueOf(Clock.getBytecodeNum()));
+    //     }
+    //     System.out.println("2: " + String.valueOf(Clock.getBytecodeNum()));
+    //     // if (paths[src.x][src.y].path != CENTER)
+    //     return paths[src.x][src.y].path;
+    // }
+
+
     public static Direction findPath(MapLocation src, MapLocation dest){
         
         if (paths[dest.x][dest.y].path == CENTER && paths[src.x][src.y].path != CENTER)

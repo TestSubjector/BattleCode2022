@@ -43,6 +43,16 @@ public class BotMiner extends Util{
         desperationIndex = 0;
     }
 
+
+    public static void mineAdjacentLocations() throws GameActionException {
+        MapLocation[] adjacentLocations = rc.getAllLocationsWithinRadiusSquared(currentLocation, 2);
+        for (MapLocation loc : adjacentLocations){
+            mine(loc);
+            if(!rc.isActionReady())
+                return;
+        }
+    }
+
     
     public static void mine(MapLocation loc) throws GameActionException{
         if (!rc.isActionReady())
@@ -100,7 +110,8 @@ public class BotMiner extends Util{
                 int curDist = currentLocation.distanceSquaredTo(miningLocation);
                 if (curDist == 0) { // Reached location
                     inPlaceForMining = true;
-                    mine(miningLocation);
+                    if (prolificMiningLocationsAtBirth) mineAdjacentLocations();
+                    else mine(miningLocation);
                 }
                 // If outside of vision radius and the location has lead and is unoccupied
                 else if (curDist > MINER_VISION_RADIUS || (rc.senseLead(miningLocation) != 0 && !rc.isLocationOccupied(miningLocation))){
@@ -113,7 +124,8 @@ public class BotMiner extends Util{
                 }
             }
             else{
-                mine(miningLocation);
+                if (prolificMiningLocationsAtBirth) mineAdjacentLocations();
+                else mine(miningLocation);
             }
         }
     }
@@ -291,8 +303,10 @@ public class BotMiner extends Util{
             else{
                 if (!inPlaceForMining)
                     goToMine();
-                else
-                    mine(currentLocation);
+                else{
+                    if (prolificMiningLocationsAtBirth) mineAdjacentLocations();
+                    else mine(currentLocation);
+                }
             }
         }
         if (commitSuicide){
@@ -319,6 +333,8 @@ public class BotMiner extends Util{
             RubbleMap.updateRubbleMap();
         }
         surveyForOpenMiningLocationsNearby();
+        // inPlaceForMining = false;
+        // miningLocation = null;
     }
 
 }
