@@ -1,4 +1,4 @@
-package ASprintBot;
+package AFinalSprintBot;
 
 import battlecode.common.*;
 

@@ -1,4 +1,4 @@
-package ASprintBot;
+package OSprintBot;
 
 import battlecode.common.*;
 
@@ -63,8 +63,10 @@ public class BotWatchTower extends Util{
     static void runWatchTower(RobotController rc) throws GameActionException {
         watchTowerComms();
         updateVision();
-        if (inRangeEnemies.length > 0) {
+        if (rc.isActionReady()){
+            if (inRangeEnemies.length > 0) {
             chooseTargetAndAttack(inRangeEnemies);
+            }
         }
 
         if (isRubbleMapEnabled && turnCount != BIRTH_ROUND){

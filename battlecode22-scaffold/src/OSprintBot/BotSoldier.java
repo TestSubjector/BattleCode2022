@@ -1,4 +1,4 @@
-package ASprintBot;
+package OSprintBot;
 
 import battlecode.common.*;
 
@@ -53,7 +53,7 @@ public class BotSoldier extends Util{
 		case SAGE:
 			return 10 / (health * 1);
 		default:
-			return (type.damage+0.00001) / (health); // Cooldown due to rubble ;
+			return (type.damage+0.0001) / (health); // Cooldown due to rubble ;
 		}
 	}
 
@@ -108,6 +108,7 @@ public class BotSoldier extends Util{
 		}
 		if (bestRetreatDir != null) {
 			rc.move(bestRetreatDir);
+            currentLocation = rc.getLocation();
 			return true;
 		}
 		return false;

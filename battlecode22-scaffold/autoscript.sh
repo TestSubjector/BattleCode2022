@@ -1,7 +1,7 @@
 #!/bin/bash
 
-team1=ASprintBot
-team2=OSoldierBot
+team1=AFinalSprintBot
+team2=OSprintBot
 
 mkdir -p logs
 

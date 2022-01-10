@@ -1,6 +1,6 @@
-package ASprintBot;
+package AFinalSprintBot;
 
-import ASprintBot.Comms.SHAFlag;
+import AFinalSprintBot.Comms.SHAFlag;
 import battlecode.common.*;
 
 public class BotMiner extends Util{
@@ -16,6 +16,7 @@ public class BotMiner extends Util{
     public static boolean prolificMiningLocationsAtBirth;
     private static boolean moveOut;
     private static RobotInfo[] visibleEnemies;
+    private static boolean isFleeing;
 
     public static boolean areMiningLocationsAbundant(){
         try{
@@ -43,6 +44,7 @@ public class BotMiner extends Util{
         suicideLocation = null;
         desperationIndex = 0;
         moveOut = false; 
+        isFleeing = false;
     }
 
 
@@ -50,7 +52,7 @@ public class BotMiner extends Util{
         MapLocation[] adjacentLocations = rc.getAllLocationsWithinRadiusSquared(currentLocation, 2);
         for (MapLocation loc : adjacentLocations){
             mine(loc);
-            if(!rc.isActionReady())
+            if(!rc.isActionReady()) // We can mine more one time so this is placed after mine()
                 return;
         }
     }
@@ -365,6 +367,12 @@ public class BotMiner extends Util{
         turnBroadcastCount = 0;
         minerComms();
         updateVision();
+        // if(Movement.retreatIfNecessary(visibleAllies, visibleEnemies)){
+        //     isFleeing = true;
+        //     moveOut = true;
+        //     mineAdjacentLocations();
+        // }
+        // else isFleeing = false;
         isMinedThisTurn = false;
         if (desperationIndex > 30){
             Comms.writeCommMessageOverrwriteLesserPriorityMessage(Comms.commType.LEAD, intFromMapLocation(currentLocation), SHAFlag.LEAD_LOCATION);
@@ -372,7 +380,7 @@ public class BotMiner extends Util{
             // You killed me! :(
         }
         
-        if (!commitSuicide){
+        if (!commitSuicide && !isFleeing){
             if (miningLocation == null){
                 getMiningLocation();
                 goToMine();
@@ -386,7 +394,7 @@ public class BotMiner extends Util{
                 }
             }
         }
-        if (commitSuicide){
+        if (commitSuicide && !isFleeing){
             if (currentLocation.equals(suicideLocation)){
                 Comms.writeCommMessageOverrwriteLesserPriorityMessage(Comms.commType.LEAD, intFromMapLocation(currentLocation), SHAFlag.LEAD_LOCATION);
                 rc.disintegrate();

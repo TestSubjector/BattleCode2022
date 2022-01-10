@@ -1,4 +1,4 @@
-package ASprintBot;
+package OSprintBot;
 
 import java.util.Objects;
 

@@ -1,4 +1,4 @@
-package ASprintBot;
+package OSprintBot;
 
 import battlecode.common.MapLocation;
 import battlecode.common.Clock;

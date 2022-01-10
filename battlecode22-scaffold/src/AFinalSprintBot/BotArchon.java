@@ -1,4 +1,4 @@
-package ASprintBot;
+package AFinalSprintBot;
 
 import battlecode.common.*;
 
@@ -26,6 +26,9 @@ public class BotArchon extends Util{
     public static int watchTowerCount;
     public static int watchTowerWeight;
     public static int turnsWaitingToBuild;
+    private static RobotInfo[] visibleEnemies;
+    private static RobotInfo[] visibleAllies;
+    private static int fleeIndex;
 
     // This will give each Archon which number it is in the queue
     public static void initBotArchon() throws GameActionException {    
@@ -33,8 +36,9 @@ public class BotArchon extends Util{
         myArchonID = transmitterCount % archonCount;
         commID = myArchonID;
         startingArchons = rc.getArchonCount();
+        fleeIndex = 0;
     }
-
+    
     // Update weights of each Archon
     // TODO: Link currentweights with comms counter
     public static void updateArchonBuildUnits(){
@@ -44,6 +48,11 @@ public class BotArchon extends Util{
         aBUWeights[ArchonBuildUnits.MINER.ordinal()] = Math.max(1, 4.5 - lTC/50);
         aBUWeights[ArchonBuildUnits.SAGE.ordinal()] = Math.max(2.5, 4.5 - lTC/100);
         aBUWeights[ArchonBuildUnits.SOLDIER.ordinal()] = Math.min(4.5, 2 + lTC/50);
+    }
+
+    private static void updateVision() throws GameActionException {
+        visibleEnemies = rc.senseNearbyRobots(SOLDIER_VISION_RADIUS, ENEMY_TEAM);
+        visibleAllies = rc.senseNearbyRobots(SOLDIER_ACTION_RADIUS, ENEMY_TEAM);
     }
 
     public static void buildDivision() throws GameActionException{
@@ -143,7 +152,7 @@ public class BotArchon extends Util{
         return unitToBuild;
     }
 
-     // TODO: Reorganise to sprint
+     // TODO: Reorganise after sprint
     public static boolean watchTowerDebt(double minWeight, ArchonBuildUnits unitToBuild) throws GameActionException{
         return minWeight < 100000 && 
                 watchTowerWeight < minWeight && 
@@ -155,6 +164,7 @@ public class BotArchon extends Util{
 
     public static boolean shouldBuildBuilder(){
         if (turnCount < 30) return false;
+        if (builderCount > archonCount && currentLeadReserves < 500) return false;
         return true;
     }
 
@@ -209,14 +219,42 @@ public class BotArchon extends Util{
         Comms.updateArchonLocations();
     }
 
+    private static void shouldFlee(){
+        // You have more enemies than friends and you are not the main producer Archon
+        if (visibleEnemies.length > visibleAllies.length && commID != 0){
+            fleeIndex++;
+        }
+        else {
+            fleeIndex = 0;
+        }
+    }
+
+    private static void transformAndFlee() throws GameActionException{
+        if (fleeIndex > 3 && rc.getMode() != RobotMode.PORTABLE && rc.canTransform()) {
+            rc.transform();
+        }
+        else if (fleeIndex > 0){ // Still detecting more enemies, flee more to friendly archon otherwise hold position
+            MapLocation fleeLocation = getClosestArchonLocation(true);
+            Movement.goToDirect(fleeLocation);
+
+        }
+        // Enemies contained and transform cooldown gone
+        else if (fleeIndex == 0 && rc.getMode() == RobotMode.PORTABLE && rc.canTransform()){
+            rc.transform();
+        }
+    }
+
     /**
     * Run a single turn for an Archon.
     * This code is wrapped inside the infinite loop in run(), so it is called once per turn.
     */
     public static void runArchon(RobotController rc) throws GameActionException {
-        archonComms() ;
+        archonComms();
+        updateVision();
         updateArchonBuildUnits();
         buildDivision();
+        shouldFlee();
+        transformAndFlee();
     }
 
 }

@@ -1,4 +1,4 @@
-package ASprintBot;
+package OSprintBot;
 
 import battlecode.common.*;
 
@@ -6,16 +6,19 @@ public class Movement extends Util{
     public static boolean tryMoveInDirection(Direction dir) throws GameActionException {
 		if (rc.canMove(dir)) {
 			rc.move(dir);
+            currentLocation = rc.getLocation();
 			return true;
 		}
 		Direction left = dir.rotateLeft();
 		if (rc.canMove(left)) {
 			rc.move(left);
+            currentLocation = rc.getLocation();
 			return true;
 		}
 		Direction right = dir.rotateRight();
 		if (rc.canMove(right)) {
 			rc.move(right);
+            currentLocation = rc.getLocation();
 			return true;
 		}
 		return false;
@@ -30,6 +33,7 @@ public class Movement extends Util{
     	    if (currentLocation.isAdjacentTo(dest)) {
     	    	if (rc.canMove(forward)) {
     	    		rc.move(forward);
+                    currentLocation = rc.getLocation();
     	    		return true;
     	    	}
     	    }	
@@ -59,6 +63,7 @@ public class Movement extends Util{
         
     	    if (bestDir != null) {
     	    	rc.move(bestDir);
+                currentLocation = rc.getLocation();
     	    	return true;
     	    }
     	    return false;
@@ -79,6 +84,7 @@ public class Movement extends Util{
 			Direction dir = PathFinder.findPathAStar(currentLocation, dest);
 			if (rc.canMove(dir)){
 				rc.move(dir);
+                currentLocation = rc.getLocation();
 				return true;
 			}
 			else return false;
@@ -95,7 +101,10 @@ public class Movement extends Util{
 
     public static void moveRandomly() throws GameActionException {
         Direction dir = Globals.directions[Globals.rng.nextInt(Globals.directions.length)];
-        if (rc.canMove(dir)) rc.move(dir);
+        if (rc.canMove(dir)) {
+            rc.move(dir);
+            currentLocation = rc.getLocation();
+        }
     }
 
     public static MapLocation moveToLattice(int minLatticeDist, int weights){
@@ -142,4 +151,53 @@ public class Movement extends Util{
         return null;
     }
     
+    public static boolean retreatIfNecessary(RobotInfo[] visibleHostiles) throws GameActionException {
+		if (visibleHostiles.length == 0) return false;
+		
+		boolean mustRetreat = false;
+		int bestClosestDistSq = Integer.MAX_VALUE;
+        MapLocation lCR = currentLocation;
+		for (RobotInfo hostile : visibleHostiles) {			
+            //Sage killing one miner is worth for sage action cooldown
+			if (hostile.type.canAttack() && hostile.type != RobotType.SAGE) {
+				int distSq = lCR.distanceSquaredTo(hostile.location);
+				if (distSq <= hostile.type.actionRadiusSquared) {
+					mustRetreat = true;
+					if (distSq < bestClosestDistSq) {
+						bestClosestDistSq = distSq;
+					}
+				}
+			}
+		}
+		if (!mustRetreat) return false;
+		
+		Direction bestDir = null;
+		Direction[] dirs = Direction.values();
+		for (int i = dirs.length; i--> 0;) {
+			Direction dir = dirs[i];
+			if (!rc.canMove(dir)) continue;
+			MapLocation dirLoc = lCR.add(dir);
+			int dirClosestDistSq = Integer.MAX_VALUE;
+			for (RobotInfo hostile : visibleHostiles) {
+				if (hostile.type.canAttack()) {
+					int distSq = dirLoc.distanceSquaredTo(hostile.location);
+					if (distSq < dirClosestDistSq) {
+						dirClosestDistSq = distSq;						
+						if (dirClosestDistSq <= bestClosestDistSq) break;
+					}
+				}
+			}
+			if (dirClosestDistSq > bestClosestDistSq) {
+				bestClosestDistSq = dirClosestDistSq;
+				bestDir = dir;
+			}
+		}
+		
+		if (bestDir != null) {
+			rc.move(bestDir);
+            currentLocation = rc.getLocation();
+			return true;
+		}
+		return false;
+	}
 }
