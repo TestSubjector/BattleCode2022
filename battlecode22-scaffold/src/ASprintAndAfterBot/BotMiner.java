@@ -1,6 +1,6 @@
-package AFinalSprintBot;
+package ASprintAndAfterBot;
 
-import AFinalSprintBot.Comms.SHAFlag;
+import ASprintAndAfterBot.Comms.SHAFlag;
 import battlecode.common.*;
 
 public class BotMiner extends Util{

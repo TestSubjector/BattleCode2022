@@ -1,4 +1,4 @@
-package AFinalSprintBot;
+package OFinalSprintBot;
 
 import battlecode.common.*;
 
@@ -58,7 +58,7 @@ public class Comms extends Util{
         Channel 1: Our Archon's Location
         Channel 2: Enemy's Archon Location
         Channel 3: Move away command from our archon to be written here when too crowded
-        Channel 4: ?????????????
+        Channel 4: Count of units build by this Archon
     */
     
     public static int channelArchonStop = CHANNEL_ARCHON_START + 16; // Can change depending on number of Archons alive, updated in BotComms()
