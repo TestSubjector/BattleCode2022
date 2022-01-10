@@ -15,7 +15,7 @@ public class BotMiner extends Util{
     private static final int MIN_SUICIDE_DIST = 4;
     public static boolean prolificMiningLocationsAtBirth;
     private static boolean moveOut;
-
+    private static RobotInfo[] visibleEnemies;
 
     public static boolean areMiningLocationsAbundant(){
         try{
@@ -93,6 +93,9 @@ public class BotMiner extends Util{
         Comms.updateComms();
     }
 
+    public static void updateVision() throws GameActionException {
+        visibleEnemies = rc.senseNearbyRobots(MINER_VISION_RADIUS, ENEMY_TEAM);
+    }
 
     public static MapLocation findOpenMiningLocationNearby() throws GameActionException{
         if (prolificMiningLocationsAtBirth){
@@ -361,6 +364,7 @@ public class BotMiner extends Util{
         // TODO: Check for Archon's move away command.
         turnBroadcastCount = 0;
         minerComms();
+        updateVision();
         isMinedThisTurn = false;
         if (desperationIndex > 30){
             Comms.writeCommMessageOverrwriteLesserPriorityMessage(Comms.commType.LEAD, intFromMapLocation(currentLocation), SHAFlag.LEAD_LOCATION);
@@ -408,6 +412,7 @@ public class BotMiner extends Util{
         }
         // int bytecodeC = Clock.getBytecodesLeft();
         surveyForOpenMiningLocationsNearby();
+        BotSoldier.sendCombatLocation(visibleEnemies);
         // bytecodediff = Math.max(bytecodeC - Clock.getBytecodesLeft(), bytecodediff);
     }
 

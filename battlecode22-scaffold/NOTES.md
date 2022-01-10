@@ -16,3 +16,4 @@
 * 4 tree for unexplored tiles (Discord: general, Jan 9; 12:25PM)
 * Boundary Volume Hierarchy??
 * Make the weak archons travel to the stronger archon to form a defensive line.
+* If the combat unit kills enemy unit and then senses that unit location, will that sense return true or false? Ask in Discord.

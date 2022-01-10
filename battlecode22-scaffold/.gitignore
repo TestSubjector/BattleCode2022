@@ -32,6 +32,6 @@ battlecode-scaffold.iws
 .settings/
 
 *.txt
-*.sh
+*.log
 run
 backup

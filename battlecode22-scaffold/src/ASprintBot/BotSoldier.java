@@ -21,7 +21,7 @@ public class BotSoldier extends Util{
         Comms.updateComms();
     }
 
-    public static void updateVision() throws GameActionException {
+    private static void updateVision() throws GameActionException {
         visibleEnemies = rc.senseNearbyRobots(SOLDIER_VISION_RADIUS, ENEMY_TEAM);
         inRangeEnemies = rc.senseNearbyRobots(SOLDIER_ACTION_RADIUS, ENEMY_TEAM);
     }
@@ -114,6 +114,7 @@ public class BotSoldier extends Util{
 	}
 
     private static boolean tryMoveToHelpAlly(RobotInfo closestHostile) throws GameActionException {
+        if(closestHostile == null) return false;
 		MapLocation closestHostileLocation = closestHostile.location;
 		
 		boolean allyIsFighting = false;
@@ -134,6 +135,7 @@ public class BotSoldier extends Util{
 	}
 
     private static boolean tryMoveToAttackProductionUnit(RobotInfo closestHostile) throws GameActionException {
+        if(closestHostile == null) return false;
 		if (closestHostile.type.canAttack()) 
             return false;
 	    if (Movement.tryMoveInDirection(currentLocation.directionTo(closestHostile.location))) 
@@ -142,6 +144,7 @@ public class BotSoldier extends Util{
 	}
 
     private static boolean tryMoveToEngageOutnumberedEnemy(RobotInfo[] visibleHostiles, RobotInfo closestHostile) throws GameActionException {
+        if(closestHostile == null) return false;
 		MapLocation closestHostileLocation = closestHostile.location;
         int numNearbyHostiles = 0;
 		for (RobotInfo hostile : visibleHostiles) {
@@ -182,8 +185,9 @@ public class BotSoldier extends Util{
             }
         }
         if (rc.isMovementReady()){
-            RobotInfo closestHostile = getClosestUnit(visibleEnemies);
+            // Most important function
             if (inRangeEnemies.length > 0 && tryToBackUpToMaintainMaxRange(visibleEnemies)) return true; // Cant attack, try to move out
+            RobotInfo closestHostile = getClosestUnit(visibleEnemies);
             if (tryMoveToHelpAlly(closestHostile)) return true; // Maybe add how many turns of attack cooldown here?
             if (tryMoveToEngageOutnumberedEnemy(visibleEnemies, closestHostile)) return true;
             if (tryMoveToAttackProductionUnit(closestHostile)) return true;
@@ -197,6 +201,25 @@ public class BotSoldier extends Util{
             MapLocation toAttack = inRangeEnemies[0].location;
             if (rc.canAttack(toAttack)) {
                 rc.attack(toAttack);
+            }
+        }
+    }
+
+    public static void sendCombatLocation(RobotInfo[] visibleHostiles) throws GameActionException{
+        if (visibleHostiles.length != 0){
+            RobotInfo closestHostile = getClosestUnit(visibleHostiles);
+            if (closestHostile != null)
+                Comms.writeCommMessageOverrwriteLesserPriorityMessageToHead(Comms.commType.COMBAT, closestHostile.getLocation(), Comms.SHAFlag.COMBAT_LOCATION);
+        }
+    }
+
+
+    // If our current destination has no enemies left, move to the nearest new location with combat
+    public static void findNewCombatLocation() throws GameActionException{
+        if (visibleEnemies.length == 0 && rc.canSenseLocation(currentDestination)){
+            MapLocation combatLocation = Comms.findNearestLocationOfThisType(currentLocation, Comms.commType.COMBAT, Comms.SHAFlag.COMBAT_LOCATION);
+            if (combatLocation != null){
+                currentDestination = combatLocation;
             }
         }
     }
@@ -215,15 +238,16 @@ public class BotSoldier extends Util{
         tryToMicro();
         // TODO: Turret avoidance Comms code
 
-        if (visibleEnemies.length == 0) {
-            Movement.goToDirect(Globals.currentDestination); // 370 Bytecodes
+        findNewCombatLocation();
+        if (visibleEnemies.length == 0) { // Do normal pathfinding only when no enemy units around
+            Movement.goToDirect(currentDestination); // 370 Bytecodes
         }
 
         if (isRubbleMapEnabled && turnCount != BIRTH_ROUND){
             RubbleMap.rubbleMapFormation(rc);
             // RubbleMap.updateRubbleMap();
         }
-
+        sendCombatLocation(visibleEnemies);
         BotMiner.surveyForOpenMiningLocationsNearby(); // TODO: Reorganise to sprint
     }
 }
