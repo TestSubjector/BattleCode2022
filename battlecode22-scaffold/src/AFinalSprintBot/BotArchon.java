@@ -29,6 +29,7 @@ public class BotArchon extends Util{
     private static RobotInfo[] visibleEnemies;
     private static RobotInfo[] visibleAllies;
     private static int fleeIndex;
+    private static MapLocation fleeLocation;
 
     // This will give each Archon which number it is in the queue
     public static void initBotArchon() throws GameActionException {    
@@ -37,6 +38,7 @@ public class BotArchon extends Util{
         commID = myArchonID;
         startingArchons = rc.getArchonCount();
         fleeIndex = 0;
+        fleeLocation = null;
     }
     
     // Update weights of each Archon
@@ -221,7 +223,7 @@ public class BotArchon extends Util{
 
     private static void shouldFlee(){
         // You have more enemies than friends and you are not the main producer Archon
-        if (visibleEnemies.length > visibleAllies.length && commID != 0){
+        if (visibleEnemies.length > visibleAllies.length && commID > 0 && currentLeadReserves < RobotType.SOLDIER.buildCostLead) {
             fleeIndex++;
         }
         else {
@@ -230,19 +232,34 @@ public class BotArchon extends Util{
     }
 
     private static void transformAndFlee() throws GameActionException{
-        if (fleeIndex > 3 && rc.getMode() != RobotMode.PORTABLE && rc.canTransform()) {
-            rc.transform();
+        if (fleeIndex > 5 && rc.getMode() != RobotMode.PORTABLE && rc.canTransform()) {
+            if (fleeLocation == null) { 
+                fleeLocation = getClosestArchonLocation(true);
+                if (currentLocation.distanceSquaredTo(fleeLocation) > 25) rc.transform();
+                else fleeLocation = null;
+            }
         }
-        else if (fleeIndex > 0){ // Still detecting more enemies, flee more to friendly archon otherwise hold position
-            MapLocation fleeLocation = getClosestArchonLocation(true);
-            Movement.goToDirect(fleeLocation);
 
-        }
-        // Enemies contained and transform cooldown gone
-        else if (fleeIndex == 0 && rc.getMode() == RobotMode.PORTABLE && rc.canTransform()){
-            rc.transform();
+        if (rc.getMode() == RobotMode.PORTABLE){ 
+            // Enemies contained and transform cooldown gone
+            if (fleeIndex == 0 && rc.canTransform() && currentLocation.distanceSquaredTo(fleeLocation) < 81){
+                rc.transform();
+                fleeLocation = null;
+            }
+            if (fleeLocation != null) Movement.goToDirect(fleeLocation);
         }
     }
+
+    // Sadly, self heal does not look possible. TODO - Ask in Discord
+    // private static void selfHeal() throws GameActionException{
+    //     if (rc.getHealth() < RobotType.ARCHON.health) {
+    //         if (rc.canRepair(currentLocation)){
+    //             System.out.println("Can repair");
+    //             rc.repair(currentLocation);
+    //         }
+    //         else System.out.println("Cannot repair");
+    //     }
+    // }
 
     /**
     * Run a single turn for an Archon.
@@ -255,6 +272,7 @@ public class BotArchon extends Util{
         buildDivision();
         shouldFlee();
         transformAndFlee();
+        // selfHeal();
     }
 
 }
