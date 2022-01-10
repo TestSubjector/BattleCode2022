@@ -15,3 +15,4 @@
 ~~* Read all the elements of the shared array at once and store them.~~
 * 4 tree for unexplored tiles (Discord: general, Jan 9; 12:25PM)
 * Boundary Volume Hierarchy??
+* Make the weak archons travel to the stronger archon to form a defensive line.
