@@ -196,6 +196,31 @@ public class Comms extends Util{
 
 
     /**
+     * Finds and returns the nearest location (to the reference location) that has the given SHAFlag from the communication channels and wipes the channel after reading.
+     * @param loc  : The reference location.
+     * @param type : Search for the message in this type's channels (LEAD or COMBAT);
+     * @param flag : the SHAFlag that is being searched for in the comms channels.
+     * @return the first MapLocation found of the correct SHAFlag type or null if none found.
+     * @throws GameActionException
+     */
+    public static MapLocation findNearestLocationOfThisTypeAndWipeChannel(MapLocation loc, commType type, SHAFlag flag) throws GameActionException{
+        MapLocation nearestLoc = null;
+        int channel = -1;
+        for (int i = type.commChannelStart; i < type.commChannelStop; ++i){
+            int message = rc.readSharedArray(i);
+            MapLocation newLoc = readLocationFromMessage(message);
+            if (nearestLoc == null || loc.distanceSquaredTo(nearestLoc) > loc.distanceSquaredTo(newLoc)){ 
+                nearestLoc = newLoc;
+                channel = i;
+            }
+        }
+        if (channel != -1)
+        wipeChannel(channel);
+        return nearestLoc;
+    }
+
+
+    /**
      * Finds and returns the first message found in the communication channels that has the given SHAFlag.
      * @param type : Search for the message in this type's channels (LEAD or COMBAT);
      * @param flag : the SHAFlag that is being searched for in the comms channels.

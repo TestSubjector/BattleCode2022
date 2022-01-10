@@ -32,6 +32,8 @@ public class Globals {
     public static MapLocation rememberedEnemyArchonLocations[];
     public static int parentArchonCongruence;
     public static boolean botFreeze;
+    public static int turnBroadcastCount;
+    public static final int TURN_BROADCAST_LIMIT = 4;
 
     public static boolean underAttack;
     public static boolean isSafe=false;
