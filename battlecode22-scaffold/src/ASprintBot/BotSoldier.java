@@ -73,6 +73,46 @@ public class BotSoldier extends Util{
 		}
 	}
 
+    // TODO: Add check for Rubble
+    private static boolean tryToBackUpToMaintainMaxRange(RobotInfo[] visibleHostiles) throws GameActionException {
+		int closestHostileDistSq = Integer.MAX_VALUE;
+        MapLocation lCR = currentLocation;
+        for (RobotInfo hostile : visibleHostiles) {
+			if (!hostile.type.canAttack()) continue;
+			int distSq = lCR.distanceSquaredTo(hostile.location);
+			if (distSq < closestHostileDistSq) {
+				closestHostileDistSq = distSq;
+			}
+		}
+		
+		if (closestHostileDistSq > SOLDIER_ACTION_RADIUS) return false; // We dont want to get out of our max range
+		
+		Direction bestRetreatDir = null;
+		int bestDistSq = closestHostileDistSq;
+		// boolean foundOrthogonalRetreatDir = false;
+		for (Direction dir : directions) {
+			if (!rc.canMove(dir)) continue;
+			MapLocation dirLoc = lCR.add(dir);			
+			int smallestDistSq = Integer.MAX_VALUE;
+			for (RobotInfo hostile : visibleHostiles) {
+				if (!hostile.type.canAttack()) continue;
+				int distSq = hostile.location.distanceSquaredTo(dirLoc);
+				if (distSq < smallestDistSq) {
+					smallestDistSq = distSq;
+				}
+			}
+			if (smallestDistSq > bestDistSq) {
+				bestDistSq = smallestDistSq;
+				bestRetreatDir = dir;
+			}
+		}
+		if (bestRetreatDir != null) {
+			rc.move(bestRetreatDir);
+			return true;
+		}
+		return false;
+	}
+
     private static boolean tryMoveToHelpAlly(RobotInfo closestHostile) throws GameActionException {
 		MapLocation closestHostileLocation = closestHostile.location;
 		
@@ -112,7 +152,7 @@ public class BotSoldier extends Util{
 			}
 		}
 		
-		int numNearbyAllies = 1;
+		int numNearbyAllies = 1; // Counts ourself
 		RobotInfo[] nearbyAllies = rc.senseNearbyRobots(closestHostileLocation, SOLDIER_ACTION_RADIUS, MY_TEAM);
 		for (RobotInfo ally : nearbyAllies) {
 			if (ally.type.canAttack() && ally.health >= ally.type.getMaxHealth(1)/2) {
@@ -143,9 +183,10 @@ public class BotSoldier extends Util{
         }
         if (rc.isMovementReady()){
             RobotInfo closestHostile = getClosestUnit(visibleEnemies);
-            if(tryMoveToHelpAlly(closestHostile)) return true;
-            if(tryMoveToEngageOutnumberedEnemy(visibleEnemies, closestHostile)) return true;
-            if(tryMoveToAttackProductionUnit(closestHostile)) return true;
+            if (inRangeEnemies.length > 0 && tryToBackUpToMaintainMaxRange(visibleEnemies)) return true; // Cant attack, try to move out
+            if (tryMoveToHelpAlly(closestHostile)) return true; // Maybe add how many turns of attack cooldown here?
+            if (tryMoveToEngageOutnumberedEnemy(visibleEnemies, closestHostile)) return true;
+            if (tryMoveToAttackProductionUnit(closestHostile)) return true;
         }
         return false;
     }
