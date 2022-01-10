@@ -1,6 +1,7 @@
 dist/*
 build/*
 
+/backups
 /matches
 /deploy/lib
 /deploy/bin
@@ -31,3 +32,6 @@ battlecode-scaffold.iws
 .settings/
 
 *.txt
+*.sh
+run
+backup

@@ -27,12 +27,19 @@ public class BotBuilder extends Util{
             destAdjacent = currentLocation;
             return true;
         }
-        if (destAdjacent == null) destAdjacent = PathFinder.findOptimumAdjacentLocation(dest);
-        if(!currentLocation.equals(destAdjacent)){
+         // TODO: Reorganise to sprint
+        if (destAdjacent == null && rc.canSenseLocation(dest)) destAdjacent = PathFinder.findOptimumAdjacentLocation(dest);
+        if (destAdjacent == null){
+            if(!currentLocation.equals(dest)){
+                Movement.moveToDest(dest);
+                return currentLocation.equals(dest);
+            }
+        }
+        else if(!currentLocation.equals(destAdjacent)){
             Movement.moveToDest(destAdjacent);
             return currentLocation.equals(destAdjacent);
         }
-        return true;
+        return false;
     }
 
 

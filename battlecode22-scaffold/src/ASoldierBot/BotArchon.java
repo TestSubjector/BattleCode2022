@@ -133,17 +133,19 @@ public class BotArchon extends Util{
         return unitToBuild;
     }
 
+     // TODO: Reorganise to sprint
     public static boolean watchTowerDebt(double minWeight, ArchonBuildUnits unitToBuild) throws GameActionException{
         return minWeight < 100000 && 
                 watchTowerWeight < minWeight && 
                 builderCount != 0 && 
                 currentLeadReserves < giveUnitType(unitToBuild).buildCostLead + RobotType.WATCHTOWER.buildCostLead && 
-                turnsWaitingToBuild < 100;
+                turnsWaitingToBuild < 100 && 
+                (BotMiner.areMiningLocationsAbundant() || currentLeadReserves > 500);
     }
 
     public static boolean shouldBuildBuilder(){
-        // if (turnCount < 500) return false;
-        return false;
+        if (turnCount < 30) return false;
+        return true;
     }
 
     public static boolean shouldBuildMiner(){

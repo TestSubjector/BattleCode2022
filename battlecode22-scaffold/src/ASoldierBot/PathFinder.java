@@ -28,17 +28,18 @@ public class PathFinder extends Util {
         
     }
 
-
-    // Currently searches for the adjacent location with least rubble acc. to RubbleMap
-    public static MapLocation findOptimumAdjacentLocation(MapLocation dest){
+        // Currently searches for the adjacent location with least rubble acc. to senseRubble
+    public static MapLocation findOptimumAdjacentLocation(MapLocation dest) throws GameActionException{
         int x = dest.x, y = dest.y;
         float minVal = 10;
         int minX = -1, minY = -1;
+        MapLocation adjacentLocation = null;
         for (int dx = -2; dx++ < 1;){
             for (int dy = -2; dy++ < 1;){
                 int curX = x + dx, curY = y + dy;
-                if (!isValidMapLocation(curX, curY)) continue;
-                float curRubble = rubbleMap[curX][curY];
+                adjacentLocation = new MapLocation(curX, curY);
+                if (!rc.canSenseLocation(adjacentLocation)) continue;
+                float curRubble = rc.senseRubble(adjacentLocation);
                 if (curRubble < minVal){
                     minVal = curRubble;
                     minX = curX;
@@ -50,6 +51,29 @@ public class PathFinder extends Util {
             return new MapLocation(minX, minY);
         else return null;
     }
+
+
+    // Currently searches for the adjacent location with least rubble acc. to RubbleMap
+    // public static MapLocation findOptimumAdjacentLocation(MapLocation dest){
+    //     int x = dest.x, y = dest.y;
+    //     float minVal = 10;
+    //     int minX = -1, minY = -1;
+    //     for (int dx = -2; dx++ < 1;){
+    //         for (int dy = -2; dy++ < 1;){
+    //             int curX = x + dx, curY = y + dy;
+    //             if (!isValidMapLocation(curX, curY)) continue;
+    //             float curRubble = rubbleMap[curX][curY];
+    //             if (curRubble < minVal){
+    //                 minVal = curRubble;
+    //                 minX = curX;
+    //                 minY = curY;
+    //             }
+    //         }
+    //     }
+    //     if (minVal != 10)
+    //         return new MapLocation(minX, minY);
+    //     else return null;
+    // }
 
     public static MapLocation findAnAdjacentLocation(MapLocation dest){
         int x = dest.x, y = dest.y;

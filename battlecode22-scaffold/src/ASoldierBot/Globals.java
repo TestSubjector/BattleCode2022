@@ -271,9 +271,9 @@ public class Globals {
         rememberedEnemyArchonLocations = new MapLocation[4];
         updateEnemyArchonLocation();
         if(BIRTH_ROUND % 2 == 0) {
-            currentDestination = ratioPointBetweenTwoMapLocations(parentArchonLocation, rememberedEnemyArchonLocations[0], 0.2);
+            currentDestination = ratioPointBetweenTwoMapLocations(parentArchonLocation, rememberedEnemyArchonLocations[0], 0.1);
         } else {
-            currentDestination = ratioPointBetweenTwoMapLocations(parentArchonLocation, rememberedEnemyArchonLocations[1], 0.2);
+            currentDestination = ratioPointBetweenTwoMapLocations(parentArchonLocation, rememberedEnemyArchonLocations[1], 0.1);
         }
         
     }

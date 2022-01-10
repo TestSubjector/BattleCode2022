@@ -84,14 +84,13 @@ public class BotMiner extends Util{
 
 
     public static MapLocation findOpenMiningLocationNearby() throws GameActionException{
-        if (rc.senseLead(currentLocation) > 0 && parentArchonLocation.distanceSquaredTo(currentLocation) > 2){
-            return currentLocation;
-        }
-
         if (prolificMiningLocationsAtBirth){
             return Movement.moveToLattice(2, 0);
         }
-
+        
+        if (rc.senseLead(currentLocation) > 0 && parentArchonLocation.distanceSquaredTo(currentLocation) > 2){
+            return currentLocation;
+        }
         MapLocation[] potentialMiningLocations = rc.senseNearbyLocationsWithLead(MINER_VISION_RADIUS);
         
         for (MapLocation loc : potentialMiningLocations){   
@@ -148,10 +147,10 @@ public class BotMiner extends Util{
             }
         }
         if (selectedChannel != -1){
-            int bytecodeC = Clock.getBytecodesLeft();
+            // int bytecodeC = Clock.getBytecodesLeft();
             Comms.wipeChannel(selectedChannel);
             // Comms.wipeChannelUpdateHead(Comms.commType.LEAD, selectedChannel);
-            bytecodediff = Math.max(bytecodeC - Clock.getBytecodesLeft(), bytecodediff);
+            // bytecodediff = Math.max(bytecodeC - Clock.getBytecodesLeft(), bytecodediff);
 
         }
         return loc;

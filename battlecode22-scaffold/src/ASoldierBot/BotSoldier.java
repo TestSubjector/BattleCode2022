@@ -182,6 +182,7 @@ public class BotSoldier extends Util{
             RubbleMap.rubbleMapFormation(rc);
             // RubbleMap.updateRubbleMap();
         }
-		// TODO: Add BotMiner.surveyForOpenMiningLocationsNearby() here eventually
+
+        BotMiner.surveyForOpenMiningLocationsNearby(); // TODO: Reorganise to sprint
     }
 }
