@@ -57,8 +57,13 @@ public class BotArchon extends Util{
         visibleAllies = rc.senseNearbyRobots(SOLDIER_ACTION_RADIUS, ENEMY_TEAM);
     }
 
+    private static boolean isQuotaTime() throws GameActionException{
+        return (currentLeadReserves < 95) && (rc.getRoundNum() % archonCount != commID) && (rc.getRoundNum() < 25);
+    }
+
     public static void buildDivision() throws GameActionException{
         if (!rc.isActionReady() || currentLeadReserves < RobotType.MINER.buildCostLead) return;
+        // else if(isQuotaTime()) return;
         else buildUnit();
     }
 

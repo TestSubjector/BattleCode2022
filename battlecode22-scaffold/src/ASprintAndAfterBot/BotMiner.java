@@ -419,8 +419,8 @@ public class BotMiner extends Util{
             miningLocation = null;
         }
         // int bytecodeC = Clock.getBytecodesLeft();
-        surveyForOpenMiningLocationsNearby();
         BotSoldier.sendCombatLocation(visibleEnemies);
+        surveyForOpenMiningLocationsNearby();
         // bytecodediff = Math.max(bytecodeC - Clock.getBytecodesLeft(), bytecodediff);
     }
 

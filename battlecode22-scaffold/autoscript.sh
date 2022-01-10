@@ -9,7 +9,7 @@ rm -f logs/results.log
 rm -f logs/warnings.log
 rm -f logs/log.log
 
-for i in intersection maptestsmall eckleburg
+for i in intersection eckleburg maptestsmall
 do
   echo "Running map $i"
   ./gradlew -PteamA=$team1 -PteamB=$team2 -Pmaps=$i -PprofilerEnabled=false run >> logs/log.log
