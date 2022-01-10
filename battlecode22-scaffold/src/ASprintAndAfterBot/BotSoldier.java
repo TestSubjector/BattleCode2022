@@ -36,6 +36,19 @@ public class BotSoldier extends Util{
 		}
 	}
 
+    private static void surveyForSafeOpenMiningLocationsNearby() throws GameActionException{
+        RobotInfo[] visibleAllies = rc.senseNearbyRobots(SOLDIER_VISION_RADIUS, MY_TEAM);
+        if(visibleEnemies.length > visibleAllies.length) return;
+        MapLocation[] potentialMiningLocations = rc.senseNearbyLocationsWithLead(SOLDIER_VISION_RADIUS);
+        for (MapLocation loc : potentialMiningLocations){
+            if (Clock.getBytecodesLeft() < 1500)
+                break;
+            if (!rc.isLocationOccupied(loc) && BotMiner.goodMiningSpot(loc)){
+                Comms.writeCommMessageOverrwriteLesserPriorityMessage(Comms.commType.LEAD, loc, Comms.SHAFlag.LEAD_LOCATION);
+            }
+        }
+    }
+
     // TODO: Sense rubble at their location and factor that in to find more dangerous unit
     private static double getEnemyScore(RobotType type, int health) {
 		switch(type) {
@@ -217,7 +230,7 @@ public class BotSoldier extends Util{
     // If our current destination has no enemies left, move to the nearest new location with combat
     public static void findNewCombatLocation() throws GameActionException{
         if (visibleEnemies.length == 0 && rc.canSenseLocation(currentDestination)){
-            MapLocation combatLocation = Comms.findNearestLocationOfThisType(currentLocation, Comms.commType.COMBAT, Comms.SHAFlag.COMBAT_LOCATION);
+            MapLocation combatLocation = Comms.findNearestLocationOfThisTypeUsingChannelQueue(currentLocation, Comms.commType.COMBAT, Comms.SHAFlag.COMBAT_LOCATION);
             if (combatLocation != null){
                 currentDestination = combatLocation;
             }
@@ -248,6 +261,6 @@ public class BotSoldier extends Util{
             // RubbleMap.updateRubbleMap();
         }
         sendCombatLocation(visibleEnemies);
-        BotMiner.surveyForOpenMiningLocationsNearby(); // TODO: Reorganise to sprint
+        surveyForSafeOpenMiningLocationsNearby();
     }
 }

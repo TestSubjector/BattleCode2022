@@ -260,7 +260,7 @@ public class Comms extends Util{
             if (readSHAFlagFromMessage(message) == flag)
                 return readLocationFromMessage(message);
             if (i == type.commChannelStart)
-                i = type.commChannelStop;
+                i = type.commChannelStop - 1;
             else i--;
         }
         return null;
@@ -293,7 +293,7 @@ public class Comms extends Util{
                 if (nearestLoc == null || loc.distanceSquaredTo(nearestLoc) > loc.distanceSquaredTo(newLoc)) nearestLoc = newLoc;
             }
             if (i == type.commChannelStart)
-                i = type.commChannelStop;
+                i = type.commChannelStop - 1;
             else i--;
         }
         return nearestLoc;
@@ -321,7 +321,7 @@ public class Comms extends Util{
             if (readSHAFlagFromMessage(message) == flag)
                 return (message >> 4);
             if (i == type.commChannelStart)
-                i = type.commChannelStop;
+                i = type.commChannelStop - 1;
             else i--;
         }
         return -1;
@@ -364,7 +364,7 @@ public class Comms extends Util{
         }
         if (wrapAround) return -1;
         int channel = type.commChannelHead++;
-        if (type.commChannelHead == type.commChannelStop)
+        if (type.commChannelHead == type.commChannelStop - 1)
             type.commChannelHead = type.commChannelStart;
         rc.writeSharedArray(type.commChannelHeadChannel, type.commChannelHead);
         return channel;
@@ -392,7 +392,7 @@ public class Comms extends Util{
         
         int channel = type.commChannelHead++;
 
-        if (type.commChannelHead == type.commChannelStop) 
+        if (type.commChannelHead == type.commChannelStop - 1) 
             type.commChannelHead = type.commChannelStart;
         
         rc.writeSharedArray(type.commChannelHeadChannel, type.commChannelHead);
