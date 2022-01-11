@@ -1,6 +1,6 @@
-package AFinalSprintBot;
+package ABFSTestBot;
 
-import AFinalSprintBot.Comms.SHAFlag;
+import ABFSTestBot.Comms.SHAFlag;
 import battlecode.common.*;
 
 public class BotMiner extends Util{
@@ -130,7 +130,7 @@ public class BotMiner extends Util{
                 }
                 // If outside of vision radius and the location has lead and is unoccupied
                 else if (curDist > MINER_VISION_RADIUS || (rc.senseLead(miningLocation) != 0 && !rc.isLocationOccupied(miningLocation))){
-                    if (!Movement.moveToDest(miningLocation)) desperationIndex++;
+                    if (!BFS.move(miningLocation)) desperationIndex++;
                     // else desperationIndex = Math.max(0, desperationIndex - 2);
                     else desperationIndex = 0;
                 }
@@ -256,7 +256,7 @@ public class BotMiner extends Util{
             }
             
             if (goAheadAndDie()){
-                // System.out.println("Suicide seems successfull: " + suicideLocation);
+                // System.out.println("Suicide seems successful: " + suicideLocation);
                 return;
             }
             System.out.println("Suicide Attempt Failed!");
@@ -406,7 +406,7 @@ public class BotMiner extends Util{
             }
             else{
                 desperationIndex++;
-                Movement.moveToDest(suicideLocation);
+                BFS.move(suicideLocation);
             }
         }
         

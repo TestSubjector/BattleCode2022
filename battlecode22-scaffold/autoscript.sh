@@ -1,7 +1,7 @@
 #!/bin/bash
 
 team1=OFinalSprintBot
-team2=ASprintAndAfterBot
+team2=ABFSTestBot
 
 mkdir -p logs
 
@@ -15,6 +15,6 @@ do
   ./gradlew -PteamA=$team1 -PteamB=$team2 -Pmaps=$i -PprofilerEnabled=false run >> logs/log.log
   ./gradlew -PteamA=$team2 -PteamB=$team1 -Pmaps=$i -PprofilerEnabled=false run >> logs/log.log
 done
-
+echo "Grepping results"
 grep wins    logs/log.log >> logs/results.log
 grep Warning logs/log.log >> logs/warnings.log

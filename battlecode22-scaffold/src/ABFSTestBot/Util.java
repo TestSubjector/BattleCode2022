@@ -1,4 +1,4 @@
-package AFinalSprintBot;
+package ABFSTestBot;
 
 import battlecode.common.MapLocation;
 import battlecode.common.Clock;

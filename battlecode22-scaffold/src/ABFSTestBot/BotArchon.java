@@ -1,4 +1,4 @@
-package AFinalSprintBot;
+package ABFSTestBot;
 
 import battlecode.common.*;
 
@@ -246,7 +246,7 @@ public class BotArchon extends Util{
                 rc.transform();
                 fleeLocation = null;
             }
-            if (fleeLocation != null) Movement.goToDirect(fleeLocation);
+            if (fleeLocation != null) BFS.move(fleeLocation);
         }
     }
 

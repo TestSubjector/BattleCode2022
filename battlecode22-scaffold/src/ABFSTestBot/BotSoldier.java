@@ -1,4 +1,4 @@
-package AFinalSprintBot;
+package ABFSTestBot;
 
 import battlecode.common.*;
 
@@ -240,7 +240,9 @@ public class BotSoldier extends Util{
 
         findNewCombatLocation();
         if (visibleEnemies.length == 0) { // Do normal pathfinding only when no enemy units around
-            Movement.goToDirect(currentDestination); // 370 Bytecodes
+            // System.out.println("Bytecode A " + Clock.getBytecodesLeft());
+            BFS.move(currentDestination); // 2700 Bytecodes
+            // System.out.println("Bytecode B " + Clock.getBytecodesLeft());
         }
 
         if (isRubbleMapEnabled && turnCount != BIRTH_ROUND){
