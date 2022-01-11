@@ -278,7 +278,7 @@ public class BotMiner extends Util{
         for (MapLocation loc : potentialMiningLocations){  // Team bias
             // int bytecodeC = Clock.getBytecodesLeft();
             // System.out.println("C: Bytecode remaining: " + Clock.getBytecodesLeft());
-            if (Clock.getBytecodesLeft() < 1500)
+            if (Clock.getBytecodesLeft() < 1000)
                 break;
             if (!rc.isLocationOccupied(loc) && goodMiningSpot(loc)){
                 // Takes ~350 bytecodes at max. With wipeChannelUpdateHead() = ~690 at max

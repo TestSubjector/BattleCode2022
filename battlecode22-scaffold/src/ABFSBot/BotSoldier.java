@@ -207,13 +207,12 @@ public class BotSoldier extends Util{
     }
 
     public static void sendCombatLocation(RobotInfo[] visibleHostiles) throws GameActionException{
-        if (visibleHostiles.length != 0){
+        if (visibleHostiles.length != 0 && Clock.getBytecodesLeft() > 600){
             RobotInfo closestHostile = getClosestUnit(visibleHostiles);
             if (closestHostile != null)
                 Comms.writeCommMessageOverrwriteLesserPriorityMessageToHead(Comms.commType.COMBAT, closestHostile.getLocation(), Comms.SHAFlag.COMBAT_LOCATION);
         }
     }
-
 
     // If our current destination has no enemies left, move to the nearest new location with combat
     public static void findNewCombatLocation() throws GameActionException{
