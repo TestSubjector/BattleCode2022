@@ -1,4 +1,4 @@
-package ABFSTestBot;
+package OBFSTestBot;
 
 import battlecode.common.*;
 

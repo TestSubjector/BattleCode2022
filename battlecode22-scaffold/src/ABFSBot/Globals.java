@@ -1,4 +1,4 @@
-package ABFSTestBot;
+package ABFSBot;
 
 import java.util.Random;
 

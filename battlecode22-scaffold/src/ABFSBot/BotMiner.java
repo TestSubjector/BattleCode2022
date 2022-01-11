@@ -1,6 +1,6 @@
-package ABFSTestBot;
+package ABFSBot;
 
-import ABFSTestBot.Comms.SHAFlag;
+import ABFSBot.Comms.SHAFlag;
 import battlecode.common.*;
 
 public class BotMiner extends Util{

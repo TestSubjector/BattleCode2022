@@ -1,4 +1,4 @@
-package ABFSTestBot;
+package ABFSBot;
 
 import battlecode.common.MapLocation;
 import battlecode.common.Clock;

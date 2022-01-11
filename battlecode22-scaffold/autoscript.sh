@@ -1,7 +1,7 @@
 #!/bin/bash
 
-team1=OFinalSprintBot
-team2=ABFSTestBot
+team1=OBFSTestBot
+team2=ABFSBot
 
 mkdir -p logs
 
@@ -9,7 +9,7 @@ rm -f logs/results.log
 rm -f logs/warnings.log
 rm -f logs/log.log
 
-for i in intersection eckleburg maptestsmall
+for i in intersection eckleburg maptestsmall doubledoors
 do
   echo "Running map $i"
   ./gradlew -PteamA=$team1 -PteamB=$team2 -Pmaps=$i -PprofilerEnabled=false run >> logs/log.log
