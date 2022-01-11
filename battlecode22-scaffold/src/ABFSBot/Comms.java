@@ -66,9 +66,8 @@ public class Comms extends Util{
     /// Message Info
     /*
         We have three types of messages:
-        1) First 32 indexes to fill rubbleMap
-        2) (x,y) << 4 | (SHAFlag) messages that deal with different type of locations
-        3) Non SHAFlag messages (NOT_A_LOCATION_MESSAGE) that with unit_counts, mapsymmetry etc 
+        1) (x,y) << 4 | (SHAFlag) messages that deal with different type of locations
+        2) Non SHAFlag messages (NOT_A_LOCATION_MESSAGE) that with unit_counts, mapsymmetry etc 
     */
 
 

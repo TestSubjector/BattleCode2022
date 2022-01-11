@@ -141,6 +141,17 @@ public class Util extends Globals {
 		return closestUnit;
 	}
 
+    // Very important function
+    public static boolean closerToCenter(MapLocation firstLoc, MapLocation secondLoc){
+        return (firstLoc.distanceSquaredTo(CENTER_OF_THE_MAP) < secondLoc.distanceSquaredTo(CENTER_OF_THE_MAP));
+    }
+
+    // public static int isInQuadrant(int centerX, int centerY){
+    //     int dx = max(abs(px - x) - width / 2, 0);
+    //     int dy = max(abs(py - y) - height / 2, 0);
+    //     return dx * dx + dy * dy; //Returns zero if inside Quad(Rectangle)
+    // }
+
     public static void byteCodeTest(){
         int temp = 1;
         int index_i = 0, index_j =0;

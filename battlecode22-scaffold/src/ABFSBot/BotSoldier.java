@@ -11,12 +11,13 @@ public class BotSoldier extends Util{
     private static MapLocation attackTarget;
 
     public static void initBotSoldier(){
-        if (isRubbleMapEnabled) RubbleMap.initRubbleMap();
+        
     }
 
     public static void soldierComms() throws GameActionException {
         Comms.updateArchonLocations();
         Comms.updateChannelValueBy1(Comms.CHANNEL_SOLDIER_COUNT);
+        Comms.updateChannelValueBy1(Comms.CHANNEL_TRANSMITTER_COUNT);
         Comms.updateComms();
     }
 
@@ -128,7 +129,7 @@ public class BotSoldier extends Util{
 			}
 		}
 		if (allyIsFighting) 
-			if (Movement.tryMoveInDirection(currentLocation.directionTo(closestHostileLocation))) 
+			if (Movement.tryMoveInDirection(closestHostileLocation)) 
 				return true;
 
 		return false;
@@ -138,7 +139,7 @@ public class BotSoldier extends Util{
         if(closestHostile == null) return false;
 		if (closestHostile.type.canAttack()) 
             return false;
-	    if (Movement.tryMoveInDirection(currentLocation.directionTo(closestHostile.location))) 
+	    if (Movement.tryMoveInDirection(closestHostile.location)) 
             return true;
 		return false;
 	}
@@ -164,7 +165,7 @@ public class BotSoldier extends Util{
 		}
 		
 		if (numNearbyAllies > numNearbyHostiles || (numNearbyHostiles == 1 && rc.getHealth() > closestHostile.health)) {
-			return Movement.tryMoveInDirection(currentLocation.directionTo(closestHostile.location));
+			return Movement.tryMoveInDirection(closestHostile.location);
 		}
 		return false;
 	}
@@ -188,7 +189,7 @@ public class BotSoldier extends Util{
             // Most important function
             if (inRangeEnemies.length > 0 && tryToBackUpToMaintainMaxRange(visibleEnemies)) return true; // Cant attack, try to move out
             RobotInfo closestHostile = getClosestUnit(visibleEnemies);
-            if (tryMoveToHelpAlly(closestHostile)) return true; // Maybe add how many turns of attack cooldown here?
+            if (tryMoveToHelpAlly(closestHostile)) return true; // Maybe add how many turns of attack cooldown here and how much damage being taken?
             if (tryMoveToEngageOutnumberedEnemy(visibleEnemies, closestHostile)) return true;
             if (tryMoveToAttackProductionUnit(closestHostile)) return true;
         }
@@ -245,10 +246,6 @@ public class BotSoldier extends Util{
             // System.out.println("Bytecode B " + Clock.getBytecodesLeft());
         }
 
-        if (isRubbleMapEnabled && turnCount != BIRTH_ROUND){
-            RubbleMap.rubbleMapFormation(rc);
-            // RubbleMap.updateRubbleMap();
-        }
         sendCombatLocation(visibleEnemies);
         BotMiner.surveyForOpenMiningLocationsNearby(); // TODO: Reorganise to sprint
     }

@@ -208,9 +208,8 @@ public class BotArchon extends Util{
         // I'm first Archon (by birth or death of ones before me). I'm number zero transmitter.
         if(transmitterCount > commID) commID = 0;
         else commID = transmitterCount; 
-    
+        rc.writeSharedArray(Comms.CHANNEL_TRANSMITTER_COUNT, commID+1); // Clears Transmitter Count by First Archon
 
-        rc.writeSharedArray(Comms.CHANNEL_TRANSMITTER_COUNT, commID+1);
         if (turnCount < 3 || hasMoved)
             Comms.writeSHAFlagMessage(currentLocation, Comms.SHAFlag.ARCHON_LOCATION, Comms.CHANNEL_ARCHON_START + commID*4);        
         
@@ -223,7 +222,8 @@ public class BotArchon extends Util{
 
     private static void shouldFlee(){
         // You have more enemies than friends and you are not the main producer Archon
-        if (visibleEnemies.length > visibleAllies.length && commID > 0 && currentLeadReserves < RobotType.SOLDIER.buildCostLead) {
+        if (visibleEnemies.length > visibleAllies.length && commID > 0 
+            && currentLeadReserves < RobotType.SOLDIER.buildCostLead) {
             fleeIndex++;
         }
         else {

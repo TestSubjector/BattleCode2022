@@ -10,12 +10,13 @@ public class BotWatchTower extends Util{
     private static RobotInfo[] inRangeEnemies;
 
     public static void initBotWatchTower(){
-        if (isRubbleMapEnabled) RubbleMap.initRubbleMap();
+        
     }
 
     public static void watchTowerComms() throws GameActionException {
         Comms.updateArchonLocations();
         Comms.updateChannelValueBy1(Comms.CHANNEL_WATCHTOWER_COUNT);
+        Comms.updateChannelValueBy1(Comms.CHANNEL_TRANSMITTER_COUNT);
         Comms.updateComms(); 
     }
 
@@ -69,11 +70,6 @@ public class BotWatchTower extends Util{
             if (inRangeEnemies.length > 0) {
             chooseTargetAndAttack(inRangeEnemies);
             }
-        }
-
-        if (isRubbleMapEnabled && turnCount != BIRTH_ROUND){
-            RubbleMap.rubbleMapFormation(rc);
-            RubbleMap.updateRubbleMap();
         }
     }
 }

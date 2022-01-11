@@ -30,10 +30,8 @@ public class BotMiner extends Util{
 
     public static void initBotMiner(){
         isMinedThisTurn = false;
-        if (isRubbleMapEnabled) RubbleMap.initRubbleMap();
         prolificMiningLocationsAtBirth = areMiningLocationsAbundant();
         resetVariables();
-        // byteCodeTest();
     }
 
 
@@ -50,7 +48,7 @@ public class BotMiner extends Util{
 
     public static void mineAdjacentLocations() throws GameActionException {
         MapLocation[] adjacentLocations = rc.getAllLocationsWithinRadiusSquared(currentLocation, 2);
-        for (MapLocation loc : adjacentLocations){
+        for (MapLocation loc : adjacentLocations){ // Team Bias
             mine(loc);
             if(!rc.isActionReady()) // We can mine more one time so this is placed after mine()
                 return;
@@ -92,6 +90,7 @@ public class BotMiner extends Util{
     public static void minerComms() throws GameActionException {
         Comms.updateArchonLocations();
         Comms.updateChannelValueBy1(Comms.CHANNEL_MINER_COUNT);
+        Comms.updateChannelValueBy1(Comms.CHANNEL_TRANSMITTER_COUNT);
         Comms.updateComms();
     }
 
@@ -109,7 +108,7 @@ public class BotMiner extends Util{
         }
         MapLocation[] potentialMiningLocations = rc.senseNearbyLocationsWithLead(MINER_VISION_RADIUS);
         
-        for (MapLocation loc : potentialMiningLocations){   
+        for (MapLocation loc : potentialMiningLocations){ // Team Bias  
             if(!rc.isLocationOccupied(loc) && parentArchonLocation.distanceSquaredTo(loc) > 2 && goodMiningSpot(loc) ){
                 // && (currentLocation.x + currentLocation.y) % 2 == parentArchonCongruence) {
                 return loc;
@@ -276,7 +275,7 @@ public class BotMiner extends Util{
         // System.out.println("A: Bytecode remaining: " + Clock.getBytecodesLeft());
         MapLocation[] potentialMiningLocations = rc.senseNearbyLocationsWithLead(MINER_VISION_RADIUS);
         // System.out.println("B: Bytecode remaining: " + Clock.getBytecodesLeft());
-        for (MapLocation loc : potentialMiningLocations){
+        for (MapLocation loc : potentialMiningLocations){  // Team bias
             // int bytecodeC = Clock.getBytecodesLeft();
             // System.out.println("C: Bytecode remaining: " + Clock.getBytecodesLeft());
             if (Clock.getBytecodesLeft() < 1500)
@@ -410,10 +409,6 @@ public class BotMiner extends Util{
             }
         }
         
-        if (isRubbleMapEnabled && turnCount != BIRTH_ROUND){
-            RubbleMap.rubbleMapFormation(rc);
-            RubbleMap.updateRubbleMap();
-        }
         if (moveOut){
             inPlaceForMining = false;
             miningLocation = null;

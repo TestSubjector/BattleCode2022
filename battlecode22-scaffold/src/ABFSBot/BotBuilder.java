@@ -13,7 +13,6 @@ public class BotBuilder extends Util{
     private static final int MIN_LATTICE_DIST = 15;
 
     public static void initBotBuilder(){
-        if (isRubbleMapEnabled) RubbleMap.initRubbleMap();
         destAdjacent = null;
         buildLocation = null;
         buildType = RobotType.WATCHTOWER;
@@ -55,13 +54,13 @@ public class BotBuilder extends Util{
     }
 
 
-    public static boolean createBuildingInRandomDirection(RobotType type) throws GameActionException{
-        for (Direction dir : directions) {
-            if (buildRobot(type, dir))
-                return true;
-        }
-        return false;
-    }
+    // public static boolean createBuildingInRandomDirection(RobotType type) throws GameActionException{
+    //     for (Direction dir : directions) {
+    //         if (buildRobot(type, dir))
+    //             return true;
+    //     }
+    //     return false;
+    // }
 
 
     private static boolean makeBuilding(MapLocation dest, RobotType type) throws GameActionException{
@@ -77,6 +76,7 @@ public class BotBuilder extends Util{
     public static void builderComms() throws GameActionException {
         Comms.updateArchonLocations();
         Comms.updateChannelValueBy1(Comms.CHANNEL_BUILDER_COUNT);
+        Comms.updateChannelValueBy1(Comms.CHANNEL_TRANSMITTER_COUNT);
         Comms.updateComms(); 
     }
 
@@ -111,7 +111,7 @@ public class BotBuilder extends Util{
 
         // System.out.println("Bytecodes left: " + Clock.getBytecodesLeft());
         if (buildLocation == null) buildLocation = Movement.moveToLattice(MIN_LATTICE_DIST, 0);
-        if (buildLocation == null) Movement.moveToDest(centerOfTheWorld);
+        if (buildLocation == null) Movement.moveToDest(CENTER_OF_THE_MAP);
         // System.out.println("Bytecodes left: " + Clock.getBytecodesLeft());
 
         if (buildLocation != null){
@@ -129,9 +129,5 @@ public class BotBuilder extends Util{
             // }
         }
     
-        if (isRubbleMapEnabled && turnCount != BIRTH_ROUND){
-            RubbleMap.rubbleMapFormation(rc);
-            // RubbleMap.updateRubbleMap();
-        }
     }
 }
