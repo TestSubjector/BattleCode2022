@@ -53,8 +53,8 @@ public class BotArchon extends Util{
     }
 
     private static void updateVision() throws GameActionException {
-        visibleEnemies = rc.senseNearbyRobots(SOLDIER_VISION_RADIUS, ENEMY_TEAM);
-        visibleAllies = rc.senseNearbyRobots(SOLDIER_ACTION_RADIUS, ENEMY_TEAM);
+        visibleEnemies = rc.senseNearbyRobots(SOLDIER_VISION_RADIUS, ENEMY_TEAM); // TODO - Is apparently better?
+        visibleAllies = rc.senseNearbyRobots(ARCHON_ACTION_RADIUS, ENEMY_TEAM); 
     }
 
     public static void buildDivision() throws GameActionException{
@@ -89,7 +89,7 @@ public class BotArchon extends Util{
 
             for (Direction dir : directions) {
                 if (!rc.canBuildRobot(unitType, dir)){
-                    if (!rc.isLocationOccupied(lCR.add(dir)))
+                    if (rc.onTheMap(lCR.add(dir)) && !rc.isLocationOccupied(lCR.add(dir)))
                         crowded = false;
                     continue;
                 }
