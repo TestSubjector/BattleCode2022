@@ -337,6 +337,10 @@ public class BotMiner extends Util{
 
 
     public static boolean foundMiningLocationFromVision() throws GameActionException{
+        if (prolificMiningLocationsAtBirth){
+            miningLocation = Movement.moveToLattice(2, 0);
+            return (miningLocation != null);
+        }
         miningLocation = findOpenMiningLocationNearby();
         if (miningLocation != null){
             inPlaceForMining = (currentLocation.distanceSquaredTo(miningLocation) <= 2);
