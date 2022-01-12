@@ -1,6 +1,6 @@
-package ATuningBot;
+package ACompareBot;
 
-import ATuningBot.Comms.SHAFlag;
+import ACompareBot.Comms.SHAFlag;
 import battlecode.common.*;
 
 public class BotMiner extends Util{
@@ -39,10 +39,7 @@ public class BotMiner extends Util{
     public static void updateMiner() throws GameActionException{
         isMinedThisTurn = false;
         moveOut = true; 
-
         // isFleeing = false; ???
-
-
         minerComms();
         updateVision();
     }

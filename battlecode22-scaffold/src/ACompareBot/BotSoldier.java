@@ -1,7 +1,7 @@
-package ATuningBot;
+package ACompareBot;
 
-import ATuningBot.Comms.SHAFlag;
-import ATuningBot.Comms.commType;
+import ACompareBot.Comms.SHAFlag;
+import ACompareBot.Comms.commType;
 import battlecode.common.*;
 
 public class BotSoldier extends Util{

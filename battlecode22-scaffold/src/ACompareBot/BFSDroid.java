@@ -1,4 +1,4 @@
-package ATuningBot;
+package ACompareBot;
 
 import battlecode.common.Direction;
 import battlecode.common.MapLocation;

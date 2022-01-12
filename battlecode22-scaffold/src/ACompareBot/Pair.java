@@ -1,4 +1,4 @@
-package ATuningBot;
+package ACompareBot;
 
 import java.util.Objects;
 

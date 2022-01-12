@@ -1,4 +1,4 @@
-package ATuningBot;
+package OTuningBot;
 
 import java.util.Random;
 
