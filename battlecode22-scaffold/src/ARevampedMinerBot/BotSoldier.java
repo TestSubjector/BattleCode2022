@@ -1,6 +1,7 @@
 package ARevampedMinerBot;
 
 import ARevampedMinerBot.Comms.SHAFlag;
+import ARevampedMinerBot.Comms.commType;
 import battlecode.common.*;
 
 public class BotSoldier extends Util{
@@ -211,7 +212,8 @@ public class BotSoldier extends Util{
         if (visibleHostiles.length != 0 && Clock.getBytecodesLeft() > 600){
             RobotInfo closestHostile = getClosestUnit(visibleHostiles);
             if (closestHostile != null)
-				Comms.writeCommMessage(Comms.commType.COMBAT, closestHostile.getLocation(), SHAFlag.COMBAT_LOCATION);
+				Comms.writeCommMessageOverrwriteLesserPriorityMessageUsingQueue(commType.COMBAT, closestHostile.getLocation(), SHAFlag.COMBAT_LOCATION);
+				// Comms.writeCommMessage(Comms.commType.COMBAT, closestHostile.getLocation(), SHAFlag.COMBAT_LOCATION);
                 // Comms.writeCommMessageOverrwriteLesserPriorityMessageToHead(Comms.commType.COMBAT, closestHostile.getLocation(), Comms.SHAFlag.COMBAT_LOCATION);
         }
     }
@@ -221,7 +223,7 @@ public class BotSoldier extends Util{
         if (visibleEnemies.length == 0 && rc.canSenseLocation(currentDestination)){
             MapLocation combatLocation = Comms.findNearestLocationOfThisType(currentLocation, Comms.commType.COMBAT, Comms.SHAFlag.COMBAT_LOCATION);
             if (combatLocation != null){
-				System.out.println("Combat location obtained; " + combatLocation);
+				// System.out.println("Combat location obtained; " + combatLocation);
                 currentDestination = combatLocation;
             }
         }

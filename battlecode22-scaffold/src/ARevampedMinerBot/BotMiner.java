@@ -407,10 +407,12 @@ public class BotMiner extends Util{
 
                 // For lead, it turns out this overall consumes the least bytecodes in the worst case:
                 // Takes ~440 bytecodes at max. With wipeChannel() = ~550 bytecodes at max.
-                Comms.writeCommMessageOverrwriteLesserPriorityMessage(Comms.commType.LEAD, intFromMapLocation(loc), SHAFlag.LEAD_LOCATION);
+                // Comms.writeCommMessageOverrwriteLesserPriorityMessage(Comms.commType.LEAD, intFromMapLocation(loc), SHAFlag.LEAD_LOCATION);
                 
                 // Takes ~600 bytecodes at max. With wipeChannel() = ~710 bytecodes at max.
                 // Comms.writeCommMessage(Comms.commType.LEAD, intFromMapLocation(loc), SHAFlag.LEAD_LOCATION);
+
+                Comms.writeCommMessageOverrwriteLesserPriorityMessageUsingQueue(Comms.commType.LEAD, loc, Comms.SHAFlag.LEAD_LOCATION);
             }
             // bytecodediff = Math.max(bytecodeC - Clock.getBytecodesLeft(), bytecodediff);
             // System.out.println("D: Bytecode remaining: " + Clock.getBytecodesLeft());
@@ -547,7 +549,8 @@ public class BotMiner extends Util{
         nearbyLocations = rc.senseNearbyLocationsWithLead(MINER_VISION_RADIUS, 20);
         if (nearbyLocations.length > 0){ 
             miningLocation = findOptimalLocationForMiningLead(nearbyLocations);
-            inPlaceForMining = (currentLocation.distanceSquaredTo(miningLocation) <= 2);
+            if (miningLocation != null) inPlaceForMining = (currentLocation.distanceSquaredTo(miningLocation) <= 2);
+            else inPlaceForMining = false;
             return;
         }
     }
@@ -556,9 +559,9 @@ public class BotMiner extends Util{
     public static void doMining() throws GameActionException{
         opportunisticMining();
         if (inPlaceForMining){
-            if (isSafeToMine(currentLocation))
-                mine();
-            else runAway();
+            // if (isSafeToMine(currentLocation))
+            mine();
+            // else runAway();
         }
         else if (miningLocation != null){
             goToMine();
