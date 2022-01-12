@@ -1,4 +1,4 @@
-package ACompareBot;
+package OCompareBot;
 
 import battlecode.common.*;
 
@@ -216,6 +216,18 @@ public class Comms extends Util{
         return nearestLoc;
     }
 
+    public static MapLocation findNearestLocationOfThisTypeOutOfVision(MapLocation loc, commType type, SHAFlag flag) throws GameActionException{
+        MapLocation nearestLoc = null;
+        for (int i = type.commChannelStart; i < type.commChannelStop; ++i){
+            int message = rc.readSharedArray(i);
+            if (readSHAFlagFromMessage(message) != flag) continue;
+            MapLocation newLoc = readLocationFromMessage(message);
+            // We don't want locations in vision
+            if (!rc.canSenseLocation(newLoc) && (nearestLoc == null || loc.distanceSquaredTo(nearestLoc) > loc.distanceSquaredTo(newLoc))) 
+                nearestLoc = newLoc;
+        }
+        return nearestLoc;
+    }
 
     /**
      * Finds and returns the nearest location (to the reference location) that has the given SHAFlag from the communication channels and wipes the channel after reading.

@@ -1,7 +1,7 @@
-package ACompareBot;
+package OCompareBot;
 
-import ACompareBot.Comms.SHAFlag;
-import ACompareBot.Comms.commType;
+import OCompareBot.Comms.SHAFlag;
+import OCompareBot.Comms.commType;
 import battlecode.common.*;
 
 public class BotSoldier extends Util{

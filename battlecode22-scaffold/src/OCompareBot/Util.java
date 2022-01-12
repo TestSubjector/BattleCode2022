@@ -1,4 +1,4 @@
-package ACompareBot;
+package OCompareBot;
 
 import battlecode.common.MapLocation;
 import battlecode.common.Clock;

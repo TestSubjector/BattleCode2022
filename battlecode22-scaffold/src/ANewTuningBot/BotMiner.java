@@ -1,6 +1,6 @@
-package ACompareBot;
+package ANewTuningBot;
 
-import ACompareBot.Comms.SHAFlag;
+import ANewTuningBot.Comms.SHAFlag;
 import battlecode.common.*;
 
 public class BotMiner extends Util{
@@ -56,14 +56,14 @@ public class BotMiner extends Util{
     }
 
 
-    public static void mineAdjacentLocations() throws GameActionException {
-        MapLocation[] adjacentLocations = rc.getAllLocationsWithinRadiusSquared(currentLocation, 2);
-        for (MapLocation loc : adjacentLocations){ // Team Bias
-            mine(loc);
-            if(!rc.isActionReady()) // We can mine more one time so this is placed after mine()
-                return;
-        }
-    }
+    // public static void mineAdjacentLocations() throws GameActionException {
+    //     MapLocation[] adjacentLocations = rc.getAllLocationsWithinRadiusSquared(currentLocation, 2);
+    //     for (MapLocation loc : adjacentLocations){ // Team Bias
+    //         mine(loc);
+    //         if(!rc.isActionReady()) // We can mine more one time so this is placed after mine()
+    //             return;
+    //     }
+    // }
 
 
     // public static boolean checkSurroundingsForLead()
@@ -87,36 +87,36 @@ public class BotMiner extends Util{
     }
 
     
-    public static void mine(MapLocation loc) throws GameActionException{
-        if (!rc.isActionReady())
-            return;
-        while(rc.canMineGold(loc)){
-            isMinedThisTurn = true;
-            desperationIndex = 0;
-            rc.mineGold(loc);
-        }
-        int leadAmount = rc.senseLead(loc);
-        if (leadAmount == 0) {  // No more lead on location for some reason
-            miningLocation = null;
-            inPlaceForMining = false;
-            moveOut = true;
-            desperationIndex++;
-        }
-        while (rc.canMineLead(loc)) {
-            if (leadAmount == 1){
-                moveOut = true;
-                desperationIndex++;
-                break;
-            }
-            moveOut = false;
-            isMinedThisTurn = true;
-            desperationIndex = 0;
-            // desperationIndex = Math.max(0, desperationIndex - 2);
-            rc.mineLead(loc);
-            leadAmount--;
-        }
-        moveOut = !isMinedThisTurn;
-    }
+    // public static void mine(MapLocation loc) throws GameActionException{
+    //     if (!rc.isActionReady())
+    //         return;
+    //     while(rc.canMineGold(loc)){
+    //         isMinedThisTurn = true;
+    //         desperationIndex = 0;
+    //         rc.mineGold(loc);
+    //     }
+    //     int leadAmount = rc.senseLead(loc);
+    //     if (leadAmount == 0) {  // No more lead on location for some reason
+    //         miningLocation = null;
+    //         inPlaceForMining = false;
+    //         moveOut = true;
+    //         desperationIndex++;
+    //     }
+    //     while (rc.canMineLead(loc)) {
+    //         if (leadAmount == 1){
+    //             moveOut = true;
+    //             desperationIndex++;
+    //             break;
+    //         }
+    //         moveOut = false;
+    //         isMinedThisTurn = true;
+    //         desperationIndex = 0;
+    //         // desperationIndex = Math.max(0, desperationIndex - 2);
+    //         rc.mineLead(loc);
+    //         leadAmount--;
+    //     }
+    //     moveOut = !isMinedThisTurn;
+    // }
 
 
     public static void minerComms() throws GameActionException {
@@ -398,7 +398,7 @@ public class BotMiner extends Util{
 
     public static void surveyForOpenMiningLocationsNearby() throws GameActionException{
         // System.out.println("A: Bytecode remaining: " + Clock.getBytecodesLeft());
-        MapLocation[] potentialMiningLocations = rc.senseNearbyLocationsWithLead(MINER_VISION_RADIUS);
+        MapLocation[] potentialMiningLocations = rc.senseNearbyLocationsWithLead(UNIT_TYPE.visionRadiusSquared);
         // System.out.println("B: Bytecode remaining: " + Clock.getBytecodesLeft());
         for (MapLocation loc : potentialMiningLocations){  // Team bias
             // int bytecodeC = Clock.getBytecodesLeft();

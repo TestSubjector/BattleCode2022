@@ -1,4 +1,4 @@
-package ACompareBot;
+package OCompareBot;
 
 import battlecode.common.*;
 
@@ -95,7 +95,7 @@ public class BotArchon extends Util{
                 }
                 crowded = false;
                 SpawnValue = getValue(lCR, currentDestination, dir); // TODO: Change destination
-                if (bestSpawnDir == null || SpawnValue < bestSpawnValue) {
+                if (bestSpawnDir == null || SpawnValue > bestSpawnValue) {
                     bestSpawnDir = dir;
                     bestSpawnValue = SpawnValue;
                 }
@@ -119,11 +119,11 @@ public class BotArchon extends Util{
     }
 
     static double getValue(MapLocation archonLocation, MapLocation dest, Direction dir) throws GameActionException {
-        double dist = 1;
-        if (dest != null){
-            dist = archonLocation.add(dir).distanceSquaredTo(dest);
-        }
-        return dist/rc.senseRubble(archonLocation.add(dir));
+        // double dist = 1;
+        // if (dest != null){
+        //     dist = archonLocation.add(dir).distanceSquaredTo(dest);
+        // }
+        return 1/(1+rc.senseRubble(archonLocation.add(dir)));
     }
 
     public static ArchonBuildUnits standardOrder() throws GameActionException{
@@ -272,6 +272,7 @@ public class BotArchon extends Util{
         buildDivision();
         shouldFlee();
         transformAndFlee();
+        BotMiner.surveyForOpenMiningLocationsNearby();
         // selfHeal();
     }
 

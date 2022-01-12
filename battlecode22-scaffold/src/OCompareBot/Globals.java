@@ -1,4 +1,4 @@
-package ACompareBot;
+package OCompareBot;
 
 import java.util.Random;
 
