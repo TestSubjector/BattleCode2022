@@ -19,6 +19,8 @@ public class BotMiner extends Util{
     private static boolean isFleeing;
     private static final boolean searchByDistance = false;
     private static final int randomPersistance = 20;
+    private static boolean tooCrowded;
+    private static final int CROWD_LIMIT = 3;
 
     public static boolean areMiningLocationsAbundant(){
         try{
@@ -38,7 +40,8 @@ public class BotMiner extends Util{
 
     public static void updateMiner() throws GameActionException{
         isMinedThisTurn = false;
-        moveOut = true; 
+        moveOut = true;
+        tooCrowded = false; 
         // isFleeing = false; ???
         minerComms();
         updateVision();
@@ -134,12 +137,12 @@ public class BotMiner extends Util{
     public static MapLocation findOptimalLocationForMiningGold(MapLocation[] locations) throws GameActionException{
         if (locations.length == 1) return locations[0];
         MapLocation opt = null;
-        int value = 0;
+        double value = 0;
         for (MapLocation loc : locations){
             if (parentArchonLocation.distanceSquaredTo(loc) <= 2) continue;
-            int curValue;
+            double curValue;
             if (searchByDistance) curValue = -currentLocation.distanceSquaredTo(loc);
-            else curValue = rc.senseGold(loc);
+            else curValue = ((double)rc.senseGold(loc)) / ((double)rc.senseRubble(loc));
             if (opt == null || curValue > value){
                 opt = loc;
                 value = curValue;
@@ -152,12 +155,12 @@ public class BotMiner extends Util{
     public static MapLocation findOptimalLocationForMiningLead(MapLocation[] locations) throws GameActionException{
         if (locations.length == 1) return locations[0];
         MapLocation opt = null;
-        int value = 0;
+        double value = 0;
         for (MapLocation loc : locations){
             if (parentArchonLocation.distanceSquaredTo(loc) <= 2) continue;
-            int curValue;
+            double curValue;
             if (searchByDistance) curValue = -currentLocation.distanceSquaredTo(loc);
-            else curValue = rc.senseLead(loc);
+            else curValue = ((double)rc.senseGold(loc)) / ((double)rc.senseRubble(loc));;
             if (opt == null || curValue > value){
                 opt = loc;
                 value = curValue;
@@ -185,7 +188,10 @@ public class BotMiner extends Util{
             if (rc.senseGold(currentLocation) > 0 || rc.senseLead(currentLocation) > 20)
                 return currentLocation;
         }
-        if (countOfMinersInVicinity() > 4) return null;
+        if (countOfMinersInVicinity() > CROWD_LIMIT){ 
+            tooCrowded = true;
+            return null;
+        }
         // else{
         if (rc.senseGold(currentLocation) > 0 || rc.senseLead(currentLocation) > 20){
             return currentLocation;
@@ -210,7 +216,7 @@ public class BotMiner extends Util{
         }
         // inPlaceForMining = false from now on: 
         int curDist = currentLocation.distanceSquaredTo(miningLocation);
-        if (curDist == 0) { // Reached location
+        if (curDist <= 2) { // Reached location
             inPlaceForMining = true;
             mine();
             return;
@@ -306,7 +312,10 @@ public class BotMiner extends Util{
 
     public static boolean foundMiningLocationFromComms() throws GameActionException{
         // miningLocation = checkCommsForMiningLocation();
-        miningLocation = Comms.findNearestLocationOfThisType(currentLocation, Comms.commType.LEAD, SHAFlag.LEAD_LOCATION);
+        if (!tooCrowded) 
+        miningLocation = Comms.findNearestLocationOfThisTypeAndWipeChannel(currentLocation, Comms.commType.LEAD, SHAFlag.LEAD_LOCATION);
+        else
+        miningLocation = Comms.findNearestLocationOfThisTypeOutOfVisionAndWipeChannel(currentLocation, Comms.commType.LEAD, Comms.SHAFlag.LEAD_LOCATION);
         // miningLocation = Comms.findLocationOfThisType(Comms.commType.LEAD, SHAFlag.LEAD_LOCATION);
         // miningLocation = Comms.findNearestLocationOfThisTypeAndWipeChannel(currentLocation, Comms.commType.LEAD, SHAFlag.LEAD_LOCATION);
         if (miningLocation != null){
@@ -533,7 +542,7 @@ public class BotMiner extends Util{
         if (!rc.isMovementReady()) return;
         if (miningLocation != null) goToMine();
         else {
-            // TODO: Do What???
+            BFS.move(explore());
         }
     }
 
