@@ -187,15 +187,15 @@ public class BotMiner extends Util{
             if (rc.senseGold(currentLocation) > 0 || rc.senseLead(currentLocation) > 20)
                 return currentLocation;
         }
-        if (countOfMinersInVicinity() > 3) return null;
+        if (countOfMinersInVicinity() > 4) return null;
         // else{
-        if (rc.senseGold(currentLocation) > 0 || rc.senseLead(currentLocation) > 1){
+        if (rc.senseGold(currentLocation) > 0 || rc.senseLead(currentLocation) > 20){
             return currentLocation;
         }
         MapLocation[] potentialMiningLocations = rc.senseNearbyLocationsWithGold();
         if (potentialMiningLocations.length > 0) return findOptimalLocationForMiningGold(potentialMiningLocations);
         // potentialMiningLocations = rc.senseNearbyLocationsWithLead(MINER_VISION_RADIUS);
-        potentialMiningLocations = rc.senseNearbyLocationsWithLead();
+        potentialMiningLocations = rc.senseNearbyLocationsWithLead(MINER_VISION_RADIUS, 5);
         if (potentialMiningLocations.length > 0) return findOptimalLocationForMiningLead(potentialMiningLocations);
         // }
         return null;
@@ -603,9 +603,9 @@ public class BotMiner extends Util{
         doMining();
 
         if (moveOut) goMoveOut();
-        if (Clock.getBytecodesLeft() < 2000) return;
+        // if (Clock.getBytecodesLeft() < 2000) return;
         BotSoldier.sendCombatLocation(visibleEnemies);
-        if (Clock.getBytecodesLeft() < 2000) return;
+        // if (Clock.getBytecodesLeft() < 2000) return;
         surveyForOpenMiningLocationsNearby();
         
     }

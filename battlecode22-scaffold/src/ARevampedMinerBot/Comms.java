@@ -107,21 +107,23 @@ public class Comms extends Util{
         COMBAT; // 0x1
 
         public int commChannelStart;
-        public int commChannelHead;
+        // public int commChannelHead;
         public int commChannelStop;
+        // public int commChannelQueueHead;
     }
 
 
     public static SHAFlag[] SHAFlags = SHAFlag.values();
 
 
-    public static void initComms(){
+    public static void initComms() throws GameActionException{
         channelArchonStop = CHANNEL_ARCHON_START + 4 * archonCount;
         commType.LEAD.commChannelStart = channelArchonStop;
-        commType.LEAD.commChannelHead = commType.LEAD.commChannelStart;
+        // commType.LEAD.commChannelQueueHead = CHANNEL_SAGE_COUNT + 1;
+        // commType.LEAD.commChannelHead = Math.max(rc.readSharedArray(commType.LEAD.commChannelQueueHead), commType.LEAD.commChannelStart);
         commType.LEAD.commChannelStop = (64 + 3 * commType.LEAD.commChannelStart) / 4;
-        
-        commType.COMBAT.commChannelHead = commType.COMBAT.commChannelStart;
+        commType.COMBAT.commChannelStart = commType.LEAD.commChannelStop;
+        // commType.COMBAT.commChannelHead = commType.COMBAT.commChannelStart;
         commType.COMBAT.commChannelStop = 63;
         allChannels = new int[TOTAL_CHANNELS_COUNT];
     }
@@ -260,9 +262,33 @@ public class Comms extends Util{
     }
 
 
-    public static int getCommChannelOfLesserPriority(commType type, SHAFlag flag) throws GameActionException{
+    public static int getCommChannel(commType type, int givenMessage) throws GameActionException{
         for (int i = type.commChannelStart; i < type.commChannelStop; ++i){
+            int message = rc.readSharedArray(i);
+            if (rc.readSharedArray(i) == 0)
+                return i;
+            else if((message >> 4) == givenMessage) return 65;
+        }
+        return -1;
+    }
+
+
+    public static int getCommChannelOfLesserPriority(commType type, SHAFlag flag) throws GameActionException{
+        // int start = type.
+        for (int i = type.commChannelStart; i < type.commChannelStop; ++i){
+            // int message = rc.readSharedArray(i);
             if (readSHAFlagFromMessage(rc.readSharedArray(i)).lesserOrEqualPriority(flag))
+                return i;
+        }
+        return -1;
+    }
+
+
+    public static int getCommChannelOfLesserPriority(commType type, SHAFlag flag, int givenMessage) throws GameActionException{
+        for (int i = type.commChannelStart; i < type.commChannelStop; ++i){
+            int message = rc.readSharedArray(i);
+            if ((message >> 4) == givenMessage) return 65;
+            else if (readSHAFlagFromMessage(message).lesserOrEqualPriority(flag))
                 return i;
         }
         return -1;
@@ -300,8 +326,11 @@ public class Comms extends Util{
      * </pre>
      * **/
     public static int writeCommMessage(commType type, MapLocation loc, SHAFlag flag) throws GameActionException{
+        int message = intFromMapLocation(loc);
+        if (checkIfMessegeThere(type, message, flag)) return -1;
         int channel = getCommChannel(type);
         if (channel == -1) channel = getCommChannelOfLesserPriority(type, flag);
+        // if (channel == 65) return channel;
         if (channel == -1) return channel;
         writeSHAFlagMessage(loc, flag, channel);
         return channel;

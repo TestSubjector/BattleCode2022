@@ -221,6 +221,7 @@ public class BotSoldier extends Util{
         if (visibleEnemies.length == 0 && rc.canSenseLocation(currentDestination)){
             MapLocation combatLocation = Comms.findNearestLocationOfThisType(currentLocation, Comms.commType.COMBAT, Comms.SHAFlag.COMBAT_LOCATION);
             if (combatLocation != null){
+				System.out.println("Combat location obtained; " + combatLocation);
                 currentDestination = combatLocation;
             }
         }
