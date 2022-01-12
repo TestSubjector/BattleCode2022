@@ -44,14 +44,6 @@ public strictfp class RobotPlayer {
                 e.printStackTrace();
 
             } finally {
-                if (rc.getType() == RobotType.ARCHON && rc.getRoundNum() == 1){
-                    MapLocation[] adjacentLocations = rc.getAllLocationsWithinRadiusSquared(rc.getLocation(), 2);
-                    System.out.println("CurrentLocation: " + rc.getLocation());
-                    System.out.println("Adjacent Locations:");
-                    for (MapLocation loc : adjacentLocations){
-                        System.out.println("Loc: " + loc );
-                    }
-                }
                 // For bytecode comparison of functions:
                 // if (rc.getRoundNum() == 2000 && Globals.UNIT_TYPE == RobotType.MINER){
                 //     System.out.println("Max bytecode diff: " + Globals.bytecodediff);

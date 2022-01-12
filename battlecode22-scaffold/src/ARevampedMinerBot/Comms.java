@@ -95,6 +95,10 @@ public class Comms extends Util{
         public boolean lesserPriority(SHAFlag flag){
             return (this.ordinal() < flag.ordinal());
         }
+
+        public boolean lesserOrEqualPriority(SHAFlag flag){
+            return (this.ordinal() <= flag.ordinal());
+        }
     }
 
 
@@ -105,7 +109,6 @@ public class Comms extends Util{
         public int commChannelStart;
         public int commChannelHead;
         public int commChannelStop;
-        public int commChannelHeadChannel;
     }
 
 
@@ -117,11 +120,9 @@ public class Comms extends Util{
         commType.LEAD.commChannelStart = channelArchonStop;
         commType.LEAD.commChannelHead = commType.LEAD.commChannelStart;
         commType.LEAD.commChannelStop = (64 + 3 * commType.LEAD.commChannelStart) / 4;
-        commType.LEAD.commChannelHeadChannel = commType.LEAD.commChannelStop;
-        commType.COMBAT.commChannelStart = commType.LEAD.commChannelHeadChannel + 1;
+        
         commType.COMBAT.commChannelHead = commType.COMBAT.commChannelStart;
         commType.COMBAT.commChannelStop = 63;
-        commType.COMBAT.commChannelHeadChannel = commType.COMBAT.commChannelStop;
         allChannels = new int[TOTAL_CHANNELS_COUNT];
     }
 
@@ -130,8 +131,6 @@ public class Comms extends Util{
         channelArchonStop = CHANNEL_ARCHON_START + 4 * archonCount;
         commType.LEAD.commChannelStart = channelArchonStop;
         commType.LEAD.commChannelStop = (64 + 3 * commType.LEAD.commChannelStart) / 4;
-        rc.writeSharedArray(commType.LEAD.commChannelStop, rc.readSharedArray(commType.LEAD.commChannelHeadChannel));
-        commType.LEAD.commChannelHeadChannel = commType.LEAD.commChannelStop;
         commType.COMBAT.commChannelStart = commType.LEAD.commChannelStop;
     }
 
@@ -252,95 +251,6 @@ public class Comms extends Util{
     }
 
 
-    /**
-     * Using the head pointer of channel queue, finds and returns the first location from the communication channels that has the given SHAFlag. Written to somehow improve average bytecode consumption. Needs testing
-     * @param type : Search for the message in this type's channels (LEAD or COMBAT);
-     * @param flag : the SHAFlag that is being searched for in the comms channels.
-     * @return MapLocation if found or null if not.
-     * @throws GameActionException
-     */
-    public static MapLocation findLocationOfThisTypeUsingChannelQueue(commType type, SHAFlag flag) throws GameActionException{
-        type.commChannelHead = rc.readSharedArray(type.commChannelHeadChannel);
-        int i;
-        if (type.commChannelHead == type.commChannelStart)
-            i = type.commChannelStop - 1;
-        else i = type.commChannelHead - 1;
-        int message = rc.readSharedArray(type.commChannelHead);
-        if (readSHAFlagFromMessage(message) == flag) return readLocationFromMessage(message);
-
-        while(i != type.commChannelHead){
-            message = rc.readSharedArray(i);
-            if (readSHAFlagFromMessage(message) == flag)
-                return readLocationFromMessage(message);
-            if (i == type.commChannelStart)
-                i = type.commChannelStop;
-            else i--;
-        }
-        return null;
-    }
-
-
-    /**
-     * Using the head pointer of channel queue, finds and returns the nearest location (to the reference location) that has the given SHAFlag from the comm channels. Written to somehow improve average bytecode consumption. Needs testing
-     * @param loc  : The reference location.
-     * @param type : Search for the message in this type's channels (LEAD or COMBAT);
-     * @param flag : the SHAFlag that is being searched for in the comms channels.
-     * @return MapLocation if found or null if not.
-     * @throws GameActionException
-     */
-    public static MapLocation findNearestLocationOfThisTypeUsingChannelQueue(MapLocation loc, commType type, SHAFlag flag) throws GameActionException{
-        type.commChannelHead = rc.readSharedArray(type.commChannelHeadChannel);
-        int i;
-        if (type.commChannelHead == type.commChannelStart)
-            i = type.commChannelStop - 1;
-        else i = type.commChannelHead - 1;
-        MapLocation nearestLoc;
-        int message = rc.readSharedArray(type.commChannelHead);
-        if (readSHAFlagFromMessage(message) == flag) nearestLoc = readLocationFromMessage(message);
-        else nearestLoc = null;
-
-        while(i != type.commChannelHead){
-            message = rc.readSharedArray(i);
-            MapLocation newLoc = readLocationFromMessage(message);
-            if (readSHAFlagFromMessage(message) == flag){
-                if (nearestLoc == null || loc.distanceSquaredTo(nearestLoc) > loc.distanceSquaredTo(newLoc)) nearestLoc = newLoc;
-            }
-            if (i == type.commChannelStart)
-                i = type.commChannelStop;
-            else i--;
-        }
-        return nearestLoc;
-    }
-
-
-    /**
-     * Using the head pointer of channel queue, finds and returns the first message from the communication channels that has the given SHAFlag. Written to somehow improve average bytecode consumption. Needs testing
-     * @param type : Search for the message in this type's channels (LEAD or COMBAT);
-     * @param flag : the SHAFlag that is being searched for in the comms channels.
-     * @return the first message (with the SHAFlag removed from it; message >> 4) found of the correct SHAFlag type or -1 if none found.
-     * @throws GameActionException
-     */
-    public static int findMessageOfThisTypeUsingChannelQueue(commType type, SHAFlag flag) throws GameActionException{
-        type.commChannelHead = rc.readSharedArray(type.commChannelHeadChannel);
-        int i;
-        if (type.commChannelHead == type.commChannelStart)
-            i = type.commChannelStop - 1;
-        else i = type.commChannelHead - 1;
-        int message = rc.readSharedArray(type.commChannelHead);
-        if (readSHAFlagFromMessage(message) == flag) return (message >> 4);
-
-        while(i != type.commChannelHead){
-            message = rc.readSharedArray(i);
-            if (readSHAFlagFromMessage(message) == flag)
-                return (message >> 4);
-            if (i == type.commChannelStart)
-                i = type.commChannelStop;
-            else i--;
-        }
-        return -1;
-    }
-
-
     public static int getCommChannel(commType type) throws GameActionException{
         for (int i = type.commChannelStart; i < type.commChannelStop; ++i){
             if (rc.readSharedArray(i) == 0)
@@ -352,64 +262,10 @@ public class Comms extends Util{
 
     public static int getCommChannelOfLesserPriority(commType type, SHAFlag flag) throws GameActionException{
         for (int i = type.commChannelStart; i < type.commChannelStop; ++i){
-            if (readSHAFlagFromMessage(rc.readSharedArray(i)).lesserPriority(flag))
+            if (readSHAFlagFromMessage(rc.readSharedArray(i)).lesserOrEqualPriority(flag))
                 return i;
         }
         return -1;
-    }
-
-
-    public static int getCommChannelFromHead(commType type) throws GameActionException{
-        type.commChannelHead = rc.readSharedArray(type.commChannelHeadChannel);
-        int start = type.commChannelHead;
-        int message = rc.readSharedArray(type.commChannelHead);
-        boolean wrapAround = false;
-        while (message != 0){
-            if (type.commChannelHead == type.commChannelStop - 1)
-                type.commChannelHead = type.commChannelStart;
-            else
-                type.commChannelHead++;
-            if (type.commChannelHead == start){
-                wrapAround = true;
-                break;
-            }
-            message = rc.readSharedArray(type.commChannelHead);
-        }
-        if (wrapAround) return -1;
-        int channel = type.commChannelHead++;
-        if (type.commChannelHead == type.commChannelStop)
-            type.commChannelHead = type.commChannelStart;
-        rc.writeSharedArray(type.commChannelHeadChannel, type.commChannelHead);
-        return channel;
-    }
-
-
-    public static int getCommChannelOfLesserPriorityFromHead(commType type, SHAFlag flag) throws GameActionException{
-        type.commChannelHead = rc.readSharedArray(type.commChannelHeadChannel);
-        int start = type.commChannelHead;
-        int message = rc.readSharedArray(type.commChannelHead);
-        boolean wrapAround = false;
-        while (readSHAFlagFromMessage(message).higherPriority(flag)){
-            if (type.commChannelHead == type.commChannelStop - 1) 
-                type.commChannelHead = type.commChannelStart;
-            else type.commChannelHead++;
-
-            if (type.commChannelHead == start){
-                wrapAround = true;
-                break;
-            }
-            message = rc.readSharedArray(type.commChannelHead);
-        }
-        
-        if (wrapAround) return -1;
-        
-        int channel = type.commChannelHead++;
-
-        if (type.commChannelHead == type.commChannelStop) 
-            type.commChannelHead = type.commChannelStart;
-        
-        rc.writeSharedArray(type.commChannelHeadChannel, type.commChannelHead);
-        return channel;
     }
 
 
@@ -488,80 +344,6 @@ public class Comms extends Util{
     }
 
 
-    /** Writes to the communication channels (not Rubble or archon or various bot count channels). Uses a queue and a head pointer (that points to the queue head) to search for an empty channel in which it can write the message. If it can't find any empty channel, it then searches for a channel with a lesser priority than the current message (which it gets from the SHAFlag) to write the message.
-     * @param type : either Comms.commType.LEAD or Comms.commType.COMBAT depending on whose (LEAD or COMBAT) channels need to be written into.
-     * @param message : the int message that you want to write to the channel. In most cases it's going to be int form of a MapLocation. There's another overloaded function with the same name that accepts MapLocation as input.
-     * @param flag : the SHAFlag flag that denotes the type of the message: LEAD_LOCATION, CONFIRMED_ENEMY_ARCHON_LOCATION, etc.
-     * @return the channel index to which the message was written. -1 is returned if it couldn't find a channel to write the message into.
-     * @BytecodeCost<pre>
-     *      When commType is LEAD   : ~840 at max
-     *When commType is COMBAT : ??? at max (will be different because of more num of channels in COMBAT)
-     * </pre>
-     * **/
-    public static int writeCommMessageToHead(commType type, int message, SHAFlag flag) throws GameActionException{
-        int channel = getCommChannelFromHead(type);
-        if (channel == -1) channel = getCommChannelOfLesserPriorityFromHead(type, flag);
-        if (channel == -1) return channel;
-        writeSHAFlagMessage(message, flag, channel);
-        return channel;
-    }
-
-
-    /** Writes to the communication channels (not Rubble or archon or various bot count channels). Uses a queue and a head pointer (that points to the queue head) to search for an empty channel in which it can write the message. If it can't find any empty channel, it then searches for a channel with a lesser priority than the current message (which it gets from the SHAFlag) to write the message.
-     * @param type : either Comms.commType.LEAD or Comms.commType.COMBAT depending on whose (LEAD or COMBAT) channels need to be written into.
-     * @param loc : the location that you want to write into a communication channel. If you want to send an int message there's another overloaded function with the same name that accepts int as input.
-     * @param flag : the SHAFlag flag that denotes the type of the message: LEAD_LOCATION, CONFIRMED_ENEMY_ARCHON_LOCATION, etc.
-     * @return the channel index to which the message was written. -1 is returned if it couldn't find a channel to write the message into.
-     * @BytecodeCost<pre>
-     *      When commType is LEAD   : ~840 at max
-     *When commType is COMBAT : ??? at max (will be different because of more num of channels in COMBAT)
-     * </pre>
-     * **/
-    public static int writeCommMessageToHead(commType type, MapLocation loc, SHAFlag flag) throws GameActionException{
-        int channel = getCommChannelFromHead(type);
-        if (channel == -1) channel = getCommChannelOfLesserPriorityFromHead(type, flag);
-        if (channel == -1) return channel;
-        writeSHAFlagMessage(intFromMapLocation(loc), flag, channel);
-        return channel;
-    }
-
-
-    /** Writes to the communication channels (not Rubble or archon or various bot count channels). Uses a queue and a head pointer (that points to the queue head) to directly search for a channel with a lesser priority information than the current message (priority decided by SHAFlag) to write the message.
-     * @param type : either Comms.commType.LEAD or Comms.commType.COMBAT depending on whose (LEAD or COMBAT) channels need to be written into.
-     * @param message : the int message that you want to write to the channel. In most cases it's going to be int form of a MapLocation. There's another overloaded function with the same name that accepts MapLocation as input.
-     * @param flag : the SHAFlag flag that denotes the type of the message: LEAD_LOCATION, CONFIRMED_ENEMY_ARCHON_LOCATION, etc.
-     * @return the channel index to which the message was written. -1 is returned if it couldn't find a channel to write the message into.
-     * @BytecodeCost<pre>
-     *      When commType is LEAD   : ~350 at max
-     *When commType is COMBAT : ??? at max (will be different because of more num of channels in COMBAT)
-     * </pre>
-     * **/
-    public static int writeCommMessageOverrwriteLesserPriorityMessageToHead(commType type, int message, SHAFlag flag) throws GameActionException{
-        int channel = getCommChannelOfLesserPriorityFromHead(type, flag);
-        if (channel == -1) return channel;
-        writeSHAFlagMessage(message, flag, channel);
-        return channel;
-    }
-
-
-    /** Writes to the communication channels (not Rubble or archon or various bot count channels). Uses a queue and a head pointer (that points to the queue head) to directly search for a channel with a lesser priority information than the current message (priority decided by SHAFlag) to write the message.
-     * @param type : either Comms.commType.LEAD or Comms.commType.COMBAT depending on whose (LEAD or COMBAT) channels need to be written into.
-     * @param loc : the location that you want to write into a communication channel. If you want to send an int message there's another overloaded function with the same name that accepts int as input.
-     * @param flag : the SHAFlag flag that denotes the type of the message: LEAD_LOCATION, CONFIRMED_ENEMY_ARCHON_LOCATION, etc.
-     * @return the channel index to which the message was written. -1 is returned if it couldn't find a channel to write the message into.
-     * @BytecodeCost<pre>
-     *      When commType is LEAD   : ~350 at max
-     *When commType is COMBAT : ??? at max (will be different because of more num of channels in COMBAT)
-     * </pre>
-     * **/
-    public static int writeCommMessageOverrwriteLesserPriorityMessageToHead(commType type, MapLocation loc, SHAFlag flag) throws GameActionException{
-        int channel = getCommChannelOfLesserPriorityFromHead(type, flag);
-        if (channel == -1) return channel;
-        writeSHAFlagMessage(intFromMapLocation(loc), flag, channel);
-        return channel;
-    }
-
-
     /** Writes 0 to the given channel.
      * @param channel : the input channel to be set to 0.
      * @BytecodeCost ~110 at max.
@@ -569,27 +351,7 @@ public class Comms extends Util{
     public static void wipeChannel(int channel) throws GameActionException{
         rc.writeSharedArray(channel, 0);
     }
-
     
-    /** Writes 0 to the given channel and, compacts the channel queue to remove the new empty space created.
-     * @param type: the type (LEAD OR COMBAT) of the input channel that is about to set as 0.
-     * @param channel : the input channel to be set to 0.
-     * @BytecodeCost<pre>
-     *      When commType is LEAD   : ~340 at max
-     *When commType is COMBAT : ??? at max (will be different because of more num of channels in COMBAT)
-     * </pre>
-     */
-    public static void wipeChannelUpdateHead(commType type, int channel) throws GameActionException{
-        type.commChannelHead = rc.readSharedArray(type.commChannelHeadChannel);
-        if (type.commChannelHead == type.commChannelStart)
-            type.commChannelHead = type.commChannelStop - 1;
-        else type.commChannelHead--;
-
-        rc.writeSharedArray(channel, rc.readSharedArray(type.commChannelHead));
-        rc.writeSharedArray(type.commChannelHead, 0); //Important that this be here I think.
-        rc.writeSharedArray(type.commChannelHeadChannel, type.commChannelHead);
-    }
-
 
     public static boolean checkIfMessegeThere(commType type, int givenMessage, SHAFlag flag) throws GameActionException{
         for (int i = type.commChannelStart; i < type.commChannelStop; ++i){
