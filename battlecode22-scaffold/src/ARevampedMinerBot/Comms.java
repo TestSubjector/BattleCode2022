@@ -1,4 +1,4 @@
-package ABFSBot;
+package ARevampedMinerBot;
 
 import battlecode.common.*;
 
@@ -52,6 +52,8 @@ public class Comms extends Util{
     public static final int CHANNEL_SAGE_COUNT = CHANNEL_LABORATORY_COUNT + 1;
     // All Archons will have minimum 4 channels until they die
     public static final int CHANNEL_ARCHON_START = CHANNEL_SAGE_COUNT + 1;
+    public static final int TOTAL_CHANNELS_COUNT = 64;
+    private static int allChannels[];
     
     /// Archon Channels Format:
     /* 
@@ -120,19 +122,29 @@ public class Comms extends Util{
         commType.COMBAT.commChannelHead = commType.COMBAT.commChannelStart;
         commType.COMBAT.commChannelStop = 63;
         commType.COMBAT.commChannelHeadChannel = commType.COMBAT.commChannelStop;
+        allChannels = new int[TOTAL_CHANNELS_COUNT];
     }
 
 
     public static void updateComms() throws GameActionException{
         channelArchonStop = CHANNEL_ARCHON_START + 4 * archonCount;
-        // commLeadChannelStart = channelArchonStop;
         commType.LEAD.commChannelStart = channelArchonStop;
-        // commLeadChannelStop = (64 + 3 * commLeadChannelStart) / 4 ;
         commType.LEAD.commChannelStop = (64 + 3 * commType.LEAD.commChannelStart) / 4;
         rc.writeSharedArray(commType.LEAD.commChannelStop, rc.readSharedArray(commType.LEAD.commChannelHeadChannel));
         commType.LEAD.commChannelHeadChannel = commType.LEAD.commChannelStop;
-        // commCombatChannelStart = commLeadChannelStop;
         commType.COMBAT.commChannelStart = commType.LEAD.commChannelStop;
+    }
+
+
+    public static void readAllChannels() throws GameActionException{
+        for (int i = 0; i < TOTAL_CHANNELS_COUNT; ++i)
+            allChannels[i] = rc.readSharedArray(i);
+    }
+
+
+    public static void readSomeChannels(int start, int end) throws GameActionException{
+        for (int i = start; i <= end; ++i)
+            allChannels[i] = rc.readSharedArray(i);
     }
 
 
@@ -188,6 +200,7 @@ public class Comms extends Util{
         MapLocation nearestLoc = null;
         for (int i = type.commChannelStart; i < type.commChannelStop; ++i){
             int message = rc.readSharedArray(i);
+            if (readSHAFlagFromMessage(message) != flag) continue;
             MapLocation newLoc = readLocationFromMessage(message);
             if (nearestLoc == null || loc.distanceSquaredTo(nearestLoc) > loc.distanceSquaredTo(newLoc)) nearestLoc = newLoc;
         }
@@ -208,6 +221,7 @@ public class Comms extends Util{
         int channel = -1;
         for (int i = type.commChannelStart; i < type.commChannelStop; ++i){
             int message = rc.readSharedArray(i);
+            if (readSHAFlagFromMessage(message) != flag) continue;
             MapLocation newLoc = readLocationFromMessage(message);
             if (nearestLoc == null || loc.distanceSquaredTo(nearestLoc) > loc.distanceSquaredTo(newLoc)){ 
                 nearestLoc = newLoc;
@@ -574,6 +588,15 @@ public class Comms extends Util{
         rc.writeSharedArray(channel, rc.readSharedArray(type.commChannelHead));
         rc.writeSharedArray(type.commChannelHead, 0); //Important that this be here I think.
         rc.writeSharedArray(type.commChannelHeadChannel, type.commChannelHead);
+    }
+
+
+    public static boolean checkIfMessegeThere(commType type, int givenMessage, SHAFlag flag) throws GameActionException{
+        for (int i = type.commChannelStart; i < type.commChannelStop; ++i){
+            int message = rc.readSharedArray(i);
+            if (readSHAFlagFromMessage(message) == flag && (message >> 4) == givenMessage) return true;
+        }
+        return false;
     }
 
 

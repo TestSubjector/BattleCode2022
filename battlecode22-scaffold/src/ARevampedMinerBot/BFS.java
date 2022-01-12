@@ -1,4 +1,4 @@
-package ABFSBot;
+package ARevampedMinerBot;
 
 import battlecode.common.*;
 

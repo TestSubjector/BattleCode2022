@@ -1,4 +1,4 @@
-package ABFSBot;
+package OBFSBot;
 
 import battlecode.common.Direction;
 import battlecode.common.MapLocation;

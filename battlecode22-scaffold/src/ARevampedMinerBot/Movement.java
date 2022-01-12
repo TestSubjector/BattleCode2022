@@ -1,4 +1,4 @@
-package ABFSBot;
+package ARevampedMinerBot;
 
 import battlecode.common.*;
 
@@ -97,18 +97,7 @@ public class Movement extends Util{
     }
 
 	public static boolean moveToDest(MapLocation dest) throws GameActionException{
-		if (usingOnlyBugNav){
-			return goToDirect(dest);
-		}
-		else{
-			Direction dir = PathFinder.findPathAStar(currentLocation, dest);
-			if (rc.canMove(dir)){
-				rc.move(dir);
-                currentLocation = rc.getLocation();
-				return true;
-			}
-			else return false;
-		}
+		return goToDirect(dest);
 	}
 	
     public static boolean preferLeft(MapLocation dest) {
@@ -119,14 +108,16 @@ public class Movement extends Util{
         return (dest.distanceSquaredTo(leftLoc) < dest.distanceSquaredTo(rightLoc)); // Team preference
     }
 
-    // public static void moveRandomly() throws GameActionException {
-    //     Direction dir = Globals.directions[Globals.rng.nextInt(Globals.directions.length)];
-    //     if (rc.canMove(dir)) {
-    //         rc.move(dir);
-    //         currentLocation = rc.getLocation();
-    //     }
-    // }
 
+    public static void moveRandomly() throws GameActionException {
+        Direction dir = Globals.directions[Globals.rng.nextInt(Globals.directions.length)];
+        if (rc.canMove(dir)) {
+            rc.move(dir);
+            currentLocation = rc.getLocation();
+        }
+    }
+
+	
     public static MapLocation moveToLattice(int minLatticeDist, int weights){
         try { 
             MapLocation lCurrentLocation = currentLocation;
