@@ -10,8 +10,8 @@ rm -f logs/warnings.log
 rm -f logs/detailed_results.log
 rm -f logs/log.log
 
-for i in intersection eckleburg doubledoors newdoubledoors fortress colosseum jellyfish progress rivers \
-    valley squer sandwich underground nottestsmall
+for i in intersection eckleburg fortress colosseum jellyfish progress rivers \
+    valley squer sandwich underground nottestsmall #doubledoors newdoubledoors
 do
   echo "Running map $i"
   ./gradlew -PteamA=$team1 -PteamB=$team2 -Pmaps=$i -PprofilerEnabled=false run >> logs/log.log

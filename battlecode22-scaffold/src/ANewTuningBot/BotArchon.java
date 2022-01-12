@@ -95,7 +95,7 @@ public class BotArchon extends Util{
                 }
                 crowded = false;
                 SpawnValue = getValue(lCR, currentDestination, dir); // TODO: Change destination
-                if (bestSpawnDir == null || SpawnValue > bestSpawnValue) {
+                if (bestSpawnDir == null || SpawnValue < bestSpawnValue) {
                     bestSpawnDir = dir;
                     bestSpawnValue = SpawnValue;
                 }
@@ -123,7 +123,7 @@ public class BotArchon extends Util{
         if (dest != null){
             dist = archonLocation.add(dir).distanceSquaredTo(dest);
         }
-        return 1/(1+rc.senseRubble(archonLocation.add(dir)));
+        return rc.senseRubble(archonLocation.add(dir));
     }
 
     public static ArchonBuildUnits standardOrder() throws GameActionException{
@@ -272,6 +272,8 @@ public class BotArchon extends Util{
         buildDivision();
         shouldFlee();
         transformAndFlee();
+        BotMiner.surveyForOpenMiningLocationsNearby();
+        BotSoldier.sendCombatLocation(visibleEnemies);
         // selfHeal();
     }
 
