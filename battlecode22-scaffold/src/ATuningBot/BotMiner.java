@@ -18,6 +18,7 @@ public class BotMiner extends Util{
     private static RobotInfo[] visibleEnemies;
     private static boolean isFleeing;
     private static final boolean searchByDistance = false;
+    private static final int randomPersistance = 20;
 
     public static boolean areMiningLocationsAbundant(){
         try{
@@ -219,8 +220,8 @@ public class BotMiner extends Util{
         }
         // If outside of vision or Location is not occupied:
         if (curDist > MINER_VISION_RADIUS || !rc.isLocationOccupied(miningLocation)){
-            // if (!BFS.move(miningLocation)) desperationIndex++;
-            if (!Movement.goToDirect(miningLocation)) desperationIndex++;
+            if (!BFS.move(miningLocation)) desperationIndex++;
+            // if (!Movement.goToDirect(miningLocation)) desperationIndex++;
             return;
         }
         // miningLocation is inside vision range and is occupied now:
@@ -231,8 +232,8 @@ public class BotMiner extends Util{
         if (!rc.isMovementReady()) return;
         
         // goToMine(); // Be careful of recursive calls.
-        // if (miningLocation!= null && !BFS.move(miningLocation)) desperationIndex++;
-        if (miningLocation!= null && !Movement.goToDirect(miningLocation)) desperationIndex++;
+        if (miningLocation!= null && !BFS.move(miningLocation)) desperationIndex++;
+        // if (miningLocation!= null && !Movement.goToDirect(miningLocation)) desperationIndex++;
     }
 
 
@@ -320,6 +321,11 @@ public class BotMiner extends Util{
     }
 
 
+    public static Direction persistingRandomMovement() throws GameActionException{
+        return Direction.values()[((BIRTH_ROUND + Globals.rng.nextInt(turnCount)) % randomPersistance) % 9];
+    }
+
+
     public static boolean goAheadAndDie() throws GameActionException{
         commitSuicide = true;
         suicideLocation = findGoodPlaceToDie();
@@ -343,7 +349,7 @@ public class BotMiner extends Util{
     }
 
 
-    public static MapLocation findLocationOppositeParentArchon() throws GameActionException{
+    public static MapLocation explore() throws GameActionException{
         if(BIRTH_ROUND % 3 == 0) {
             return ratioPointBetweenTwoMapLocations(parentArchonLocation, rememberedEnemyArchonLocations[0], 0.5);
         } else if (BIRTH_ROUND % 3 == 1){
@@ -368,9 +374,9 @@ public class BotMiner extends Util{
         // Explore now how?
         // Head away from parent Archon to explore. Might get us new mining locations
         // TODO: Find a better exploration function. Perhaps Geffner's?
-        // if (!BFS.move(findLocationOppositeParentArchon())) desperationIndex++;
-        if (!Movement.goToDirect(findLocationOppositeParentArchon())) desperationIndex++;
-
+        if (!BFS.move(explore())) desperationIndex++;
+        // if (!Movement.goToDirect(explore())) desperationIndex++;
+        // if (!Movement.goToDirect(currentLocation.add(persistingRandomMovement()))) desperationIndex++;
         // The Final Option:
         // if (goAheadAndDie()) return;
         
@@ -396,7 +402,7 @@ public class BotMiner extends Util{
         for (MapLocation loc : potentialMiningLocations){  // Team bias
             // int bytecodeC = Clock.getBytecodesLeft();
             // System.out.println("C: Bytecode remaining: " + Clock.getBytecodesLeft());
-            if (Clock.getBytecodesLeft() < 1500)
+            if (Clock.getBytecodesLeft() < 1200)
                 break;
             if (!rc.isLocationOccupied(loc) && goodMiningSpot(loc)){
                 // Takes ~350 bytecodes at max. With wipeChannelUpdateHead() = ~690 at max
@@ -419,61 +425,6 @@ public class BotMiner extends Util{
         }
     }
     
-    // public static void surveyForOpenMiningLocationsNearby() throws GameActionException{
-    //     turnBroadcastCount = 0; // Assuming no writes have happened till now
-
-    //     MapLocation[] potentialMiningLocations = rc.senseNearbyLocationsWithLead(MINER_VISION_RADIUS);
-    //     MapLocation best1 = null, best2 = null;
-    //     int leadCount1 = 0, leadCount2 = 0;
-    //     for (MapLocation loc : potentialMiningLocations){
-    //         if (turnBroadcastCount > TURN_BROADCAST_LIMIT || Clock.getBytecodesLeft() < 2000)
-    //             break;
-    //         if (rc.isLocationOccupied(loc)) continue;
-    //         if (rc.senseGold(loc) > 0){
-    //             Comms.writeCommMessageOverrwriteLesserPriorityMessage(Comms.commType.LEAD, intFromMapLocation(loc), SHAFlag.LEAD_LOCATION);
-    //             turnBroadcastCount++;
-    //             continue;
-    //         }
-    //         if (rc.senseLead(loc) > 100){
-    //             Comms.writeCommMessageOverrwriteLesserPriorityMessage(Comms.commType.LEAD, intFromMapLocation(loc), SHAFlag.LEAD_LOCATION);
-    //             turnBroadcastCount++;
-    //             continue;
-    //         }
-    //         int curLeadCount = rc.senseLead(loc);
-    //         if (curLeadCount <= leadCount2)
-    //             continue;
-
-    //         // TODO: Use switch statements on turnBroadcastCount to update only relevant counts of bests.
-    //         if (!rc.isLocationOccupied(loc)){
-    //             if (best1 == null){
-    //                 best1 = loc;
-    //                 leadCount1 = curLeadCount;
-    //                 continue;
-    //             }
-    //             if (best2 == null){
-    //                 best2 = loc;
-    //                 leadCount2 = curLeadCount;
-    //                 continue;
-    //             }
-    //             if (curLeadCount <= leadCount1){
-    //                 best2 = loc;
-    //                 leadCount2 = curLeadCount;
-    //                 continue;
-    //             }
-    //             best2 = best1;
-    //             leadCount2 = leadCount1;
-    //             best1 = loc;
-    //             leadCount1 = curLeadCount;
-    //         }
-    //     }
-    //     if (Clock.getBytecodesLeft() < 2000) return;
-    //     switch(turnBroadcastCount){
-    //         case 0: return; // break commands are missing in the following lines on purpose. Taking advantage of switch fall through.
-    //         case 2: if (best2 != null) Comms.writeCommMessageOverrwriteLesserPriorityMessage(Comms.commType.LEAD, intFromMapLocation(best2), SHAFlag.LEAD_LOCATION);
-    //         case 1: if (best1 != null) Comms.writeCommMessageOverrwriteLesserPriorityMessage(Comms.commType.LEAD, intFromMapLocation(best1), SHAFlag.LEAD_LOCATION);
-    //     }
-    // }
-
 
     public static boolean isSafeToMine(MapLocation loc){
         RobotInfo[] potentialAttackers = rc.senseNearbyRobots(loc, 24, ENEMY_TEAM);
