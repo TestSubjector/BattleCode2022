@@ -1,6 +1,6 @@
-package ARevampedMinerBot;
+package ORevampedMinerBot;
 
-import ARevampedMinerBot.Comms.SHAFlag;
+import ORevampedMinerBot.Comms.SHAFlag;
 import battlecode.common.*;
 
 public class BotMiner3 extends Util{

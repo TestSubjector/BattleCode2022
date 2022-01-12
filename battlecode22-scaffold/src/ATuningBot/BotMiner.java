@@ -1,6 +1,6 @@
-package ARevampedMinerBot;
+package ATuningBot;
 
-import ARevampedMinerBot.Comms.SHAFlag;
+import ATuningBot.Comms.SHAFlag;
 import battlecode.common.*;
 
 public class BotMiner extends Util{

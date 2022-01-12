@@ -1,7 +1,7 @@
-package ARevampedMinerBot;
+package ATuningBot;
 
-import ARevampedMinerBot.Comms.SHAFlag;
-import ARevampedMinerBot.Comms.commType;
+import ATuningBot.Comms.SHAFlag;
+import ATuningBot.Comms.commType;
 import battlecode.common.*;
 
 public class BotSoldier extends Util{

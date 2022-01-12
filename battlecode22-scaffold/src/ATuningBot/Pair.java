@@ -1,4 +1,4 @@
-package ARevampedMinerBot;
+package ATuningBot;
 
 import java.util.Objects;
 

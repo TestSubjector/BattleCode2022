@@ -1,4 +1,4 @@
-package ARevampedMinerBot;
+package ORevampedMinerBot;
 
 import java.util.Random;
 

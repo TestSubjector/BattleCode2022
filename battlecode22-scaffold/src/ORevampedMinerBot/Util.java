@@ -1,4 +1,4 @@
-package ARevampedMinerBot;
+package ORevampedMinerBot;
 
 import battlecode.common.MapLocation;
 import battlecode.common.Clock;
