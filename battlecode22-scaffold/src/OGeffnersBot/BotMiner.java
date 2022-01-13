@@ -1,6 +1,6 @@
-package AGeffnersBot;
+package OGeffnersBot;
 
-import AGeffnersBot.Comms.SHAFlag;
+import OGeffnersBot.Comms.SHAFlag;
 import battlecode.common.*;
 
 public class BotMiner extends explore{

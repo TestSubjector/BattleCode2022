@@ -1,4 +1,4 @@
-package AGeffnersBot;
+package OGeffnersBot;
 
 import battlecode.common.*;
 

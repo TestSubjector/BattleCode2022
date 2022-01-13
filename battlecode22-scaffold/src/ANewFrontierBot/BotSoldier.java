@@ -1,7 +1,7 @@
-package AGeffnersBot;
+package ANewFrontierBot;
 
-import AGeffnersBot.Comms.SHAFlag;
-import AGeffnersBot.Comms.commType;
+import ANewFrontierBot.Comms.SHAFlag;
+import ANewFrontierBot.Comms.commType;
 import battlecode.common.*;
 
 public class BotSoldier extends Util{

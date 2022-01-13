@@ -1,6 +1,6 @@
 #!/bin/bash
 
-team1=AGeffnersBot
+team1=ANewFrontierBot
 team2=ONewTuningBot
 
 mkdir -p logs

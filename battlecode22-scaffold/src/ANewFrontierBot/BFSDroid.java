@@ -1,4 +1,4 @@
-package AGeffnersBot;
+package ANewFrontierBot;
 
 import battlecode.common.Direction;
 import battlecode.common.MapLocation;

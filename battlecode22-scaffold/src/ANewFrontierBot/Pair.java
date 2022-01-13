@@ -1,4 +1,4 @@
-package AGeffnersBot;
+package ANewFrontierBot;
 
 import java.util.Objects;
 
