@@ -243,7 +243,7 @@ public class BotMiner extends Explore{
 
     public static boolean foundMiningLocationFromVision() throws GameActionException{
         if (prolificMiningLocationsAtBirth){
-            miningLocation = Movement.moveToLattice(2, 0);
+            miningLocation = Movement.moveToLattice(10, 0);
             return (miningLocation != null);
         }
         miningLocation = findOpenMiningLocationNearby();
@@ -408,10 +408,12 @@ public class BotMiner extends Explore{
         }
         else if (miningLocation != null){
             goToMine();
+            mine();
         }
         else{
             getMiningLocation();
             goToMine();
+            mine();
         }
     }
 
