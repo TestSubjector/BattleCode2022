@@ -20,8 +20,6 @@ class BoundInfo {
 
 public class explore extends Util{
 
-    public static MapLocation explore3Target;
-    public static Direction exploreDir = CENTER;
     public static double angle;
     private static final int exploreDist = 100;
     public static final BoundInfo lbX = new BoundInfo(0, true), lbY = new BoundInfo(0, true);
@@ -46,23 +44,27 @@ public class explore extends Util{
     public static boolean movingOutOfMap(Direction dir){
         try {
             MapLocation loc = rc.getLocation().add(dir);
+            // System.out.println("loc1: " + loc);
             if (!rc.onTheMap(loc)) {
                 return true;
             }
             loc = loc.add(dir);
+            // System.out.println("loc2: " + loc);
             if (!rc.onTheMap(loc)) {
                 return true;
             }
             loc = loc.add(dir);
+            // System.out.println("loc3: " + loc);
             if (!rc.onTheMap(loc)) {
                 return true;
             }
             loc = loc.add(dir);
-            if (rc.canSenseLocation(loc) && !rc.onTheMap(loc)) {
+            if (!isValidMapLocation(loc)) {
                 return true;
             }
             loc = loc.add(dir);
-            if (rc.canSenseLocation(loc) && !rc.onTheMap(loc)) {
+            // System.out.println("loc4: " + loc);
+            if (!isValidMapLocation(loc)) {
                 return true;
             }
         } catch (Exception e){
@@ -143,8 +145,12 @@ public class explore extends Util{
                         return;
                 }
                 Direction dir = exploreDir.rotateLeft().rotateLeft();
-                if (!movingOutOfMap(dir)) assignExplore3Dir(dir);
-                else assignExplore3Dir(dir.opposite());
+                if (!movingOutOfMap(dir)) {
+                    assignExplore3Dir(dir);
+                }
+                else {
+                    assignExplore3Dir(dir.opposite());
+                }
                 return;
             case EAST:
             case WEST:
@@ -161,10 +167,8 @@ public class explore extends Util{
                 if (!movingOutOfMap(dir)) assignExplore3Dir(dir);
                 else assignExplore3Dir(dir.opposite());
                 return;
-
         }
     }
-
 
     public static MapLocation getExplore3Target(){
         checkDirection();

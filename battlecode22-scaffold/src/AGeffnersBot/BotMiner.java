@@ -33,9 +33,10 @@ public class BotMiner extends explore{
     }
 
 
-    public static void initBotMiner(){
+    public static void initBotMiner() throws GameActionException{
         prolificMiningLocationsAtBirth = areMiningLocationsAbundant();
         resetVariables();
+        // explore();
     }
 
 
@@ -59,20 +60,6 @@ public class BotMiner extends explore{
         isFleeing = false;
     }
 
-
-    // public static void mineAdjacentLocations() throws GameActionException {
-    //     MapLocation[] adjacentLocations = rc.getAllLocationsWithinRadiusSquared(currentLocation, 2);
-    //     for (MapLocation loc : adjacentLocations){ // Team Bias
-    //         mine(loc);
-    //         if(!rc.isActionReady()) // We can mine more one time so this is placed after mine()
-    //             return;
-    //     }
-    // }
-
-
-    // public static boolean checkSurroundingsForLead()
-
-
     public static void mine() throws GameActionException{
         if (!rc.isActionReady()) return;
         MapLocation[] adjacentLocations = rc.getAllLocationsWithinRadiusSquared(currentLocation, 2);
@@ -90,37 +77,6 @@ public class BotMiner extends explore{
         }
     }
 
-    
-    // public static void mine(MapLocation loc) throws GameActionException{
-    //     if (!rc.isActionReady())
-    //         return;
-    //     while(rc.canMineGold(loc)){
-    //         isMinedThisTurn = true;
-    //         desperationIndex = 0;
-    //         rc.mineGold(loc);
-    //     }
-    //     int leadAmount = rc.senseLead(loc);
-    //     if (leadAmount == 0) {  // No more lead on location for some reason
-    //         miningLocation = null;
-    //         inPlaceForMining = false;
-    //         moveOut = true;
-    //         desperationIndex++;
-    //     }
-    //     while (rc.canMineLead(loc)) {
-    //         if (leadAmount == 1){
-    //             moveOut = true;
-    //             desperationIndex++;
-    //             break;
-    //         }
-    //         moveOut = false;
-    //         isMinedThisTurn = true;
-    //         desperationIndex = 0;
-    //         // desperationIndex = Math.max(0, desperationIndex - 2);
-    //         rc.mineLead(loc);
-    //         leadAmount--;
-    //     }
-    //     moveOut = !isMinedThisTurn;
-    // }
 
 
     public static void minerComms() throws GameActionException {
@@ -270,26 +226,7 @@ public class BotMiner extends explore{
 
 
     public static MapLocation findGoodPlaceToDie() throws GameActionException{
-        // int x = currentLocation.x, y = currentLocation.y;
-        
         return Movement.moveToLattice(MIN_SUICIDE_DIST, 0);
-
-        // MapLocation[] allLocations = rc.getAllLocationsWithinRadiusSquared(currentLocation, MINER_VISION_RADIUS);
-        // for(MapLocation loc : allLocations)
-        //     if (rc.canSenseLocation(loc) && !rc.isLocationOccupied(loc) && goodSpot(loc))
-        //         return loc;
-
-
-
-        // TODO: Why does the following fail?
-        // for (int curX = x - 4; curX < x + 5; curX++){
-        //     for (int curY = y-4; curY < x + 5; curY++){
-        //         MapLocation curLoc = new MapLocation(curX, curY);
-        //         if (rc.canSenseLocation(curLoc) && (!rc.isLocationOccupied(curLoc)))
-        //             return curLoc;
-        //     }
-        // }
-        // return null;
     }
 
 
@@ -312,13 +249,10 @@ public class BotMiner extends explore{
 
 
     public static boolean foundMiningLocationFromComms() throws GameActionException{
-        // miningLocation = checkCommsForMiningLocation();
         if (!tooCrowded) 
-        miningLocation = Comms.findNearestLocationOfThisTypeAndWipeChannel(currentLocation, Comms.commType.LEAD, SHAFlag.LEAD_LOCATION);
+            miningLocation = Comms.findNearestLocationOfThisTypeAndWipeChannel(currentLocation, Comms.commType.LEAD, SHAFlag.LEAD_LOCATION);
         else
-        miningLocation = Comms.findNearestLocationOfThisTypeOutOfVisionAndWipeChannel(currentLocation, Comms.commType.LEAD, Comms.SHAFlag.LEAD_LOCATION);
-        // miningLocation = Comms.findLocationOfThisType(Comms.commType.LEAD, SHAFlag.LEAD_LOCATION);
-        // miningLocation = Comms.findNearestLocationOfThisTypeAndWipeChannel(currentLocation, Comms.commType.LEAD, SHAFlag.LEAD_LOCATION);
+            miningLocation = Comms.findNearestLocationOfThisTypeOutOfVisionAndWipeChannel(currentLocation, Comms.commType.LEAD, Comms.SHAFlag.LEAD_LOCATION);
         if (miningLocation != null){
             // desperationIndex--;
             desperationIndex = 0;
@@ -379,8 +313,8 @@ public class BotMiner extends explore{
         //     return ratioPointBetweenTwoMapLocations(parentArchonLocation, rememberedEnemyArchonLocations[2], 0.5);
         // }
         
-        
-        getExploreDir();
+        if (exploreDir == CENTER)
+            getExploreDir();
         return getExplore3Target();
 
         // int cx = currentLocation.x, cy = currentLocation.y, px = closestArchon.x, py = closestArchon.y;
@@ -394,7 +328,7 @@ public class BotMiner extends explore{
         if (miningLocation != null) System.out.println("Location already found?? Something's wrong.");
         if(foundMiningLocationFromVision()) return;
         
-        // if (turnCount > 150 && foundMiningLocationFromComms()) return;
+        // if (turnCount > 70 && foundMiningLocationFromComms()) return;
         
         // Explore now how?
         // Head away from parent Archon to explore. Might get us new mining locations

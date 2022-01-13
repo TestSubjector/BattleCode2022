@@ -197,6 +197,9 @@ public class Globals {
     public static final Direction NORTHWEST = Direction.NORTHWEST;
     public static final Direction CENTER = Direction.CENTER;
 
+    public static MapLocation explore3Target;
+    public static Direction exploreDir = CENTER;
+
     // Confirmed, this is correct
     public static final Direction droidVisionDirs[] = new Direction[]{
         Direction.NORTHWEST, Direction.NORTHWEST, Direction.NORTH, Direction.NORTH, 

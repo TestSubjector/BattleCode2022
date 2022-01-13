@@ -46,7 +46,7 @@ public class BotArchon extends Util{
     public static void updateArchonBuildUnits(){
         int lTC = turnCount;
         watchTowerWeight = watchTowerCount;
-        aBUWeights[ArchonBuildUnits.BUILDER.ordinal()] = Math.min(1, 0.35 + lTC/400);
+        aBUWeights[ArchonBuildUnits.BUILDER.ordinal()] = Math.min(1, 0.15 + lTC/400);
         aBUWeights[ArchonBuildUnits.MINER.ordinal()] = Math.max(1, 4.5 - lTC/50);
         aBUWeights[ArchonBuildUnits.SAGE.ordinal()] = Math.max(2.5, 4.5 - lTC/100);
         aBUWeights[ArchonBuildUnits.SOLDIER.ordinal()] = Math.min(4.5, 2 + lTC/50);
@@ -72,10 +72,14 @@ public class BotArchon extends Util{
         }
     }
 
+    public static boolean waitQuota(){
+        return rc.getRoundNum() % archonCount != commID && currentLeadReserves < 95;
+    }
+
     public static void buildUnit() throws GameActionException{
         try {
             ArchonBuildUnits unitToBuild = standardOrder();
-            if (unitToBuild == null) {
+            if (unitToBuild == null || waitQuota()) {
                 turnsWaitingToBuild++;
                 return;
             }
@@ -123,7 +127,7 @@ public class BotArchon extends Util{
         if (dest != null){
             dist = archonLocation.add(dir).distanceSquaredTo(dest);
         }
-        return rc.senseRubble(archonLocation.add(dir));
+        return dist * (10 + rc.senseRubble(archonLocation.add(dir)));
     }
 
     public static ArchonBuildUnits standardOrder() throws GameActionException{

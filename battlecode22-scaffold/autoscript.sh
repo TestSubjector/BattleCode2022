@@ -1,7 +1,7 @@
 #!/bin/bash
 
-team1=ANewTuningBot
-team2=OTuningBot
+team1=AGeffnersBot
+team2=ONewTuningBot
 
 mkdir -p logs
 
