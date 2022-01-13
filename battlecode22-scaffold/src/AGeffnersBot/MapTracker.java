@@ -1,4 +1,4 @@
-package ANewTuningBot;
+package AGeffnersBot;
 
 import battlecode.common.MapLocation;
 

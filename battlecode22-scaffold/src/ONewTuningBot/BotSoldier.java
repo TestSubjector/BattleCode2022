@@ -1,7 +1,7 @@
-package ANewTuningBot;
+package ONewTuningBot;
 
-import ANewTuningBot.Comms.SHAFlag;
-import ANewTuningBot.Comms.commType;
+import ONewTuningBot.Comms.SHAFlag;
+import ONewTuningBot.Comms.commType;
 import battlecode.common.*;
 
 public class BotSoldier extends Util{

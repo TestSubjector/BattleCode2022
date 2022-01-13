@@ -1,9 +1,9 @@
-package ANewTuningBot;
+package AGeffnersBot;
 
-import ANewTuningBot.Comms.SHAFlag;
+import AGeffnersBot.Comms.SHAFlag;
 import battlecode.common.*;
 
-public class BotMiner extends Util{
+public class BotMiner extends explore{
 
     public static boolean isMinedThisTurn;
     public static int numOfMiners;
@@ -21,6 +21,7 @@ public class BotMiner extends Util{
     private static final int randomPersistance = 20;
     private static boolean tooCrowded;
     private static final int CROWD_LIMIT = 3;
+
 
     public static boolean areMiningLocationsAbundant(){
         try{
@@ -359,18 +360,32 @@ public class BotMiner extends Util{
     }
 
 
+    public static void getExploreDir(){
+        MapLocation closestArchon = getClosestArchonLocation();
+        if (rc.canSenseLocation(closestArchon)) 
+            assignExplore3Dir(closestArchon.directionTo(currentLocation));
+        else assignExplore3Dir(directions[(int)(Math.random()*8)]);
+    }
+
+
+
     public static MapLocation explore() throws GameActionException{
-        if(BIRTH_ROUND % 3 == 0) {
-            return ratioPointBetweenTwoMapLocations(parentArchonLocation, rememberedEnemyArchonLocations[0], 0.5);
-        } else if (BIRTH_ROUND % 3 == 1){
-            return ratioPointBetweenTwoMapLocations(parentArchonLocation, rememberedEnemyArchonLocations[1], 0.5);
-        }
-        else{
-            return ratioPointBetweenTwoMapLocations(parentArchonLocation, rememberedEnemyArchonLocations[2], 0.5);
-        }
-        // int cx = currentLocation.x, cy = currentLocation.y, px = parentArchonLocation.x, py = parentArchonLocation.y;
+        // if(BIRTH_ROUND % 3 == 0) {
+        //     return ratioPointBetweenTwoMapLocations(parentArchonLocation, rememberedEnemyArchonLocations[0], 0.5);
+        // } else if (BIRTH_ROUND % 3 == 1){
+        //     return ratioPointBetweenTwoMapLocations(parentArchonLocation, rememberedEnemyArchonLocations[1], 0.5);
+        // }
+        // else{
+        //     return ratioPointBetweenTwoMapLocations(parentArchonLocation, rememberedEnemyArchonLocations[2], 0.5);
+        // }
+        
+        
+        getExploreDir();
+        return getExplore3Target();
+
+        // int cx = currentLocation.x, cy = currentLocation.y, px = closestArchon.x, py = closestArchon.y;
         // int newX = Math.min(Math.max(2*cx - px, 0), MAP_WIDTH - 1), newY = Math.min(Math.max(2*cy - py, 0), MAP_HEIGHT-1);
-        // return (new MapLocation(0, 0));
+        // return (new MapLocation(newX, newY));
     }
 
 
@@ -379,11 +394,12 @@ public class BotMiner extends Util{
         if (miningLocation != null) System.out.println("Location already found?? Something's wrong.");
         if(foundMiningLocationFromVision()) return;
         
-        if (foundMiningLocationFromComms()) return;
+        // if (turnCount > 150 && foundMiningLocationFromComms()) return;
         
         // Explore now how?
         // Head away from parent Archon to explore. Might get us new mining locations
         // TODO: Find a better exploration function. Perhaps Geffner's?
+        
         if (!BFS.move(explore())) desperationIndex++;
         // if (!Movement.goToDirect(explore())) desperationIndex++;
         // if (!Movement.goToDirect(currentLocation.add(persistingRandomMovement()))) desperationIndex++;
@@ -414,7 +430,7 @@ public class BotMiner extends Util{
             // System.out.println("C: Bytecode remaining: " + Clock.getBytecodesLeft());
             if (Clock.getBytecodesLeft() < 1200)
                 break;
-            if (!rc.isLocationOccupied(loc) && goodMiningSpot(loc)){
+            if (currentLocation.distanceSquaredTo(loc) > 2 && goodMiningSpot(loc)){
                 // Takes ~350 bytecodes at max. With wipeChannelUpdateHead() = ~690 at max
                 // Comms.writeCommMessageOverrwriteLesserPriorityMessageToHead(Comms.commType.LEAD, loc, SHAFlag.LEAD_LOCATION);
 
@@ -542,7 +558,8 @@ public class BotMiner extends Util{
         if (!rc.isMovementReady()) return;
         if (miningLocation != null) goToMine();
         else {
-            BFS.move(explore());
+            explore();
+            BFS.move(explore3Target);
         }
     }
 

@@ -1,4 +1,4 @@
-package ANewTuningBot;
+package ONewTuningBot;
 
 import java.util.Objects;
 

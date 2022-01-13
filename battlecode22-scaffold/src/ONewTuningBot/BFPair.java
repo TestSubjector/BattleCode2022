@@ -1,4 +1,4 @@
-package ANewTuningBot;
+package ONewTuningBot;
 
 import battlecode.common.*;
 
