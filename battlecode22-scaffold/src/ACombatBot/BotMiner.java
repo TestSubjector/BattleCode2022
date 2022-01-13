@@ -3,7 +3,7 @@ package ACombatBot;
 import ACombatBot.Comms.SHAFlag;
 import battlecode.common.*;
 
-public class BotMiner extends Explore{
+public class BotMiner extends explore{
 
     public static boolean isMinedThisTurn;
     public static int numOfMiners;
@@ -37,17 +37,6 @@ public class BotMiner extends Explore{
         prolificMiningLocationsAtBirth = areMiningLocationsAbundant();
         resetVariables();
         // explore();
-    }
-
-    public static void minerComms() throws GameActionException {
-        Comms.updateArchonLocations();
-        Comms.updateChannelValueBy1(Comms.CHANNEL_MINER_COUNT);
-        Comms.updateChannelValueBy1(Comms.CHANNEL_TRANSMITTER_COUNT);
-        Comms.updateComms();
-    }
-
-    public static void updateVision() throws GameActionException {
-        visibleEnemies = rc.senseNearbyRobots(-1, ENEMY_TEAM);
     }
 
 
@@ -87,6 +76,20 @@ public class BotMiner extends Explore{
             }
         }
     }
+
+
+
+    public static void minerComms() throws GameActionException {
+        Comms.updateArchonLocations();
+        Comms.updateChannelValueBy1(Comms.CHANNEL_MINER_COUNT);
+        Comms.updateChannelValueBy1(Comms.CHANNEL_TRANSMITTER_COUNT);
+        Comms.updateComms();
+    }
+
+    public static void updateVision() throws GameActionException {
+        visibleEnemies = rc.senseNearbyRobots(MINER_VISION_RADIUS, ENEMY_TEAM);
+    }
+
 
     public static MapLocation findOptimalLocationForMiningGold(MapLocation[] locations) throws GameActionException{
         if (locations.length == 1) return locations[0];

@@ -53,8 +53,8 @@ public class BotArchon extends Util{
     }
 
     private static void updateVision() throws GameActionException {
-        visibleEnemies = rc.senseNearbyRobots(-1, ENEMY_TEAM);
-        visibleAllies = rc.senseNearbyRobots(-1, ENEMY_TEAM); 
+        visibleEnemies = rc.senseNearbyRobots(SOLDIER_VISION_RADIUS, ENEMY_TEAM); // TODO - Is apparently better?
+        visibleAllies = rc.senseNearbyRobots(ARCHON_ACTION_RADIUS, ENEMY_TEAM); 
     }
 
     public static void buildDivision() throws GameActionException{

@@ -24,8 +24,8 @@ public class BotSoldier extends Util{
     }
 
     private static void updateVision() throws GameActionException {
-        visibleEnemies = rc.senseNearbyRobots(-1, ENEMY_TEAM);
-        inRangeEnemies = rc.senseNearbyRobots(-1, ENEMY_TEAM);
+        visibleEnemies = rc.senseNearbyRobots(SOLDIER_VISION_RADIUS, ENEMY_TEAM);
+        inRangeEnemies = rc.senseNearbyRobots(SOLDIER_ACTION_RADIUS, ENEMY_TEAM);
     }
 
     private static void detectIfAttackTargetIsGone() throws GameActionException {
@@ -63,19 +63,14 @@ public class BotSoldier extends Util{
 		RobotInfo bestTarget = null;
 		double bestValue = -1;
         double value = 0;
-        double unitAttackValue = rc.getType().getDamage(rc.getLevel()); 
 		for (RobotInfo target : targets) {
 			value = getEnemyScore(target.getType(), target.getHealth());
-            if (target.getHealth() <= unitAttackValue) value+=100; // Instakill
-            // System.out.println("Soldier: " + target.getType() + " " + " " + value + " " + target.getLocation());
 			if (value > bestValue) {
 				bestValue = value;
 				bestTarget = target;
-                // System.out.println("Soldier pick: " + bestTarget.getType() + " " + bestValue + " " + bestTarget.getLocation());
 			}
 		}
 		if (bestTarget != null) {
-			// System.out.println("Soldier2: " + bestTarget.getType() + " " + bestValue + " " + bestTarget.getLocation());
             rc.attack(bestTarget.location);
 		}
 	}

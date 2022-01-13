@@ -21,8 +21,8 @@ public class BotWatchTower extends Util{
     }
 
     private static void updateVision() throws GameActionException {
-        visibleEnemies = rc.senseNearbyRobots(-1, ENEMY_TEAM);
-        inRangeEnemies = rc.senseNearbyRobots(-1, ENEMY_TEAM);
+        visibleEnemies = rc.senseNearbyRobots(WATCHTOWER_VISION_RADIUS, ENEMY_TEAM);
+        inRangeEnemies = rc.senseNearbyRobots(WATCHTOWER_ACTION_RADIUS, ENEMY_TEAM);
     }
 
     // TODO: Different priority for watchTower using the todo in next line? 
