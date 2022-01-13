@@ -7,7 +7,7 @@ public class BotLaboratory extends Util {
     public static boolean shouldDoAlchemy;
     public static int transmutationRate;
 
-    public static void initLaboratory(){
+    public static void initBotLaboratory(){
         shouldDoAlchemy = false;
         transmutationRate = rc.getTransmutationRate();
     }
@@ -32,7 +32,7 @@ public class BotLaboratory extends Util {
     }
 
 
-    public static void runLaboratory() throws GameActionException{
+    public static void runLaboratory(RobotController rc) throws GameActionException{
         updateLaboratory();
         alchemy();
     }

@@ -16,6 +16,7 @@ public strictfp class RobotPlayer {
             case SOLDIER:    BotSoldier.initBotSoldier();       break;
             case ARCHON:     BotArchon.initBotArchon();         break;
             case WATCHTOWER: BotWatchTower.initBotWatchTower(); break;
+            case LABORATORY: BotLaboratory.initBotLaboratory(); break;
         }
         // if (rc.getType() == RobotType.MINER) 
             // System.out.println(" Byte code C: " + Clock.getBytecodesLeft());
@@ -27,7 +28,7 @@ public strictfp class RobotPlayer {
                     case ARCHON:     BotArchon.runArchon(rc);         break;
                     case MINER:      BotMiner.runMiner(rc);           break;
                     case SOLDIER:    BotSoldier.runSoldier(rc);       break;
-                    case LABORATORY: // Examplefuncsplayer doesn't use any of these robot types below.
+                    case LABORATORY: BotLaboratory.runLaboratory(rc); break;
                     case WATCHTOWER: BotWatchTower.runWatchTower(rc); break;
                     case BUILDER:    BotBuilder.runBuilder(rc);       break;
                     case SAGE:       break;

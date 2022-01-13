@@ -21,6 +21,7 @@ public class BotMiner extends Explore{
     private static final int randomPersistance = 20;
     private static boolean tooCrowded;
     private static final int CROWD_LIMIT = 3;
+    private static boolean depleteMine;
 
 
     public static boolean areMiningLocationsAbundant(){
@@ -47,6 +48,16 @@ public class BotMiner extends Explore{
         // isFleeing = false; ???
         minerComms();
         updateVision();
+        depleteMine = checkIfEnemyArchonInVision();
+    }
+
+
+    public static boolean checkIfEnemyArchonInVision(){
+        for (RobotInfo bot : visibleEnemies){
+            if (bot.type == RobotType.ARCHON)
+                return true;
+        }
+        return false;
     }
 
 
@@ -58,6 +69,7 @@ public class BotMiner extends Explore{
         desperationIndex = 0;
         moveOut = true; 
         isFleeing = false;
+        depleteMine = false;
     }
 
     public static void mine() throws GameActionException{
@@ -68,11 +80,13 @@ public class BotMiner extends Explore{
                 isMinedThisTurn = true;
                 rc.mineGold(loc);
             }
+            int leadCount = rc.senseLead(loc);
             while (rc.canMineLead(loc)){
-                if (rc.senseLead(loc) == 1)
+                if (!depleteMine && leadCount == 1)
                     break;
                 isMinedThisTurn = true;
                 rc.mineLead(loc);
+                leadCount--;
             }
         }
     }
@@ -454,7 +468,7 @@ public class BotMiner extends Explore{
         // if (Clock.getBytecodesLeft() < 2000) return;
         BotSoldier.sendCombatLocation(visibleEnemies);
         // if (Clock.getBytecodesLeft() < 2000) return;
-        surveyForOpenMiningLocationsNearby();
+        // surveyForOpenMiningLocationsNearby();
         
     }
 
