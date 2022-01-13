@@ -3,7 +3,7 @@ package ACombatBot;
 import ACombatBot.Comms.SHAFlag;
 import battlecode.common.*;
 
-public class BotMiner extends explore{
+public class BotMiner extends Explore{
 
     public static boolean isMinedThisTurn;
     public static int numOfMiners;

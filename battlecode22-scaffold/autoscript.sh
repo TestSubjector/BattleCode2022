@@ -1,7 +1,7 @@
 #!/bin/bash
 
 team1=ACombatBot
-team2=OBackupCombatBot
+team2=ONewFrontierBot
 
 mkdir -p logs
 
