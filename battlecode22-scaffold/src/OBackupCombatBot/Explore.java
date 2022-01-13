@@ -1,4 +1,4 @@
-package ACombatBot;
+package OBackupCombatBot;
 
 import battlecode.common.*;
 
@@ -18,7 +18,7 @@ class BoundInfo {
 }
 
 
-public class explore extends Util{
+public class Explore extends Util{
 
     public static double angle;
     private static final int exploreDist = 100;

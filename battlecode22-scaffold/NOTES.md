@@ -17,3 +17,4 @@
 * Boundary Volume Hierarchy??
 ~~* Make the weak archons travel to the stronger archon to form a defensive line.~~
 ~~* If the combat unit kills enemy unit and then senses that unit location, will that sense return true or false? Ask in Discord~~
+* If at turn 1900 and going for tie, make labs and start minting gold.
