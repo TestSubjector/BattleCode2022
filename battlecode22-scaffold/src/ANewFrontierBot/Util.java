@@ -29,14 +29,6 @@ public class Util extends Globals {
         return (loc.x << shift) | loc.y; 
     }
 
-    public static Pair<Integer, Integer> coordsFromMapLocation(MapLocation loc){
-        Pair<Integer, Integer> coords = new Pair<Integer,Integer>(loc.x, loc.y);
-        return coords;
-    }
-
-    // public static boolean isEquals(MapLocation loc1, MapLocation loc2){
-    //     return (loc1.x == loc2.x && loc1.y == loc2.y);
-    // }
 
     public static int manhattanDistance(MapLocation first, MapLocation second){
         return (Math.abs(first.x - second.x) + Math.abs(first.y - second.y));
