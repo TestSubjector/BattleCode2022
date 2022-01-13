@@ -1,4 +1,4 @@
-package ANewFrontierBot;
+package ACombatBot;
 
 import battlecode.common.*;
 

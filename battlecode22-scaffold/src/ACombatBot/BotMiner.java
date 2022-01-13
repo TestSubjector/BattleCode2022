@@ -1,6 +1,6 @@
-package ANewFrontierBot;
+package ACombatBot;
 
-import ANewFrontierBot.Comms.SHAFlag;
+import ACombatBot.Comms.SHAFlag;
 import battlecode.common.*;
 
 public class BotMiner extends explore{

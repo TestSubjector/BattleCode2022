@@ -1,4 +1,4 @@
-package ANewFrontierBot;
+package ONewFrontierBot;
 
 import battlecode.common.MapLocation;
 

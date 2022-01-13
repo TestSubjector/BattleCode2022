@@ -1,7 +1,7 @@
 #!/bin/bash
 
-team1=ANewFrontierBot
-team2=ONewTuningBot
+team1=ACombatBot
+team2=ONewFrontierBot
 
 mkdir -p logs
 
@@ -11,7 +11,7 @@ rm -f logs/detailed_results.log
 rm -f logs/log.log
 
 for i in intersection eckleburg fortress colosseum jellyfish progress rivers \
-    valley squer sandwich underground nottestsmall #doubledoors newdoubledoors
+    valley squer sandwich underground nottestsmall uncomfortable #doubledoors newdoubledoors
 do
   echo "Running map $i"
   ./gradlew -PteamA=$team1 -PteamB=$team2 -Pmaps=$i -PprofilerEnabled=false run >> logs/log.log
