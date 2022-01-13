@@ -1,4 +1,4 @@
-package ACombatBot;
+package OCombatBot;
 
 import battlecode.common.*;
 
@@ -15,5 +15,11 @@ public class CombatUtils extends Util{
         }
     }
 
-    
+    public static int militaryCount(RobotInfo[] visibleRobots){
+        int count = 0;
+        for (int i = visibleRobots.length; --i >= 0;) {
+            if (isMilitaryUnit(visibleRobots[i].type)) count++;
+        }
+        return count;
+    }
 }

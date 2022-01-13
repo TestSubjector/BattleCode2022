@@ -1,10 +1,12 @@
-package ACombatBot;
+package AActualCombatBot;
 
 import battlecode.common.Direction;
 import battlecode.common.MapLocation;
 import battlecode.common.RobotController;
 
 public class BFSDroid extends Globals {
+
+    // Credits to @IvanGeffner for the original code
 
     static MapLocation l32;
     static double v32;

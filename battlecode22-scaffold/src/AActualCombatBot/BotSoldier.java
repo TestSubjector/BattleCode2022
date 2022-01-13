@@ -1,7 +1,7 @@
-package ACombatBot;
+package AActualCombatBot;
 
-import ACombatBot.Comms.SHAFlag;
-import ACombatBot.Comms.commType;
+import AActualCombatBot.Comms.SHAFlag;
+import AActualCombatBot.Comms.commType;
 import battlecode.common.*;
 
 public class BotSoldier extends Util{

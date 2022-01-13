@@ -1,4 +1,4 @@
-package ACombatBot;
+package AActualCombatBot;
 
 import battlecode.common.*;
 
@@ -27,7 +27,9 @@ public class BotArchon extends Util{
     public static int watchTowerWeight;
     public static int turnsWaitingToBuild;
     private static RobotInfo[] visibleEnemies;
+    private static RobotInfo[] inRangeEnemies;
     private static RobotInfo[] visibleAllies;
+    private static RobotInfo[] inRangeAllies;
     private static int fleeIndex;
     private static MapLocation fleeLocation;
 
@@ -53,8 +55,10 @@ public class BotArchon extends Util{
     }
 
     private static void updateVision() throws GameActionException {
-        visibleEnemies = rc.senseNearbyRobots(SOLDIER_VISION_RADIUS, ENEMY_TEAM); // TODO - Is apparently better?
-        visibleAllies = rc.senseNearbyRobots(ARCHON_ACTION_RADIUS, ENEMY_TEAM); 
+        visibleEnemies = rc.senseNearbyRobots(ARCHON_VISION_RADIUS, ENEMY_TEAM); // TODO - Is apparently better?
+        inRangeEnemies = rc.senseNearbyRobots(ARCHON_ACTION_RADIUS, ENEMY_TEAM);
+        visibleAllies = rc.senseNearbyRobots(ARCHON_VISION_RADIUS, MY_TEAM); 
+        inRangeAllies = rc.senseNearbyRobots(ARCHON_ACTION_RADIUS, MY_TEAM);
     }
 
     public static void buildDivision() throws GameActionException{
@@ -72,8 +76,9 @@ public class BotArchon extends Util{
         }
     }
 
+    // TODO - Analyse this and if fleeindex != 0 make required units
     public static boolean waitQuota(){
-        return rc.getRoundNum() % archonCount != commID && currentLeadReserves < 95;
+        return (rc.getRoundNum() - 0) % archonCount != commID && currentLeadReserves < 95 && fleeIndex == 0;
     }
 
     public static void buildUnit() throws GameActionException{
@@ -225,45 +230,50 @@ public class BotArchon extends Util{
     }
 
     private static void shouldFlee(){
-        // You have more enemies than friends and you are not the main producer Archon
-        if (visibleEnemies.length > visibleAllies.length && commID > 0 
-            && currentLeadReserves < RobotType.SOLDIER.buildCostLead) {
+        // You have more enemies attacking you than friends that could come save you and you are not the main producer Archon
+        if (CombatUtils.militaryCount(inRangeEnemies) > CombatUtils.militaryCount(visibleAllies) && commID > 0 && turnsWaitingToBuild > 0)
             fleeIndex++;
-        }
-        else {
-            fleeIndex = 0;
-        }
+        else fleeIndex = 0;
     }
 
     private static void transformAndFlee() throws GameActionException{
-        if (fleeIndex > 5 && rc.getMode() != RobotMode.PORTABLE && rc.canTransform()) {
+        if (fleeIndex > 5 && rc.getMode()!= RobotMode.PORTABLE && rc.canTransform()) {
             if (fleeLocation == null) { 
                 fleeLocation = getClosestArchonLocation(true);
-                if (currentLocation.distanceSquaredTo(fleeLocation) > 25) rc.transform();
+                if (!rc.canSenseLocation(fleeLocation)) rc.transform();
                 else fleeLocation = null;
             }
         }
 
         if (rc.getMode() == RobotMode.PORTABLE){ 
             // Enemies contained and transform cooldown gone
-            if (fleeIndex == 0 && rc.canTransform() && currentLocation.distanceSquaredTo(fleeLocation) < 81){
-                rc.transform();
+            if (rc.canTransform() && currentLocation.isWithinDistanceSquared(fleeLocation, ARCHON_ACTION_RADIUS)){
+                rc.transform(); // TODO - Doesn't account for Rubble
                 fleeLocation = null;
             }
             if (fleeLocation != null) BFS.move(fleeLocation);
         }
     }
 
-    // Sadly, self heal does not look possible. TODO - Ask in Discord
-    // private static void selfHeal() throws GameActionException{
-    //     if (rc.getHealth() < RobotType.ARCHON.health) {
-    //         if (rc.canRepair(currentLocation)){
-    //             System.out.println("Can repair");
-    //             rc.repair(currentLocation);
-    //         }
-    //         else System.out.println("Cannot repair");
-    //     }
-    // }
+    // Sadly, self heal does not look possible.
+    private static void selfHeal() throws GameActionException{
+        if (rc.isActionReady() && rc.senseRubble(currentLocation) < 10) {
+            RobotInfo unit = null;
+            double robotHealth = 1000;
+            for(int i = inRangeAllies.length; --i >=0;){
+                RobotInfo ally = inRangeAllies[i];
+                if(ally.getHealth() == ally.getType().getMaxHealth(rc.getLevel())) continue;
+                if (ally.getHealth() < robotHealth && rc.canRepair(ally.getLocation())) {
+                    robotHealth = ally.health;
+                    unit = ally;
+                }
+            }
+            if(unit!=null){
+                // System.out.println("Repairing");
+                rc.repair(unit.getLocation());
+            }
+        }
+    }
 
     /**
     * Run a single turn for an Archon.
@@ -276,9 +286,9 @@ public class BotArchon extends Util{
         buildDivision();
         shouldFlee();
         transformAndFlee();
+        selfHeal();
         BotMiner.surveyForOpenMiningLocationsNearby();
         BotSoldier.sendCombatLocation(visibleEnemies);
-        // selfHeal();
     }
 
 }

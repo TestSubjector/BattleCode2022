@@ -1,6 +1,6 @@
-package ACombatBot;
+package AActualCombatBot;
 
-import ACombatBot.Comms.SHAFlag;
+import AActualCombatBot.Comms.SHAFlag;
 import battlecode.common.*;
 
 public class BotMiner extends Explore{

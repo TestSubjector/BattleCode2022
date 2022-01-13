@@ -1,4 +1,4 @@
-package ACombatBot;
+package OCombatBot;
 
 import java.util.Random;
 
