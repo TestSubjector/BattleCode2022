@@ -96,7 +96,6 @@ public class BotMiner extends explore{
         MapLocation opt = null;
         double value = 0;
         for (MapLocation loc : locations){
-            if (parentArchonLocation.distanceSquaredTo(loc) <= 2) continue;
             double curValue;
             if (searchByDistance) curValue = -currentLocation.distanceSquaredTo(loc);
             else curValue = ((double)rc.senseGold(loc)) / ((double)rc.senseRubble(loc));
@@ -114,7 +113,6 @@ public class BotMiner extends explore{
         MapLocation opt = null;
         double value = 0;
         for (MapLocation loc : locations){
-            if (parentArchonLocation.distanceSquaredTo(loc) <= 2) continue;
             double curValue;
             if (searchByDistance) curValue = -currentLocation.distanceSquaredTo(loc);
             else curValue = ((double)rc.senseGold(loc)) / ((double)rc.senseRubble(loc));;
@@ -141,24 +139,17 @@ public class BotMiner extends explore{
         if (prolificMiningLocationsAtBirth){
             return Movement.moveToLattice(2, 0);
         }
-        if (parentArchonLocation.distanceSquaredTo(currentLocation) >= 2){
-            if (rc.senseGold(currentLocation) > 0 || rc.senseLead(currentLocation) > 20)
-                return currentLocation;
+        if (rc.senseGold(currentLocation) > 0 || rc.senseLead(currentLocation) > 20){
+            return currentLocation;
         }
         if (countOfMinersInVicinity() > CROWD_LIMIT){ 
             tooCrowded = true;
             return null;
         }
-        // else{
-        if (rc.senseGold(currentLocation) > 0 || rc.senseLead(currentLocation) > 20){
-            return currentLocation;
-        }
         MapLocation[] potentialMiningLocations = rc.senseNearbyLocationsWithGold();
         if (potentialMiningLocations.length > 0) return findOptimalLocationForMiningGold(potentialMiningLocations);
-        // potentialMiningLocations = rc.senseNearbyLocationsWithLead(MINER_VISION_RADIUS);
         potentialMiningLocations = rc.senseNearbyLocationsWithLead(MINER_VISION_RADIUS, 5);
         if (potentialMiningLocations.length > 0) return findOptimalLocationForMiningLead(potentialMiningLocations);
-        // }
         return null;
     }
 
@@ -197,34 +188,6 @@ public class BotMiner extends explore{
     }
 
 
-    public static MapLocation checkCommsForMiningLocation() throws GameActionException{
-        MapLocation loc = null;
-        int selectedChannel = -1;
-        for(int i = Comms.commType.LEAD.commChannelStart; i < Comms.commType.LEAD.commChannelStop; ++i){
-            int message = rc.readSharedArray(i);
-            
-            // TODO: Go for the nearest mine or the fattest mine? 
-
-            // If Nearest:
-            if (Comms.readSHAFlagFromMessage(message) == SHAFlag.LEAD_LOCATION){
-                MapLocation tempLoc = Comms.readLocationFromMessage(message);
-                if (loc == null || tempLoc.distanceSquaredTo(currentLocation) < loc.distanceSquaredTo(currentLocation)){
-                    loc = tempLoc;
-                    selectedChannel = i;
-                }
-            }
-        }
-        if (selectedChannel != -1){
-            // int bytecodeC = Clock.getBytecodesLeft();
-            Comms.wipeChannel(selectedChannel);
-            // Comms.wipeChannelUpdateHead(Comms.commType.LEAD, selectedChannel);
-            // bytecodediff = Math.max(bytecodeC - Clock.getBytecodesLeft(), bytecodediff);
-
-        }
-        return loc;
-    }
-
-
     public static MapLocation findGoodPlaceToDie() throws GameActionException{
         return Movement.moveToLattice(MIN_SUICIDE_DIST, 0);
     }
@@ -256,6 +219,7 @@ public class BotMiner extends explore{
         if (miningLocation != null){
             // desperationIndex--;
             desperationIndex = 0;
+            // exploreDir = CENTER;
             return true;
         }
         return false;
@@ -285,9 +249,6 @@ public class BotMiner extends explore{
         miningLocation = findOpenMiningLocationNearby();
         if (miningLocation != null){
             inPlaceForMining = (currentLocation.distanceSquaredTo(miningLocation) <= 2);
-            // if (currentLocation.distanceSquaredTo(location))
-            // if (currentLocation.equals(miningLocation)) inPlaceForMining = true;
-            // else inPlaceForMining = false;
             return true;
         }
         return false;
@@ -304,15 +265,6 @@ public class BotMiner extends explore{
 
 
     public static MapLocation explore() throws GameActionException{
-        // if(BIRTH_ROUND % 3 == 0) {
-        //     return ratioPointBetweenTwoMapLocations(parentArchonLocation, rememberedEnemyArchonLocations[0], 0.5);
-        // } else if (BIRTH_ROUND % 3 == 1){
-        //     return ratioPointBetweenTwoMapLocations(parentArchonLocation, rememberedEnemyArchonLocations[1], 0.5);
-        // }
-        // else{
-        //     return ratioPointBetweenTwoMapLocations(parentArchonLocation, rememberedEnemyArchonLocations[2], 0.5);
-        // }
-        
         if (exploreDir == CENTER)
             getExploreDir();
         return getExplore3Target();
@@ -329,19 +281,17 @@ public class BotMiner extends explore{
         if(foundMiningLocationFromVision()) return;
         
         // TODO - Tune this weight
-        // if (turnCount > (MAP_HEIGHT+MAP_WIDTH) && foundMiningLocationFromComms()) return;
-        
+        // if (turnCount > 900 && foundMiningLocationFromComms()) return;
+        // if (foundMiningLocationFromComms()) return;
         // Explore now how?
         // Head away from parent Archon to explore. Might get us new mining locations
-        // TODO: Find a better exploration function. Perhaps Geffner's?
         
         if (!BFS.move(explore())) desperationIndex++;
         // if (!Movement.goToDirect(explore())) desperationIndex++;
         // if (!Movement.goToDirect(currentLocation.add(persistingRandomMovement()))) desperationIndex++;
+        
         // The Final Option:
         // if (goAheadAndDie()) return;
-        
-
         // Now what??
 
         // System.out.println("This code is never run, right?!");
@@ -352,37 +302,18 @@ public class BotMiner extends explore{
 
 
     public static boolean goodMiningSpot(MapLocation loc) throws GameActionException{
-        return (rc.senseLead(loc) > 20 || rc.senseGold(loc) > 0);
+        return (rc.senseLead(loc) > 40 || rc.senseGold(loc) > 0);
     }
 
 
     public static void surveyForOpenMiningLocationsNearby() throws GameActionException{
-        // System.out.println("A: Bytecode remaining: " + Clock.getBytecodesLeft());
         MapLocation[] potentialMiningLocations = rc.senseNearbyLocationsWithLead(UNIT_TYPE.visionRadiusSquared);
-        // System.out.println("B: Bytecode remaining: " + Clock.getBytecodesLeft());
         for (MapLocation loc : potentialMiningLocations){  // Team bias
-            // int bytecodeC = Clock.getBytecodesLeft();
-            // System.out.println("C: Bytecode remaining: " + Clock.getBytecodesLeft());
             if (Clock.getBytecodesLeft() < 1200)
                 break;
             if (currentLocation.distanceSquaredTo(loc) > 2 && goodMiningSpot(loc)){
-                // Takes ~350 bytecodes at max. With wipeChannelUpdateHead() = ~690 at max
-                // Comms.writeCommMessageOverrwriteLesserPriorityMessageToHead(Comms.commType.LEAD, loc, SHAFlag.LEAD_LOCATION);
-
-                // Takes ~840 bytecodes at max. With wipeChannelUpdateHead() = ~1180 at max
-                // Comms.writeCommMessageToHead(Comms.commType.LEAD, loc, SHAFlag.LEAD_LOCATION);
-
-                // For lead, it turns out this overall consumes the least bytecodes in the worst case:
-                // Takes ~440 bytecodes at max. With wipeChannel() = ~550 bytecodes at max.
-                // Comms.writeCommMessageOverrwriteLesserPriorityMessage(Comms.commType.LEAD, intFromMapLocation(loc), SHAFlag.LEAD_LOCATION);
-                
-                // Takes ~600 bytecodes at max. With wipeChannel() = ~710 bytecodes at max.
-                // Comms.writeCommMessage(Comms.commType.LEAD, intFromMapLocation(loc), SHAFlag.LEAD_LOCATION);
-
                 Comms.writeCommMessageOverrwriteLesserPriorityMessageUsingQueue(Comms.commType.LEAD, loc, Comms.SHAFlag.LEAD_LOCATION);
             }
-            // bytecodediff = Math.max(bytecodeC - Clock.getBytecodesLeft(), bytecodediff);
-            // System.out.println("D: Bytecode remaining: " + Clock.getBytecodesLeft());
         }
     }
     
@@ -493,8 +424,7 @@ public class BotMiner extends explore{
         if (!rc.isMovementReady()) return;
         if (miningLocation != null) goToMine();
         else {
-            explore();
-            BFS.move(explore3Target);
+            BFS.move(explore());
         }
     }
 

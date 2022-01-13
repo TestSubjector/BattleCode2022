@@ -170,7 +170,7 @@ public class BotArchon extends Util{
 
     public static boolean shouldBuildBuilder(){
         if (turnCount < 30) return false;
-        if (builderCount > archonCount && currentLeadReserves < 500) return false;
+        if (builderCount > archonCount || currentLeadReserves < 200) return false;
         return true;
     }
 
