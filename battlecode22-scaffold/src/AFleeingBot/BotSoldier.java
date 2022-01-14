@@ -116,7 +116,7 @@ public class BotSoldier extends CombatUtil{
             currentLocation = rc.getLocation();
 			if (UNIT_TYPE.equals(RobotType.MINER)){ 
 				Explore.exploreDir = bestRetreatDir;
-				// Explore.assignExplore3Dir(exploreDir);
+				Explore.assignExplore3Dir(exploreDir);
 			}
 			return true;
 		}

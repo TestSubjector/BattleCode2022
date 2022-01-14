@@ -22,6 +22,7 @@ public class BotMiner extends Explore{
     private static final int CROWD_LIMIT = 3;
     private static boolean depleteMine;
     private static int DEPLETE_MINE_RADIUS_LIMIT;
+    private static MapLocation[] adjacentLocations;
 
 
     public static boolean areMiningLocationsAbundant(){
@@ -45,7 +46,19 @@ public class BotMiner extends Explore{
         prolificMiningLocationsAtBirth = areMiningLocationsAbundant();
         resetVariables();
         setDepleteMineRadius();
+        // adjacentLocations = rc.getAllLocationsWithinRadiusSquared(currentLocation, MINER_VISION_RADIUS);
         // explore();
+    }
+
+
+    public static boolean isLocationBeingMined(MapLocation loc) throws GameActionException{
+        MapLocation[] locAdjacentLocations = rc.getAllLocationsWithinRadiusSquared(loc, MINER_ACTION_RADIUS);
+        for (MapLocation curLoc : locAdjacentLocations){
+            if (!rc.canSenseLocation(curLoc)) continue;
+            RobotInfo bot = rc.senseRobotAtLocation(curLoc);
+            if (bot != null && bot.team == MY_TEAM && bot.type == RobotType.MINER) return true;
+        }
+        return false;
     }
 
 
@@ -61,6 +74,7 @@ public class BotMiner extends Explore{
             isFleeing = true;
             isFleeing = BotSoldier.tryToBackUpToMaintainMaxRange(visibleEnemies);
         }
+        // adjacentLocations = rc.getAllLocationsWithinRadiusSquared(currentLocation, MINER_VISION_RADIUS);
         // depleteMine = (checkIfToDepleteMine() || checkIfEnemyArchonInVision());
     }
 
@@ -96,7 +110,7 @@ public class BotMiner extends Explore{
 
     public static void mine() throws GameActionException{
         if (!rc.isActionReady()) return;
-        MapLocation[] adjacentLocations = rc.getAllLocationsWithinRadiusSquared(currentLocation, 2);
+        // MapLocation[] adjacentLocations = rc.getAllLocationsWithinRadiusSquared(currentLocation, 2);
         for (MapLocation loc : adjacentLocations){
             while(rc.canMineGold(loc)){
                 isMinedThisTurn = true;
@@ -184,7 +198,9 @@ public class BotMiner extends Explore{
         }
         MapLocation[] potentialMiningLocations = rc.senseNearbyLocationsWithGold();
         if (potentialMiningLocations.length > 0) return findOptimalLocationForMiningGold(potentialMiningLocations);
+        if (!depleteMine) 
         potentialMiningLocations = rc.senseNearbyLocationsWithLead(MINER_VISION_RADIUS, 5);
+        else potentialMiningLocations = rc.senseNearbyLocationsWithLead();
         if (potentialMiningLocations.length > 0) return findOptimalLocationForMiningLead(potentialMiningLocations);
         return null;
     }
@@ -207,6 +223,7 @@ public class BotMiner extends Explore{
         }
         // If outside of vision or Location is not occupied:
         if (curDist > MINER_VISION_RADIUS || !rc.isLocationOccupied(miningLocation)){
+        // if (curDist > MINER_VISION_RADIUS || !isLocationBeingMined(miningLocation)){
             if (!BFS.move(miningLocation)) desperationIndex++;
             // if (!Movement.goToDirect(miningLocation)) desperationIndex++;
             return;
@@ -445,7 +462,8 @@ public class BotMiner extends Explore{
             inPlaceForMining = (currentLocation.distanceSquaredTo(miningLocation) <= 2);
             return;
         }
-        nearbyLocations = rc.senseNearbyLocationsWithLead(MINER_VISION_RADIUS, 20);
+        if (!depleteMine) nearbyLocations = rc.senseNearbyLocationsWithLead(MINER_VISION_RADIUS, 20);
+        else nearbyLocations = rc.senseNearbyLocationsWithLead();
         if (nearbyLocations.length > 0){ 
             miningLocation = findOptimalLocationForMiningLead(nearbyLocations);
             if (miningLocation != null) inPlaceForMining = (currentLocation.distanceSquaredTo(miningLocation) <= 2);
@@ -455,11 +473,41 @@ public class BotMiner extends Explore{
     }
 
 
+    public static void moveIfNeeded() throws GameActionException{
+        // int leadVal = -1;
+        int rubbleVal = Integer.MAX_VALUE;
+        int homeRubbleVal = rc.senseRubble(currentLocation);
+        MapLocation selectedLoc = null;
+        MapLocation[] mineAdjacentLocations = rc.getAllLocationsWithinRadiusSquared(miningLocation, MINER_ACTION_RADIUS);
+        for(MapLocation loc : mineAdjacentLocations){
+            int curRubbleVal = rc.senseRubble(loc);
+            if (homeRubbleVal > curRubbleVal && rubbleVal >= curRubbleVal){
+                // if (rubbleVal == curRubbleVal){
+                selectedLoc = loc;
+                // }
+                // leadVal = curLeadVal;
+                
+            }
+        }
+        Direction dir = null;
+        if (selectedLoc != null){
+            dir = currentLocation.directionTo(selectedLoc);
+            if (rc.canMove(dir)){
+                rc.move(dir);
+                // miningLocation = selectedLoc;
+                // inPlaceForMining = true;
+            }
+        }
+        // if (rc.canMove(selectedLoc)) rc.move(dir);
+    }
+
+
     public static void doMining() throws GameActionException{
         if (isFleeing) return;
         opportunisticMining();
         if (inPlaceForMining){
             // if (isSafeToMine(currentLocation))
+            moveIfNeeded();
             mine();
             // else runAway();
             // else BotSoldier.tryToBackUpToMaintainMaxRange(visibleEnemies);
@@ -502,6 +550,8 @@ public class BotMiner extends Explore{
     * This code is wrapped inside the infinite loop in run(), so it is called once per turn.
     */
     public static void runMiner(RobotController rc) throws GameActionException{
+        adjacentLocations = rc.getAllLocationsWithinRadiusSquared(currentLocation, MINER_ACTION_RADIUS);
+        mine();
         updateMiner();
 
         // toDieOrNotToDie();
