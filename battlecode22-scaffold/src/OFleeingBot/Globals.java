@@ -1,4 +1,4 @@
-package AFleeingBot;
+package OFleeingBot;
 
 import java.util.Random;
 

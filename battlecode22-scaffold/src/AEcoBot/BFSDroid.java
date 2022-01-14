@@ -1,4 +1,4 @@
-package AFleeingBot;
+package AEcoBot;
 
 import battlecode.common.Direction;
 import battlecode.common.MapLocation;

@@ -1,4 +1,4 @@
-package AFleeingBot;
+package OFleeingBot;
 
 import battlecode.common.*;
 
@@ -78,7 +78,7 @@ public class BotArchon extends Util{
 
     // TODO - Analyse this and if fleeindex != 0 make required units
     public static boolean waitQuota(){
-        return (rc.getRoundNum() - 0) % archonCount != commID && currentLeadReserves < 95 && fleeIndex == 0;
+        return (rc.getRoundNum() - 1) % archonCount > commID && currentLeadReserves < 95 && fleeIndex == 0;
     }
 
     public static void buildUnit() throws GameActionException{

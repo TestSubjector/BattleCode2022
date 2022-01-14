@@ -1,4 +1,4 @@
-package AFleeingBot;
+package AEcoBot;
 
 import battlecode.common.MapLocation;
 import battlecode.common.Clock;
