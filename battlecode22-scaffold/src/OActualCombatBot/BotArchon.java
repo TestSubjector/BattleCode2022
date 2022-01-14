@@ -1,4 +1,4 @@
-package AActualCombatBot;
+package OActualCombatBot;
 
 import battlecode.common.*;
 

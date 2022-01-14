@@ -1,6 +1,6 @@
-package AActualCombatBot;
+package AMicroBot;
 
-import AActualCombatBot.Comms.SHAFlag;
+import AMicroBot.Comms.SHAFlag;
 import battlecode.common.*;
 
 public class BotMiner extends Explore{
@@ -384,7 +384,7 @@ public class BotMiner extends Explore{
         }
         if (bestDir != null) {
             rc.move(bestDir);
-            // exploreDir = bestDir;
+            exploreDir = bestDir;
         }
     }
 
@@ -411,9 +411,9 @@ public class BotMiner extends Explore{
     public static void doMining() throws GameActionException{
         opportunisticMining();
         if (inPlaceForMining){
-            // if (isSafeToMine(currentLocation))
+            if (isSafeToMine(currentLocation))
             mine();
-            // else runAway();
+            else runAway();
         }
         else if (miningLocation != null){
             goToMine();
