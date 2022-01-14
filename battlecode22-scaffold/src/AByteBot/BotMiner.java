@@ -288,11 +288,35 @@ public class BotMiner extends Explore{
     }
 
 
+    public static Direction biasedRandomDirectionGenerator(Direction bias){
+        return directions[biasedRandomNumberGenerator(0, 8, bias.ordinal(), 50)]; // tune the biasPercentage
+    }
+
+
+    public static Direction findBiasDirection(){
+        return currentLocation.directionTo(CENTER_OF_THE_MAP);
+    }
+
+
+    public static int biasedRandomNumberGenerator(int start, int end, int bias, int biasPercentage){
+        int excessCount = ((end - start) * biasPercentage)/100;
+        int size = excessCount + end - start + 1;
+        int rnd = (int)(Math.random()*size) + start;
+        if (rnd < bias) return rnd;
+        else if (rnd >= bias && rnd <= bias + excessCount) return bias;
+        else return rnd - excessCount;
+    }
+
+
     public static void getExploreDir(){
         MapLocation closestArchon = getClosestArchonLocation();
         if (rc.canSenseLocation(closestArchon)) 
             assignExplore3Dir(closestArchon.directionTo(currentLocation));
         else assignExplore3Dir(directions[(int)(Math.random()*8)]);
+        // else{
+        //     System.out.println("Biased random direction being used");
+        //     assignExplore3Dir(biasedRandomDirectionGenerator(findBiasDirection()));
+        // }
     }
 
 
