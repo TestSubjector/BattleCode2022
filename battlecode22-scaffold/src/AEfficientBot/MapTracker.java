@@ -1,4 +1,4 @@
-package AMicroBot;
+package AEfficientBot;
 
 import battlecode.common.MapLocation;
 

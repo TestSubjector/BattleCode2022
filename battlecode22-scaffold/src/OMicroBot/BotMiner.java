@@ -1,6 +1,6 @@
-package AMicroBot;
+package OMicroBot;
 
-import AMicroBot.Comms.SHAFlag;
+import OMicroBot.Comms.SHAFlag;
 import battlecode.common.*;
 
 public class BotMiner extends Explore{

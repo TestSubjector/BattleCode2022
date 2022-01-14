@@ -1,4 +1,4 @@
-package AMicroBot;
+package OMicroBot;
 
 import battlecode.common.*;
 
