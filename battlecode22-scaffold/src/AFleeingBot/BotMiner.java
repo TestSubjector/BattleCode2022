@@ -1,6 +1,5 @@
-package AByteBot;
+package AFleeingBot;
 
-import AByteBot.Comms.SHAFlag;
 import battlecode.common.*;
 
 public class BotMiner extends Explore{
@@ -250,7 +249,7 @@ public class BotMiner extends Explore{
 
     public static boolean foundMiningLocationFromComms() throws GameActionException{
         if (!tooCrowded) 
-            miningLocation = Comms.findNearestLocationOfThisTypeAndWipeChannel(currentLocation, Comms.commType.LEAD, SHAFlag.LEAD_LOCATION);
+            miningLocation = Comms.findNearestLocationOfThisTypeAndWipeChannel(currentLocation, Comms.commType.LEAD, Comms.SHAFlag.LEAD_LOCATION);
         else
             miningLocation = Comms.findNearestLocationOfThisTypeOutOfVisionAndWipeChannel(currentLocation, Comms.commType.LEAD, Comms.SHAFlag.LEAD_LOCATION);
         if (miningLocation != null){
