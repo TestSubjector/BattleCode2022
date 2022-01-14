@@ -1,4 +1,4 @@
-package AEfficientBot;
+package AByteBot;
 
 import battlecode.common.Direction;
 import battlecode.common.MapLocation;

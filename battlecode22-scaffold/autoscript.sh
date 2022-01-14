@@ -1,7 +1,7 @@
 #!/bin/bash
 
-team1=OMicroBot
-team2=OActualCombatBot
+team1=AByteBot
+team2=OEfficientBot
 
 mkdir -p logs
 
@@ -20,4 +20,4 @@ done
 echo "Grepping results"
 grep -F "wins" logs/log.log >> logs/results.log
 grep -E "vs. |wins" logs/log.log >> logs/detailed_results.log
-grep -F "Warning" logs/log.log >> logs/warnings.log
+grep -F "Warning | Birth round" logs/log.log >> logs/warnings.log

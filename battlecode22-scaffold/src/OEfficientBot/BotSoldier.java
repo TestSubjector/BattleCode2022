@@ -1,7 +1,7 @@
-package AEfficientBot;
+package OEfficientBot;
 
-import AEfficientBot.Comms.SHAFlag;
-import AEfficientBot.Comms.commType;
+import OEfficientBot.Comms.SHAFlag;
+import OEfficientBot.Comms.commType;
 import battlecode.common.*;
 
 public class BotSoldier extends CombatUtil{

@@ -1,6 +1,6 @@
-package AEfficientBot;
+package AByteBot;
 
-import AEfficientBot.Comms.SHAFlag;
+import AByteBot.Comms.SHAFlag;
 import battlecode.common.*;
 
 public class BotMiner extends Explore{
