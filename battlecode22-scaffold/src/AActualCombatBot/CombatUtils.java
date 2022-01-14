@@ -8,6 +8,7 @@ public class CombatUtils extends Util{
         switch (type){
             case SOLDIER:
             case WATCHTOWER:
+            case ARCHON:
             case SAGE:
                 return true;
             default:

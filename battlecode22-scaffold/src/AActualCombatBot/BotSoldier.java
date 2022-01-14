@@ -40,22 +40,24 @@ public class BotSoldier extends Util{
 	}
 
     // TODO: Sense rubble at their location and factor that in to find more dangerous unit
-    private static double getEnemyScore(RobotType type, int health) {
-		switch(type) {
+    private static double getEnemyScore(RobotInfo enemyUnit) throws GameActionException{
+        RobotType enemyType = enemyUnit.type;
+        int enemyHealth = enemyUnit.getHealth();
+        int rubbleAtLocation = rc.senseRubble(enemyUnit.getLocation());
+		switch(enemyType) {
 		case ARCHON:
 			return 0.00001;
 		case LABORATORY:
 			return 0.000001;
+        case BUILDER:
 		case MINER:
-			return 0.1/(health); // Low priority
+			return 0.11 /(enemyHealth * (1+rubbleAtLocation/10.0)); // Max= 0.11, Min = 0.0025 Low priority
 		case WATCHTOWER:
-			return 0.5 * RobotType.WATCHTOWER.damage / (health); // RobotType.WATCHTOWER attack cooldown;
 		case SOLDIER:
-			return 0.4 * RobotType.SOLDIER.damage / (health); //  SOLDIER attack cooldown;
 		case SAGE:
-			return 10.0 / (health * 1.0);
+			return 110.0 * enemyType.getDamage(enemyUnit.getLevel()) / (enemyHealth * (1+rubbleAtLocation/10.0)); // Min = 0.2666
 		default:
-			return (type.damage+0.0001) / (health); // Cooldown due to rubble ;
+			return 0.0001;
 		}
 	}
 
@@ -64,7 +66,7 @@ public class BotSoldier extends Util{
 		double bestValue = -1;
         double value = 0;
 		for (RobotInfo target : targets) {
-			value = getEnemyScore(target.getType(), target.getHealth());
+			value = getEnemyScore(target);
 			if (value > bestValue) {
 				bestValue = value;
 				bestTarget = target;
@@ -196,16 +198,6 @@ public class BotSoldier extends Util{
             if (tryMoveToAttackProductionUnit(closestHostile)) return true;
         }
         return false;
-    }
-
-    // Try to attack someone - 114 bytecodes
-    public static void attackRandomly() throws GameActionException {
-        if (inRangeEnemies.length > 0) {
-            MapLocation toAttack = inRangeEnemies[0].location;
-            if (rc.canAttack(toAttack)) {
-                rc.attack(toAttack);
-            }
-        }
     }
 
     public static void sendCombatLocation(RobotInfo[] visibleHostiles) throws GameActionException{
