@@ -54,10 +54,14 @@ public class BotMiner extends Explore{
         isMinedThisTurn = false;
         moveOut = true;
         tooCrowded = false; 
-        // isFleeing = false; ???
+        isFleeing = false;
         minerComms();
         updateVision();
         depleteMine = checkIfEnemyArchonInVision();
+        if (!isSafeToMine(currentLocation)){
+            isFleeing = true;
+            isFleeing = BotSoldier.tryToBackUpToMaintainMaxRange(visibleEnemies);
+        }
         // depleteMine = (checkIfToDepleteMine() || checkIfEnemyArchonInVision());
     }
 
@@ -428,13 +432,13 @@ public class BotMiner extends Explore{
         if (bestDir != null) {
             rc.move(bestDir);
             exploreDir = bestDir;
+            assignExplore3Dir(exploreDir);
         }
     }
 
 
     public static void opportunisticMining() throws GameActionException{
-        if (miningLocation == null) return;
-        if (rc.canSenseLocation(miningLocation)) return;
+        if (miningLocation == null || rc.canSenseLocation(miningLocation)) return;
         MapLocation[] nearbyLocations = rc.senseNearbyLocationsWithGold();
         if (nearbyLocations.length > 0){ 
             miningLocation = findOptimalLocationForMiningGold(nearbyLocations);
@@ -452,12 +456,13 @@ public class BotMiner extends Explore{
 
 
     public static void doMining() throws GameActionException{
+        if (isFleeing) return;
         opportunisticMining();
         if (inPlaceForMining){
-            if (isSafeToMine(currentLocation))
+            // if (isSafeToMine(currentLocation))
             mine();
-            // else runAway(); // this does marginally better than BotSoldier's runAway.
-            else BotSoldier.tryToBackUpToMaintainMaxRange(visibleEnemies);
+            // else runAway();
+            // else BotSoldier.tryToBackUpToMaintainMaxRange(visibleEnemies);
         }
         else if (miningLocation != null){
             goToMine();
