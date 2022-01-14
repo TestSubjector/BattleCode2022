@@ -188,8 +188,8 @@ public class BotSoldier extends Util{
             }
             else if (rc.isMovementReady()){
                 RobotInfo closestHostile = getClosestUnit(visibleEnemies);
-                if(tryMoveToHelpAlly(closestHostile)) return tryToMicro();
-                if(tryMoveToAttackProductionUnit(closestHostile)) return tryToMicro();
+                if(tryMoveToHelpAlly(closestHostile)) return true;
+                if(tryMoveToAttackProductionUnit(closestHostile)) return true;
             }
         }
         if (rc.isMovementReady()){
@@ -218,7 +218,6 @@ public class BotSoldier extends Util{
         if (visibleEnemies.length == 0 && rc.canSenseLocation(currentDestination)){
             MapLocation combatLocation = Comms.findNearestLocationOfThisType(currentLocation, Comms.commType.COMBAT, Comms.SHAFlag.COMBAT_LOCATION);
             if (combatLocation != null){
-				// System.out.println("Combat location obtained; " + combatLocation);
                 currentDestination = combatLocation;
             }
         }
@@ -236,6 +235,7 @@ public class BotSoldier extends Util{
         updateVision();
         // detectIfAttackTargetIsGone();
         tryToMicro();
+        updateVision();
         // TODO: Turret avoidance Comms code
 
         findNewCombatLocation();
@@ -244,8 +244,9 @@ public class BotSoldier extends Util{
             BFS.move(currentDestination); // 2700 Bytecodes
             // System.out.println("Bytecode B " + Clock.getBytecodesLeft());
         }
+        tryToMicro();
 
         sendCombatLocation(visibleEnemies);
-        BotMiner.surveyForOpenMiningLocationsNearby(); // TODO: Reorganise to sprint
+        // BotMiner.surveyForOpenMiningLocationsNearby(); // TODO: Reorganise to sprint
     }
 }
