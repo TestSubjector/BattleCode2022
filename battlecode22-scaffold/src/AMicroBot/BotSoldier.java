@@ -78,7 +78,7 @@ public class BotSoldier extends Util{
 	}
 
     // TODO: Add check for Rubble
-    private static boolean tryToBackUpToMaintainMaxRange(RobotInfo[] visibleHostiles) throws GameActionException {
+    public static boolean tryToBackUpToMaintainMaxRange(RobotInfo[] visibleHostiles) throws GameActionException {
 		int closestHostileDistSq = Integer.MAX_VALUE;
         MapLocation lCR = currentLocation;
         for (RobotInfo hostile : visibleHostiles) {
@@ -89,7 +89,7 @@ public class BotSoldier extends Util{
 			}
 		}
 		
-		if (closestHostileDistSq > SOLDIER_ACTION_RADIUS) return false; // We dont want to get out of our max range
+		if (UNIT_TYPE.equals(RobotType.SOLDIER) && closestHostileDistSq > SOLDIER_ACTION_RADIUS) return false; // We dont want to get out of our max range
 		
 		Direction bestRetreatDir = null;
 		int bestDistSq = closestHostileDistSq;
@@ -116,6 +116,7 @@ public class BotSoldier extends Util{
 		if (bestRetreatDir != null) {
 			rc.move(bestRetreatDir);
             currentLocation = rc.getLocation();
+			if (UNIT_TYPE.equals(RobotType.MINER)) Explore.exploreDir = bestRetreatDir;
 			return true;
 		}
 		return false;

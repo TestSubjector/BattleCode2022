@@ -22,6 +22,7 @@ public class BotMiner extends Explore{
     private static boolean tooCrowded;
     private static final int CROWD_LIMIT = 3;
     private static boolean depleteMine;
+    private static int DEPLETE_MINE_RADIUS_LIMIT;
 
 
     public static boolean areMiningLocationsAbundant(){
@@ -34,9 +35,17 @@ public class BotMiner extends Explore{
     }
 
 
+    public static void setDepleteMineRadius(){
+        // TODO: Tune this fraction
+        DEPLETE_MINE_RADIUS_LIMIT = (Math.min(MAP_WIDTH, MAP_HEIGHT) * 3)/7;
+        DEPLETE_MINE_RADIUS_LIMIT *= DEPLETE_MINE_RADIUS_LIMIT;
+    }
+
+
     public static void initBotMiner() throws GameActionException{
         prolificMiningLocationsAtBirth = areMiningLocationsAbundant();
         resetVariables();
+        setDepleteMineRadius();
         // explore();
     }
 
@@ -49,6 +58,7 @@ public class BotMiner extends Explore{
         minerComms();
         updateVision();
         depleteMine = checkIfEnemyArchonInVision();
+        // depleteMine = (checkIfToDepleteMine() || checkIfEnemyArchonInVision());
     }
 
 
@@ -58,6 +68,15 @@ public class BotMiner extends Explore{
                 return true;
         }
         return false;
+    }
+
+
+    public static boolean checkIfToDepleteMine() throws GameActionException{
+        for (int i = Comms.CHANNEL_ARCHON_START; i < Comms.channelArchonStop; i += 4){
+            MapLocation loc = Comms.readLocationFromMessage(rc.readSharedArray(i));
+            if (loc.distanceSquaredTo(currentLocation) <= DEPLETE_MINE_RADIUS_LIMIT) return false;
+        }
+        return true;
     }
 
 
@@ -413,7 +432,8 @@ public class BotMiner extends Explore{
         if (inPlaceForMining){
             if (isSafeToMine(currentLocation))
             mine();
-            else runAway();
+            // else runAway(); // this does marginally better than BotSoldier's runAway.
+            else BotSoldier.tryToBackUpToMaintainMaxRange(visibleEnemies);
         }
         else if (miningLocation != null){
             goToMine();
@@ -458,6 +478,7 @@ public class BotMiner extends Explore{
         // toDieOrNotToDie();
 
         doMining();
+        // if (Clock.getBytecodesLeft() < 1000) return;
         if (moveOut) goMoveOut();
         mine();
         // if (Clock.getBytecodesLeft() < 2000) return;
