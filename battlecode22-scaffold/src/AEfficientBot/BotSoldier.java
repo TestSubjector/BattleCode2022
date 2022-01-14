@@ -4,7 +4,7 @@ import AEfficientBot.Comms.SHAFlag;
 import AEfficientBot.Comms.commType;
 import battlecode.common.*;
 
-public class BotSoldier extends Util{
+public class BotSoldier extends CombatUtil{
 
     // Credits to @TheDuck314 for a major chunk of this code
 
@@ -188,7 +188,7 @@ public class BotSoldier extends Util{
                 chooseTargetAndAttack(inRangeEnemies);
             }
             else if (rc.isMovementReady()){
-                RobotInfo closestHostile = getClosestUnit(visibleEnemies);
+                RobotInfo closestHostile = getClosestUnitWithCombatPriority(visibleEnemies);
                 if(tryMoveToHelpAlly(closestHostile)) return true;
                 if(tryMoveToAttackProductionUnit(closestHostile)) return true;
             }
@@ -196,7 +196,7 @@ public class BotSoldier extends Util{
         if (rc.isMovementReady()){
             // Most important function
             if (inRangeEnemies.length > 0 && tryToBackUpToMaintainMaxRange(visibleEnemies)) return true; // Cant attack, try to move out
-            RobotInfo closestHostile = getClosestUnit(visibleEnemies);
+            RobotInfo closestHostile = getClosestUnitWithCombatPriority(visibleEnemies);
             if (tryMoveToHelpAlly(closestHostile)) return true; // Maybe add how many turns of attack cooldown here and how much damage being taken?
             if (tryMoveToEngageOutnumberedEnemy(visibleEnemies, closestHostile)) return true;
             if (tryMoveToAttackProductionUnit(closestHostile)) return true;

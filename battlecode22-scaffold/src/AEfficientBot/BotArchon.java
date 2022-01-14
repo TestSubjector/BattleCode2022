@@ -231,7 +231,7 @@ public class BotArchon extends Util{
 
     private static void shouldFlee(){
         // You have more enemies attacking you than friends that could come save you and you are not the main producer Archon
-        if (CombatUtils.militaryCount(inRangeEnemies) > CombatUtils.militaryCount(visibleAllies) && commID > 0 && turnsWaitingToBuild > 0)
+        if (CombatUtil.militaryCount(inRangeEnemies) > CombatUtil.militaryCount(visibleAllies) && commID > 0 && turnsWaitingToBuild > 0)
             fleeIndex++;
         else fleeIndex = 0;
     }

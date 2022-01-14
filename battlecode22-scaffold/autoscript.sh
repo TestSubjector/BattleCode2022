@@ -1,6 +1,6 @@
 #!/bin/bash
 
-team1=AMicroBot
+team1=OMicroBot
 team2=OActualCombatBot
 
 mkdir -p logs
