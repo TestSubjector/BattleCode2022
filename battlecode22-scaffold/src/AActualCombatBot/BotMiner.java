@@ -333,21 +333,16 @@ public class BotMiner extends Explore{
     
 
     public static boolean isSafeToMine(MapLocation loc){
-        RobotInfo[] potentialAttackers = rc.senseNearbyRobots(loc, 24, ENEMY_TEAM);
-        for (RobotInfo enemy : potentialAttackers) {
+        for (RobotInfo enemy : visibleEnemies) {
             switch (enemy.type) {
                 case SOLDIER:
                 case WATCHTOWER:
                 case SAGE:
+                    if (enemy.type.actionRadiusSquared >= loc.distanceSquaredTo(enemy.location))
                     return false;
 
-                case ARCHON:
-                case BUILDER:
-                case LABORATORY:
-                case MINER:
-                    if (enemy.type.actionRadiusSquared >= loc.distanceSquaredTo(enemy.location))
-                        return false;
-                    break;
+                default:
+                    return true;
             }
         }
         return true;
@@ -374,22 +369,22 @@ public class BotMiner extends Explore{
 
         Direction away = nearestEnemy.location.directionTo(currentLocation);
         Direction[] dirs = new Direction[] { away, away.rotateLeft(), away.rotateRight(), away.rotateLeft().rotateLeft(), away.rotateRight().rotateRight() };
-        Direction flightDir = null;
+        double bestCost = Double.MAX_VALUE;
+        Direction bestDir = null;
         for (Direction dir : dirs) {
             if (rc.canMove(dir)) {
-                // if (!inEnemyTowerOrHQRange(currentLocation.add(dir), enemyTowers)) { // this gets checked twice :(
-                    if (isSafeToMine(currentLocation.add(dir))) {
-                        if (rc.canMove(dir))
-                            rc.move(dir);
-                        return;
-                    } else if (flightDir == null) {
-                        flightDir = dir;
-                    }
-                // }
+                MapLocation loc = currentLocation.add(dir);
+                int rubbleValue = rc.senseRubble(loc);
+                
+                if (bestCost >  rc.senseRubble(loc)){
+                    bestCost = rubbleValue;
+                    bestDir = dir;
+                }
             }
         }
-        if (flightDir != null) {
-            rc.move(flightDir);
+        if (bestDir != null) {
+            rc.move(bestDir);
+            // exploreDir = bestDir;
         }
     }
 
@@ -463,8 +458,8 @@ public class BotMiner extends Explore{
         // toDieOrNotToDie();
 
         doMining();
-
         if (moveOut) goMoveOut();
+        mine();
         // if (Clock.getBytecodesLeft() < 2000) return;
         BotSoldier.sendCombatLocation(visibleEnemies);
         // if (Clock.getBytecodesLeft() < 2000) return;
