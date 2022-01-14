@@ -1,7 +1,7 @@
-package AActualCombatBot;
+package OTempBot;
 
-import AActualCombatBot.Comms.SHAFlag;
-import AActualCombatBot.Comms.commType;
+import OTempBot.Comms.SHAFlag;
+import OTempBot.Comms.commType;
 import battlecode.common.*;
 
 public class BotSoldier extends Util{
@@ -10,7 +10,7 @@ public class BotSoldier extends Util{
 
     private static RobotInfo[] visibleEnemies;
     private static RobotInfo[] inRangeEnemies;
-    private static RobotInfo attackTarget;
+    private static MapLocation attackTarget;
 
     public static void initBotSoldier(){
         
@@ -28,36 +28,34 @@ public class BotSoldier extends Util{
         inRangeEnemies = rc.senseNearbyRobots(SOLDIER_ACTION_RADIUS, ENEMY_TEAM);
     }
 
-    // private static void detectIfAttackTargetIsGone() throws GameActionException {
-	// 	if (attackTarget != null) {
-	// 		if (currentLocation.distanceSquaredTo(attackTarget) <= 10) {
-	// 		    RobotInfo targetInfo = rc.senseRobotAtLocation(attackTarget);
-	// 			if (targetInfo.ID != attackTarget) {
-	// 				attackTarget = null;
-	// 			}
-	// 		}
-	// 	}
-	// }
+    private static void detectIfAttackTargetIsGone() throws GameActionException {
+		if (attackTarget != null) {
+			if (currentLocation.distanceSquaredTo(attackTarget) <= 10) {
+			    RobotInfo targetInfo = rc.senseRobotAtLocation(attackTarget);
+				if (targetInfo == null || targetInfo.team == MY_TEAM) {
+					attackTarget = null;
+				}
+			}
+		}
+	}
 
     // TODO: Sense rubble at their location and factor that in to find more dangerous unit
-    private static double getEnemyScore(RobotInfo enemyUnit) throws GameActionException{
-        RobotType enemyType = enemyUnit.type;
-        int enemyHealth = enemyUnit.getHealth();
-        int rubbleAtLocation = rc.senseRubble(enemyUnit.getLocation());
-		switch(enemyType) {
+    private static double getEnemyScore(RobotType type, int health) {
+		switch(type) {
 		case ARCHON:
 			return 0.00001;
 		case LABORATORY:
 			return 0.000001;
-        case BUILDER:
 		case MINER:
-			return 0.11 /(enemyHealth * (1+rubbleAtLocation/10.0)); // Max= 0.11, Min = 0.0025 Low priority
+			return 0.1/(health); // Low priority
 		case WATCHTOWER:
+			return 0.5 * RobotType.WATCHTOWER.damage / (health); // RobotType.WATCHTOWER attack cooldown;
 		case SOLDIER:
+			return 0.4 * RobotType.SOLDIER.damage / (health); //  SOLDIER attack cooldown;
 		case SAGE:
-			return 110.0 * enemyType.getDamage(enemyUnit.getLevel()) / (enemyHealth * (1+rubbleAtLocation/10.0)); // Min = 0.2666
+			return 10.0 / (health * 1.0);
 		default:
-			return 0.0001;
+			return (type.damage+0.0001) / (health); // Cooldown due to rubble ;
 		}
 	}
 
@@ -66,7 +64,7 @@ public class BotSoldier extends Util{
 		double bestValue = -1;
         double value = 0;
 		for (RobotInfo target : targets) {
-			value = getEnemyScore(target);
+			value = getEnemyScore(target.getType(), target.getHealth());
 			if (value > bestValue) {
 				bestValue = value;
 				bestTarget = target;
@@ -93,13 +91,10 @@ public class BotSoldier extends Util{
 		
 		Direction bestRetreatDir = null;
 		int bestDistSq = closestHostileDistSq;
-        int bestRubble = rc.senseRubble(currentLocation);
-
+		// boolean foundOrthogonalRetreatDir = false;
 		for (Direction dir : directions) {
 			if (!rc.canMove(dir)) continue;
-			MapLocation dirLoc = lCR.add(dir);
-            int dirLocRubble = rc.senseRubble(dirLoc);
-            if (dirLocRubble > bestRubble) continue; // Don't move to even more rubble
+			MapLocation dirLoc = lCR.add(dir);			
 			int smallestDistSq = Integer.MAX_VALUE;
 			for (RobotInfo hostile : visibleHostiles) {
 				if (!hostile.type.canAttack()) continue;
@@ -136,7 +131,7 @@ public class BotSoldier extends Util{
 			}
 		}
 		if (allyIsFighting) 
-			if (BFS.move(closestHostileLocation)) 
+			if (Movement.tryMoveInDirection(closestHostileLocation)) 
 				return true;
 
 		return false;
@@ -146,7 +141,7 @@ public class BotSoldier extends Util{
         if(closestHostile == null) return false;
 		if (closestHostile.type.canAttack()) 
             return false;
-	    if (BFS.move(closestHostile.location)) 
+	    if (Movement.tryMoveInDirection(closestHostile.location)) 
             return true;
 		return false;
 	}
@@ -166,7 +161,7 @@ public class BotSoldier extends Util{
 		int numNearbyAllies = 1; // Counts ourself
 		RobotInfo[] nearbyAllies = rc.senseNearbyRobots(closestHostileLocation, SOLDIER_ACTION_RADIUS, MY_TEAM);
 		for (RobotInfo ally : nearbyAllies) {
-			if (ally.type.canAttack() && ally.health >= ally.type.getMaxHealth(ally.getLevel())/2.0) {
+			if (ally.type.canAttack() && ally.health >= ally.type.getMaxHealth(1)/2) {
 				numNearbyAllies += 1;
 			}
 		}
@@ -234,7 +229,7 @@ public class BotSoldier extends Util{
         // TODO: Combat simulator for soldiers, sense all rubble in vision for 1v1 or 1vMany combat
 
         updateVision();
-        // detectIfAttackTargetIsGone();
+        detectIfAttackTargetIsGone();
         tryToMicro();
         // TODO: Turret avoidance Comms code
 
