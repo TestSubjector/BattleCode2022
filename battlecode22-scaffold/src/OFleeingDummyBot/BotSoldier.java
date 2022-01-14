@@ -1,7 +1,5 @@
-package AByteBot;
+package OFleeingDummyBot;
 
-import AByteBot.Comms.SHAFlag;
-import AByteBot.Comms.commType;
 import battlecode.common.*;
 
 public class BotSoldier extends CombatUtil{
@@ -211,7 +209,7 @@ public class BotSoldier extends CombatUtil{
         if (visibleHostiles.length != 0 && Clock.getBytecodesLeft() > 600){
             RobotInfo closestHostile = getClosestUnit(visibleHostiles);
             if (closestHostile != null)
-				Comms.writeCommMessageOverrwriteLesserPriorityMessageUsingQueue(commType.COMBAT, closestHostile.getLocation(), SHAFlag.COMBAT_LOCATION);
+				Comms.writeCommMessageOverrwriteLesserPriorityMessageUsingQueue(Comms.commType.COMBAT, closestHostile.getLocation(), Comms.SHAFlag.COMBAT_LOCATION);
 				// Comms.writeCommMessage(Comms.commType.COMBAT, closestHostile.getLocation(), SHAFlag.COMBAT_LOCATION);
                 // Comms.writeCommMessageOverrwriteLesserPriorityMessageToHead(Comms.commType.COMBAT, closestHostile.getLocation(), Comms.SHAFlag.COMBAT_LOCATION);
         }

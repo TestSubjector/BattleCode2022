@@ -1,12 +1,13 @@
 #!/bin/bash
 
 team1=AByteBot
-team2=OEfficientBot
+team2=AFleeingBot
 
 mkdir -p logs
 
 rm -f logs/results.log
 rm -f logs/warnings.log
+rm -f logs/freezing.log
 rm -f logs/detailed_results.log
 rm -f logs/log.log
 
@@ -19,5 +20,6 @@ do
 done
 echo "Grepping results"
 grep -F "wins" logs/log.log >> logs/results.log
-grep -E "vs. |wins" logs/log.log >> logs/detailed_results.log
-grep -F "Warning | Birth round" logs/log.log >> logs/warnings.log
+grep -E "vs.|wins" logs/log.log >> logs/detailed_results.log
+grep -F "vs.|Warning" logs/log.log >> logs/warnings.log
+grep -F "vs.|Birth round" logs/log.log >> logs/freezing.log

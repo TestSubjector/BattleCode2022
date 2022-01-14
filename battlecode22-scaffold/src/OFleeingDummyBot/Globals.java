@@ -1,4 +1,4 @@
-package AByteBot;
+package OFleeingDummyBot;
 
 import java.util.Random;
 

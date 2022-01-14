@@ -1,4 +1,4 @@
-package AByteBot;
+package OFleeingDummyBot;
 
 import battlecode.common.Direction;
 import battlecode.common.MapLocation;
