@@ -22,8 +22,7 @@ public class BotMiner extends Explore{
     private static final int CROWD_LIMIT = 3;
     private static boolean depleteMine;
     private static int DEPLETE_MINE_RADIUS_LIMIT;
-    private static MapLocation[] adjacentLocations;
-
+    
 
     public static boolean areMiningLocationsAbundant(){
         try{
@@ -70,12 +69,11 @@ public class BotMiner extends Explore{
         minerComms();
         updateVision();
         depleteMine = checkIfEnemyArchonInVision();
+        // depleteMine = (checkIfToDepleteMine() || checkIfEnemyArchonInVision());
         if (!isSafeToMine(currentLocation)){
             isFleeing = true;
             isFleeing = BotSoldier.tryToBackUpToMaintainMaxRange(visibleEnemies);
         }
-        // adjacentLocations = rc.getAllLocationsWithinRadiusSquared(currentLocation, MINER_VISION_RADIUS);
-        // depleteMine = (checkIfToDepleteMine() || checkIfEnemyArchonInVision());
     }
 
 
@@ -110,7 +108,7 @@ public class BotMiner extends Explore{
 
     public static void mine() throws GameActionException{
         if (!rc.isActionReady()) return;
-        // MapLocation[] adjacentLocations = rc.getAllLocationsWithinRadiusSquared(currentLocation, 2);
+        MapLocation[] adjacentLocations = rc.getAllLocationsWithinRadiusSquared(currentLocation, 2);
         for (MapLocation loc : adjacentLocations){
             while(rc.canMineGold(loc)){
                 isMinedThisTurn = true;
@@ -550,7 +548,6 @@ public class BotMiner extends Explore{
     * This code is wrapped inside the infinite loop in run(), so it is called once per turn.
     */
     public static void runMiner(RobotController rc) throws GameActionException{
-        adjacentLocations = rc.getAllLocationsWithinRadiusSquared(currentLocation, MINER_ACTION_RADIUS);
         mine();
         updateMiner();
 

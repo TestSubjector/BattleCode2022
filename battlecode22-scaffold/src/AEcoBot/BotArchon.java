@@ -33,6 +33,7 @@ public class BotArchon extends Util{
     private static int fleeIndex;
     private static MapLocation fleeLocation;
 
+
     // This will give each Archon which number it is in the queue
     public static void initBotArchon() throws GameActionException {    
         int transmitterCount = rc.readSharedArray(Comms.CHANNEL_TRANSMITTER_COUNT);
@@ -46,12 +47,12 @@ public class BotArchon extends Util{
     // Update weights of each Archon
     // TODO: Link currentweights with comms counter
     public static void updateArchonBuildUnits(){
-        int lTC = turnCount;
+        double lTC = turnCount;
         watchTowerWeight = watchTowerCount;
-        aBUWeights[ArchonBuildUnits.BUILDER.ordinal()] = Math.min(1, 0.15 + lTC/400);
-        aBUWeights[ArchonBuildUnits.MINER.ordinal()] = Math.max(1, 4.5 - lTC/50);
-        aBUWeights[ArchonBuildUnits.SAGE.ordinal()] = Math.max(2.5, 4.5 - lTC/100);
-        aBUWeights[ArchonBuildUnits.SOLDIER.ordinal()] = Math.min(4.5, 2 + lTC/50);
+        aBUWeights[ArchonBuildUnits.BUILDER.ordinal()] = Math.min(1.0d, 0.15d + lTC/400.0d);
+        aBUWeights[ArchonBuildUnits.MINER.ordinal()] = Math.max(1.0d, 4.5d - (lTC/100.0d) - ((double)minerCount)/30.0d);
+        aBUWeights[ArchonBuildUnits.SAGE.ordinal()] = Math.max(2.50d, 4.5d - lTC/100.0d);
+        aBUWeights[ArchonBuildUnits.SOLDIER.ordinal()] = Math.min(4.50d, 2.0d + lTC/20.0d - ((double)soldierCount)/70.0d);
     }
 
     private static void updateVision() throws GameActionException {
@@ -81,6 +82,68 @@ public class BotArchon extends Util{
         return (rc.getRoundNum() - 1) % archonCount > commID && currentLeadReserves < 95 && fleeIndex == 0;
     }
 
+
+    public static Direction getBestSpawnDirectionForMiners() throws GameActionException{
+        boolean[] dirs = new boolean[8];
+        for (Direction dir: directions) dirs[dir.ordinal()] = false;  
+        for (Direction dir : directions){
+            MapLocation loc = currentLocation.add(dir);
+            if (!rc.onTheMap(loc)) continue;
+            if (rc.senseLead(loc) > 0){ 
+                dirs[dir.ordinal()] = true;
+                dirs[dir.rotateLeft().ordinal()] = true;
+                dirs[dir.rotateRight().ordinal()] = true;
+            }
+        }
+        Direction biasDir = currentLocation.directionTo(CENTER_OF_THE_MAP), bestSpawnDir = null;
+        int val = Integer.MAX_VALUE;
+        Direction[] biasedDirections = new Direction[] {biasDir, biasDir.rotateLeft(), biasDir.rotateRight(), biasDir.rotateLeft().rotateLeft(), biasDir.rotateRight().rotateRight(), biasDir.rotateLeft().rotateLeft().rotateLeft(), biasDir.rotateRight().rotateRight().rotateRight(), biasDir.opposite()};
+        for (Direction dir : biasedDirections){
+            MapLocation loc = currentLocation.add(dir);
+            if (!dirs[dir.ordinal()] || !rc.onTheMap(loc) || rc.isLocationOccupied(loc)) continue;
+            int rubbleVal = rc.senseRubble(loc);
+            if (rubbleVal < val){
+                bestSpawnDir = dir;
+                val = rubbleVal;
+            }
+        }
+        rc.setIndicatorString("Mine spawn dir: " + bestSpawnDir);
+        return bestSpawnDir;
+    }
+
+
+    public static Direction getBestSpawnDirection(RobotType unitType) throws GameActionException{
+        Direction bestSpawnDir = null;
+        double bestSpawnValue = 0;
+        double SpawnValue = 0;
+        MapLocation lCR = currentLocation;
+        // if (unitType.equals(RobotType.MINER)){
+        //     bestSpawnDir = getBestSpawnDirectionForMiners();
+        //     if (bestSpawnDir != null) return bestSpawnDir;
+        // }
+        for (Direction dir : directions) {
+            if (!rc.canBuildRobot(unitType, dir)) continue;
+
+            SpawnValue = getValue(lCR, currentDestination, dir); // TODO: Change destination
+            if (bestSpawnDir == null || SpawnValue < bestSpawnValue) {
+                bestSpawnDir = dir;
+                bestSpawnValue = SpawnValue;
+            }
+        }
+        return bestSpawnDir;
+    }
+
+
+    public static void spawnBot(RobotType unitType, Direction spawnDir, ArchonBuildUnits unitToBuild) throws GameActionException{
+        if (spawnDir == null) return;
+        rc.buildRobot(unitType, spawnDir);
+        turnsWaitingToBuild = 0;
+        // System.out.println("Unit to build is " + unitType + " with weight " + currentWeights[unitToBuild.ordinal()]);
+        currentWeights[unitToBuild.ordinal()] += 1.0/aBUWeights[unitToBuild.ordinal()];
+        // if(ID ==2) System.out.println("Unit built is " + unitType + " Weights are " + Arrays.toString(currentWeights));
+    }
+
+
     public static void buildUnit() throws GameActionException{
         try {
             ArchonBuildUnits unitToBuild = standardOrder();
@@ -88,36 +151,9 @@ public class BotArchon extends Util{
                 turnsWaitingToBuild++;
                 return;
             }
-            Direction bestSpawnDir = null;
-            double bestSpawnValue = 0;
-            double SpawnValue = 0;
-            MapLocation lCR = currentLocation; 
-
-            RobotType unitType=giveUnitType(unitToBuild);
-            boolean crowded = true;
-
-            for (Direction dir : directions) {
-                if (!rc.canBuildRobot(unitType, dir)){
-                    if (rc.onTheMap(lCR.add(dir)) && !rc.isLocationOccupied(lCR.add(dir)))
-                        crowded = false;
-                    continue;
-                }
-                crowded = false;
-                SpawnValue = getValue(lCR, currentDestination, dir); // TODO: Change destination
-                if (bestSpawnDir == null || SpawnValue < bestSpawnValue) {
-                    bestSpawnDir = dir;
-                    bestSpawnValue = SpawnValue;
-                }
-            }
-
-            if (bestSpawnDir != null){
-                rc.buildRobot(unitType, bestSpawnDir);
-                turnsWaitingToBuild = 0;
-                // System.out.println("Unit to build is " + unitType + " with weight " + currentWeights[unitToBuild.ordinal()]);
-                currentWeights[unitToBuild.ordinal()] += 1.0/aBUWeights[unitToBuild.ordinal()];
-                // if(ID ==2) System.out.println("Unit built is " + unitType + " Weights are " + Arrays.toString(currentWeights));
-            }
-
+            RobotType unitType = giveUnitType(unitToBuild);
+            Direction bestSpawnDir = getBestSpawnDirection(unitType);
+            spawnBot(unitType, bestSpawnDir, unitToBuild);
             // TODO: Use crowded flag to send a panic message to comms that the bots should get out of the way.
             // if (crowded)
 
@@ -126,6 +162,7 @@ public class BotArchon extends Util{
             e.printStackTrace();
         }
     }
+    
 
     static double getValue(MapLocation archonLocation, MapLocation dest, Direction dir) throws GameActionException {
         double dist = 1;
@@ -135,6 +172,7 @@ public class BotArchon extends Util{
         return dist * (10 + rc.senseRubble(archonLocation.add(dir)));
     }
 
+
     public static ArchonBuildUnits standardOrder() throws GameActionException{
         boolean canBuild[] = new boolean[aBUWeights.length];
         if(shouldBuildBuilder()) canBuild[ArchonBuildUnits.BUILDER.ordinal()] = true;
@@ -143,7 +181,7 @@ public class BotArchon extends Util{
         if(shouldBuildSage()) canBuild[ArchonBuildUnits.SAGE.ordinal()] = true;
 
         ArchonBuildUnits unitToBuild = null;
-        double minWeight = 100000;
+        double minWeight = Double.MAX_VALUE;
 
         // TODO : Loop unrolling
         for(int i = 0; i < archonBuildUnits.length; i++){
@@ -162,6 +200,7 @@ public class BotArchon extends Util{
         // System.out.println("Unit to build is " + unitToBuild + " with weight " + minWeight);
         return unitToBuild;
     }
+
 
      // TODO: Reorganise after sprint
     public static boolean watchTowerDebt(double minWeight, ArchonBuildUnits unitToBuild) throws GameActionException{
@@ -186,8 +225,7 @@ public class BotArchon extends Util{
     }
 
     public static boolean shouldBuildSoldier(){
-        if (turnCount < 15) return false;
-        return true;
+        return (turnCount >= 15);
     }
 
     public static boolean shouldBuildSage(){
