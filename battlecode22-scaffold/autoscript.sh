@@ -1,7 +1,7 @@
 #!/bin/bash
 
-team1=ADepleteBot
-team2=OProductionBot
+team1=AClericBot
+team2=ODepleteBot
 
 mkdir -p logs
 if test -f "logs/results.log"; then
@@ -26,8 +26,8 @@ fi
 # rm -f logs/log.log
 
 count=0
-for i in nottestsmall squer jellyfish progress fortress sandwich underground \
-    intersection valley rivers uncomfortable eckleburg colosseum #doubledoors newdoubledoors
+for i in nottestsmall squer jellyfish progress sandwich underground \
+    intersection valley fortress rivers uncomfortable eckleburg colosseum #doubledoors newdoubledoors
 do
   count=$[count+1]
   echo "Running map $count: $i"
@@ -43,11 +43,11 @@ grep -E "Birth |vs. " logs/log.log >> logs/freezing.log
 # Squer         : 25 x 25 : 625
 # Jellyfish     : 30 x 30 : 900
 # Progress      : 30 x 30 : 900
-# Fortress      : 60 x 30 : 1800
 # Sandwich      : 59 x 20 : 1180
 # Underground   : 59 x 20 : 1180
 # Intersection  : 49 x 25 : 1225
 # Valley        : 37 x 37 : 1669
+# Fortress      : 60 x 30 : 1800
 # Rivers        : 55 x 45 : 2475
 # Uncomfortable : 58 x 58 : 3364
 # Eckleburg     : 60 x 60 : 3600

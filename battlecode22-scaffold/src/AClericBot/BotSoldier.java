@@ -1,4 +1,4 @@
-package ADepleteBot;
+package AClericBot;
 
 import battlecode.common.*;
 
@@ -9,9 +9,10 @@ public class BotSoldier extends CombatUtil{
     private static RobotInfo[] visibleEnemies;
     private static RobotInfo[] inRangeEnemies;
     private static RobotInfo attackTarget;
+    private static boolean inHealingState;
 
     public static void initBotSoldier(){
-        
+        inHealingState = false;
     }
 
     public static void soldierComms() throws GameActionException {
@@ -49,11 +50,11 @@ public class BotSoldier extends CombatUtil{
 			return 0.000001;
         case BUILDER:
 		case MINER:
-			return 0.11 /(enemyHealth * (1+rubbleAtLocation/10.0)); // Max= 0.11, Min = 0.0025 Low priority
+			return 0.22 /(enemyHealth * (10.0+rubbleAtLocation)); // Max= 0.22, Min = 0.005 Low priority
 		case WATCHTOWER:
 		case SOLDIER:
 		case SAGE:
-			return 110.0 * enemyType.getDamage(enemyUnit.getLevel()) / (enemyHealth * (1+rubbleAtLocation/10.0)); // Min = 0.2666
+			return 220.0 * enemyType.getDamage(enemyUnit.getLevel()) / (enemyHealth * (10.0+rubbleAtLocation));
 		default:
 			return 0.0001;
 		}
@@ -184,6 +185,15 @@ public class BotSoldier extends CombatUtil{
             return false;
         }
 
+        // if (inHealingState){
+        //     if(rc.isActionReady() && inRangeEnemies.length > 0){
+        //         chooseTargetAndAttack(inRangeEnemies);
+        //         return true;
+        //     }
+        //     // TODO: Improve fleeing?
+        //     return false;
+        // }
+
         if (rc.isActionReady()){
             if (inRangeEnemies.length > 0) {
                 chooseTargetAndAttack(inRangeEnemies);
@@ -224,7 +234,35 @@ public class BotSoldier extends CombatUtil{
             }
         }
     }
+
+    private static void simpleAttack() throws GameActionException{
+        if (inRangeEnemies.length > 10 && rc.isActionReady()){
+            chooseTargetAndAttack(inRangeEnemies);
+        }
+    }
     
+    private static void manageHealingState() {
+        if (rc.getHealth() < rc.getType().getMaxHealth(rc.getLevel()) / 3.0) {
+            inHealingState = true;
+        }
+        else if (rc.getHealth() == rc.getType().getMaxHealth(rc.getLevel())) {
+            inHealingState = false;
+        }
+    }
+
+    private static boolean tryToHealAtArchon() throws GameActionException {
+		if (!rc.isMovementReady()) return false;
+		
+		MapLocation closestArchon = getClosestArchonLocation();
+		
+		if (closestArchon == null || rc.getLocation().distanceSquaredTo(closestArchon) < ARCHON_ACTION_RADIUS) {
+			return false;
+		}
+		BFS.move(closestArchon);
+		return true;
+	}
+
+
     /**
     * Run a single turn for a Soldier.
     * This code is wrapped inside the infinite loop in run(), so it is called once per turn.
@@ -233,22 +271,29 @@ public class BotSoldier extends CombatUtil{
         soldierComms(); // 300 Bytecodes
         
         // TODO: Combat simulator for soldiers, sense all rubble in vision for 1v1 or 1vMany combat
-
         updateVision();
+        // simpleAttack();
+        manageHealingState();
         // detectIfAttackTargetIsGone();
         tryToMicro();
         updateVision();
         // TODO: Turret avoidance Comms code
 
         findNewCombatLocation();
-        if (visibleEnemies.length == 0) { // Do normal pathfinding only when no enemy units around
-            // System.out.println("Bytecode A " + Clock.getBytecodesLeft());
-            BFS.move(currentDestination); // 2700 Bytecodes
-            // System.out.println("Bytecode B " + Clock.getBytecodesLeft());
-        }
-        tryToMicro();
-
         sendCombatLocation(visibleEnemies);
+        if (inHealingState && tryToHealAtArchon()){
+            return;
+        } 
+        if (visibleEnemies.length == 0) {
+            // Do normal pathfinding only when no enemy units around
+            BFS.move(currentDestination); // 2700 Bytecodes
+        }
+        updateVision();
+        if (rc.isActionReady()){
+            if (inRangeEnemies.length > 0) {
+                chooseTargetAndAttack(inRangeEnemies);
+            }
+        }
         // BotMiner.surveyForOpenMiningLocationsNearby(); // TODO: Reorganise to sprint
     }
 }

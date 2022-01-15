@@ -24,8 +24,8 @@ mkdir -p logs/${team1}_vs_${team2}
 count1=$[count1+1]
 count2=0
 echo "Team number $count1: $team2, is processing:"
-for i in nottestsmall squer jellyfish progress fortress sandwich underground \
-    intersection valley rivers uncomfortable eckleburg colosseum #doubledoors newdoubledoors
+for i in nottestsmall squer jellyfish progress sandwich underground \
+    intersection valley fortress rivers uncomfortable eckleburg colosseum #doubledoors newdoubledoors
 do
   count2=$[count2+1]
   echo "$team2: Running map $count2: $i"

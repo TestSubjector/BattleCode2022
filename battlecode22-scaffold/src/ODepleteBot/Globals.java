@@ -1,4 +1,4 @@
-package ADepleteBot;
+package ODepleteBot;
 
 import java.util.Random;
 

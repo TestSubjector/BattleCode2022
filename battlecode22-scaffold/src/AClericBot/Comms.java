@@ -1,4 +1,4 @@
-package ADepleteBot;
+package AClericBot;
 
 import battlecode.common.*;
 
@@ -225,30 +225,35 @@ public class Comms extends Util{
 
 
     public static MapLocation[] findLocationsOfThisTypeAndWipeChannels(commType type, SHAFlag flag) throws GameActionException{
-        MapLocation[] locations, tempLocs = new MapLocation[archonCount];
-        for (int i = 0; i < archonCount; ++i) tempLocs[i] = null;
         int count = 0;
-        for (int i = type.commChannelStart; i < type.commChannelStop; ++i){
-            int message = rc.readSharedArray(i);
-            if (readSHAFlagFromMessage(message) == flag){
-                MapLocation loc = readLocationFromMessage(message);
-                if (checkInArrayIfLocationLocationThere(tempLocs, loc)){
+        try{
+            MapLocation[] locations, tempLocs = new MapLocation[4];
+            for (int i = 0; i < archonCount; ++i) tempLocs[i] = null;
+            for (int i = type.commChannelStart; i < type.commChannelStop; ++i){
+                int message = rc.readSharedArray(i);
+                if (readSHAFlagFromMessage(message) == flag){
+                    MapLocation loc = readLocationFromMessage(message);
+                    if (checkInArrayIfLocationLocationThere(tempLocs, loc)){
+                        wipeChannel(i);
+                        continue;
+                    }
+                    tempLocs[count++] = readLocationFromMessage(message);
                     wipeChannel(i);
-                    continue;
                 }
-                tempLocs[count++] = readLocationFromMessage(message);
-                wipeChannel(i);
             }
+            locations = new MapLocation[count];
+            switch(count){
+                case 4: locations[3] = tempLocs[3];
+                case 3: locations[2] = tempLocs[2];
+                case 2: locations[1] = tempLocs[1];
+                case 1: locations[0] = tempLocs[0];
+                // case 0: return locations;
+            }
+            return locations;
+        } catch (Exception e){
+            System.out.println("current count value: " + count);
         }
-        locations = new MapLocation[count];
-        switch(count){
-            case 4: locations[3] = tempLocs[3];
-            case 3: locations[2] = tempLocs[2];
-            case 2: locations[1] = tempLocs[1];
-            case 1: locations[0] = tempLocs[0];
-            // case 0: return locations;
-        }
-        return locations;
+        return null;
     }
 
 

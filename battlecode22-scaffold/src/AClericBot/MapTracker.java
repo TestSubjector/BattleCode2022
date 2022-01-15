@@ -1,4 +1,4 @@
-package ADepleteBot;
+package AClericBot;
 
 import battlecode.common.MapLocation;
 
