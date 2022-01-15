@@ -22,7 +22,6 @@ public class BotMiner extends Explore{
     private static final int CROWD_LIMIT = 3;
     private static boolean depleteMine;
     private static int DEPLETE_MINE_RADIUS_LIMIT;
-    private static final boolean DEPLETE_FROM_ENEMY_LOCATIONS = true;
     private static final int LOW_HEALTH_STRAT_TRIGGER = (int)((MAX_HEALTH*3.0d)/10.0d);
     private static final int LOW_HEALTH_STRAT_RELEASER = (int)((MAX_HEALTH*8.0d)/10.0d);
     public static boolean lowHealthStratInPlay = false;
@@ -41,7 +40,7 @@ public class BotMiner extends Explore{
 
     public static void setDepleteMineRadius(){
         // TODO: Tune this fraction
-        DEPLETE_MINE_RADIUS_LIMIT = (int)(((double)Math.min(MAP_WIDTH, MAP_HEIGHT) * 5.0d)/13.0d);
+        DEPLETE_MINE_RADIUS_LIMIT = (int)(((double)Math.min(MAP_WIDTH, MAP_HEIGHT) * 3.0d)/7.0d);
         DEPLETE_MINE_RADIUS_LIMIT *= DEPLETE_MINE_RADIUS_LIMIT;
     }
 
@@ -77,8 +76,8 @@ public class BotMiner extends Explore{
         isFleeing = false;
         minerComms();
         updateVision();
-        // depleteMine = checkIfEnemyArchonInVision();
-        depleteMine = (checkIfEnemyArchonInVision() || checkIfToDepleteMine());
+        depleteMine = checkIfEnemyArchonInVision();
+        // depleteMine = (checkIfEnemyArchonInVision() || checkIfToDepleteMine());
         // depleteMine = (checkIfToDepleteMine() || checkIfEnemyArchonInVision());
         if (!isSafeToMine(currentLocation)){
             isFleeing = true;
@@ -100,19 +99,16 @@ public class BotMiner extends Explore{
 
 
     public static boolean checkIfToDepleteMine() throws GameActionException{
-        int add;
-        if (DEPLETE_FROM_ENEMY_LOCATIONS) add = 1;
-        else add = 0;
-        for (int i = Comms.CHANNEL_ARCHON_START + add; i < Comms.channelArchonStop; i += 4){
-            MapLocation loc = Comms.readLocationFromMessage(rc.readSharedArray(i));
-            if (loc.distanceSquaredTo(currentLocation) <= DEPLETE_MINE_RADIUS_LIMIT) return DEPLETE_FROM_ENEMY_LOCATIONS;
-        }
-        return !DEPLETE_FROM_ENEMY_LOCATIONS;
-        // for (int i = Comms.CHANNEL_ARCHON_START; i < Comms.channelArchonStop; i += 4){
+        // for (int i = Comms.CHANNEL_ARCHON_START + 1; i < Comms.channelArchonStop; i += 4){
         //     MapLocation loc = Comms.readLocationFromMessage(rc.readSharedArray(i));
-        //     if (loc.distanceSquaredTo(currentLocation) <= DEPLETE_MINE_RADIUS_LIMIT) return false;
+        //     if (loc.distanceSquaredTo(currentLocation) <= DEPLETE_MINE_RADIUS_LIMIT) return true;
         // }
-        // return true;
+        // return false;
+        for (int i = Comms.CHANNEL_ARCHON_START; i < Comms.channelArchonStop; i += 4){
+            MapLocation loc = Comms.readLocationFromMessage(rc.readSharedArray(i));
+            if (loc.distanceSquaredTo(currentLocation) <= DEPLETE_MINE_RADIUS_LIMIT) return false;
+        }
+        return true;
     }
 
 
