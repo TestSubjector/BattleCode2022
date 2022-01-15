@@ -1,7 +1,7 @@
 #!/bin/bash
 
-team1=AEcoBot
-team2=OFleeingBot
+team1=AProductionBot
+team2=OEcoBot
 
 mkdir -p logs
 if test -f "logs/results.log"; then
@@ -25,10 +25,12 @@ fi
 # rm -f logs/detailed_results.log
 # rm -f logs/log.log
 
+count=0
 for i in nottestsmall squer jellyfish progress fortress sandwich underground \
     intersection valley rivers uncomfortable eckleburg colosseum #doubledoors newdoubledoors
 do
-  echo "Running map $i"
+  count=$[count+1]
+  echo "Running map $count: $i"
   ./gradlew -PteamA=$team1 -PteamB=$team2 -Pmaps=$i -PprofilerEnabled=false run >> logs/log.log
   ./gradlew -PteamA=$team2 -PteamB=$team1 -Pmaps=$i -PprofilerEnabled=false run >> logs/log.log
 done

@@ -22,6 +22,10 @@ public class BotMiner extends Explore{
     private static final int CROWD_LIMIT = 3;
     private static boolean depleteMine;
     private static int DEPLETE_MINE_RADIUS_LIMIT;
+    private static final int LOW_HEALTH_STRAT_TRIGGER = (int)((MAX_HEALTH*3.0d)/10.0d);
+    private static final int LOW_HEALTH_STRAT_RELEASER = (int)((MAX_HEALTH*8.0d)/10.0d);
+    public static boolean lowHealthStratInPlay = false;
+    public static MapLocation lowHealthStratArchon;
     
 
     public static boolean areMiningLocationsAbundant(){
@@ -45,6 +49,10 @@ public class BotMiner extends Explore{
         prolificMiningLocationsAtBirth = areMiningLocationsAbundant();
         resetVariables();
         setDepleteMineRadius();
+        lowHealthStratInPlay = false;
+        lowHealthStratArchon = null;
+        // System.out.println("Low Health Strategy Trigger value: " + LOW_HEALTH_STRAT_TRIGGER);
+        // System.out.println("Low Health Strategy Trigger releaser: " + LOW_HEALTH_STRAT_RELEASER);
         // adjacentLocations = rc.getAllLocationsWithinRadiusSquared(currentLocation, MINER_VISION_RADIUS);
         // explore();
     }
@@ -515,6 +523,7 @@ public class BotMiner extends Explore{
             mine();
         }
         else{
+            if (lowHealthStratInPlay) return;
             getMiningLocation();
             goToMine();
             mine();
@@ -543,6 +552,34 @@ public class BotMiner extends Explore{
     }
 
 
+    public static void lowHealthStrategy() throws GameActionException{
+        if (lowHealthStratInPlay && rc.getHealth() > LOW_HEALTH_STRAT_RELEASER){
+            lowHealthStratInPlay = false;
+            return;
+        }
+        if (!lowHealthStratInPlay && rc.getHealth() < LOW_HEALTH_STRAT_TRIGGER){ 
+            // System.out.println("Current Health: " + rc.getHealth());
+            // System.out.println("Low health strat trigger: " + LOW_HEALTH_STRAT_TRIGGER);
+            lowHealthStratInPlay = true;
+            lowHealthStratArchon = getClosestArchonLocation();
+        }
+        if (!lowHealthStratInPlay) return;
+        if (lowHealthStratArchon == null){
+            System.out.println("Should never happen");
+            lowHealthStratArchon = getClosestArchonLocation();
+        }
+        if (lowHealthStratArchon == null){
+            System.out.println("Still happening?!!");
+            return;
+        }
+        if (currentLocation.distanceSquaredTo(lowHealthStratArchon) > ARCHON_ACTION_RADIUS){
+            BFS.move(lowHealthStratArchon);
+            return;
+        }
+    }
+
+
+
     /**
     * Run a single turn for a Miner.
     * This code is wrapped inside the infinite loop in run(), so it is called once per turn.
@@ -550,7 +587,7 @@ public class BotMiner extends Explore{
     public static void runMiner(RobotController rc) throws GameActionException{
         mine();
         updateMiner();
-
+        lowHealthStrategy();
         // toDieOrNotToDie();
 
         doMining();

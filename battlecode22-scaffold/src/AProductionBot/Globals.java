@@ -42,6 +42,7 @@ public class Globals {
     // For bytecode comparison of functions
     public static int bytecodediff = 0;
 	
+    public static int MAX_HEALTH;
     //// ---------------------Droids Globals---------------------
 	// Miner Globals
 	public static final int MINER_ACTION_RADIUS = RobotType.MINER.actionRadiusSquared;
@@ -238,6 +239,7 @@ public class Globals {
         BIRTH_ROUND = rc.getRoundNum();
         turnCount = BIRTH_ROUND;
         UNIT_TYPE = rc.getType();
+        MAX_HEALTH = UNIT_TYPE.getMaxHealth(1);
         MAP_WIDTH = rc.getMapWidth();
         MAP_HEIGHT = rc.getMapHeight();
         MAP_SIZE = MAP_WIDTH * MAP_HEIGHT;
