@@ -1,6 +1,7 @@
 #!/bin/bash
 
 team1=ADepleteBot
+count1=0
 for team2 in OProductionBot OEcoBot OFleeingBot OEfficientBot OMicroBot OActualCombatBot OCombatBot ONewFrontierBot
 do
 mkdir -p logs/${team1}_vs_${team2}
@@ -19,11 +20,14 @@ mkdir -p logs/${team1}_vs_${team2}
 # if test -f "logs/log.log"; then
 #   mv logs/log.log logs/log_old.log
 # fi
-
+count1=$[count1+1]
+count2=0
+echo "Team number $count1: $team2, is processing:"
 for i in nottestsmall squer jellyfish progress fortress sandwich underground \
     intersection valley rivers uncomfortable eckleburg colosseum #doubledoors newdoubledoors
 do
-  echo "$team2: Running map $i"
+  count2=$[count2+1]
+  echo "$team2: Running map $count2: $i"
   ./gradlew -PteamA=$team1 -PteamB=$team2 -Pmaps=$i -PprofilerEnabled=false run >> logs/${team1}_vs_${team2}/log.log
   ./gradlew -PteamA=$team2 -PteamB=$team1 -Pmaps=$i -PprofilerEnabled=false run >> logs/${team1}_vs_${team2}/log.log
 done
