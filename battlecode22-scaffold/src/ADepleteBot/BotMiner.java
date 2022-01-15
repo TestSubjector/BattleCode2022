@@ -41,7 +41,7 @@ public class BotMiner extends Explore{
 
     public static void setDepleteMineRadius(){
         // TODO: Tune this fraction
-        DEPLETE_MINE_RADIUS_LIMIT = (int)(((double)Math.min(MAP_WIDTH, MAP_HEIGHT) * 5.0d)/13.0d);
+        DEPLETE_MINE_RADIUS_LIMIT = (int)((double)Math.min(MAP_WIDTH, MAP_HEIGHT) * 0.22d);
         DEPLETE_MINE_RADIUS_LIMIT *= DEPLETE_MINE_RADIUS_LIMIT;
     }
 
@@ -77,8 +77,8 @@ public class BotMiner extends Explore{
         isFleeing = false;
         minerComms();
         updateVision();
-        // depleteMine = checkIfEnemyArchonInVision();
-        depleteMine = (checkIfEnemyArchonInVision() || checkIfToDepleteMine());
+        depleteMine = checkIfEnemyArchonInVision();
+        // depleteMine = (checkIfEnemyArchonInVision() || checkIfToDepleteMine());
         // depleteMine = (checkIfToDepleteMine() || checkIfEnemyArchonInVision());
         if (!isSafeToMine(currentLocation)){
             isFleeing = true;
