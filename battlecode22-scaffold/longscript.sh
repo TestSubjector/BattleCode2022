@@ -1,7 +1,7 @@
 #!/bin/bash
 
-team1=AEcoBot
-for team2 in OFleeingBot OEfficientBot OMicroBot OActualCombatBot OCombatBot ONewFrontierBot OGeffnersBot OFinalSprintBot
+team1=ADepleteBot
+for team2 in OProductionBot OEcoBot OFleeingBot OEfficientBot OMicroBot OActualCombatBot OCombatBot ONewFrontierBot
 do
 mkdir -p logs/${team1}_vs_${team2}
 # if test -f "logs/${team2}_results.log"; then
