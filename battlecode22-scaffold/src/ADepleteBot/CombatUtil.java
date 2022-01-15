@@ -1,4 +1,4 @@
-package AProductionBot;
+package ADepleteBot;
 
 import battlecode.common.*;
 

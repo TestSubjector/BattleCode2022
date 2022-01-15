@@ -1,4 +1,4 @@
-package AProductionBot;
+package OProductionBot;
 
 import battlecode.common.Direction;
 import battlecode.common.MapLocation;
