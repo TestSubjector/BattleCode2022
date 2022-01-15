@@ -1,7 +1,7 @@
 #!/bin/bash
 
 team1=APaladinBot
-team2=ODepleteBot
+team2=OPaladinBot
 
 mkdir -p logs
 if test -f "logs/results.log"; then

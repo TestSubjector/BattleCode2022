@@ -1,8 +1,9 @@
-package APaladinBot;
+package OPaladinBot;
 
 import battlecode.common.*;
 
 public class Movement extends Util{
+    
     public static boolean tryMoveInDirection(MapLocation dest) throws GameActionException {
 		try{
             if(!rc.isMovementReady()) return false;
@@ -17,14 +18,14 @@ public class Movement extends Util{
     	    	dirs = new Direction[] { forward, forward.rotateRight(), forward.rotateLeft()};
     	    }
     	    Direction bestDir = null;
-    	    double bestRubble = MAX_RUBBLE+1;
+    	    double bestRubble = rc.senseRubble(rc.getLocation());
             int currentDistSq = lCR.distanceSquaredTo(dest);
     	    for (Direction direction : dirs) {
     	    	dirLoc = lCR.add(direction);
                 if (!rc.onTheMap(dirLoc)) continue; // The location will always be in vision
                 if (bestDir != null && dirLoc.distanceSquaredTo(dest) > currentDistSq) continue;
     	    	double rubble = rc.senseRubble(dirLoc);
-                if (rubble < bestRubble && rc.canMove(direction)) {
+                if ((rubble < bestRubble || rubble == 0) && rc.canMove(direction)) {
                     bestRubble = rubble;
                     bestDir = direction;
                 }

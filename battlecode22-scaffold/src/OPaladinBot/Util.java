@@ -1,4 +1,4 @@
-package APaladinBot;
+package OPaladinBot;
 
 import battlecode.common.MapLocation;
 import battlecode.common.Clock;
