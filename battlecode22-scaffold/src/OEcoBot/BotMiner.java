@@ -1,4 +1,4 @@
-package AEcoBot;
+package OEcoBot;
 
 import battlecode.common.*;
 

@@ -1,4 +1,4 @@
-package AEcoBot;
+package OEcoBot;
 
 import battlecode.common.Direction;
 import battlecode.common.MapLocation;

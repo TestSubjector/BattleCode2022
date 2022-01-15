@@ -1,4 +1,4 @@
-package AEcoBot;
+package AProductionBot;
 
 import battlecode.common.MapLocation;
 
