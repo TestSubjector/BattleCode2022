@@ -25,8 +25,8 @@ fi
 # rm -f logs/detailed_results.log
 # rm -f logs/log.log
 
-for i in intersection eckleburg fortress colosseum jellyfish progress rivers \
-    valley squer sandwich underground nottestsmall uncomfortable #doubledoors newdoubledoors
+for i in nottestsmall squer jellyfish progress fortress sandwich underground \
+    intersection valley rivers uncomfortable eckleburg colosseum #doubledoors newdoubledoors
 do
   echo "Running map $i"
   ./gradlew -PteamA=$team1 -PteamB=$team2 -Pmaps=$i -PprofilerEnabled=false run >> logs/log.log
@@ -35,5 +35,18 @@ done
 echo "Grepping results"
 grep -F "wins" logs/log.log >> logs/results.log
 grep -E "vs. |wins" logs/log.log >> logs/detailed_results.log
-grep -F "vs. |Warning," logs/log.log >> logs/warnings.log
-grep -F "vs. |Birth round " logs/log.log >> logs/freezing.log
+grep -E "Warning,|vs. " logs/log.log >> logs/warnings.log
+grep -E "Birth |vs. " logs/log.log >> logs/freezing.log
+# Nottestsmall  : 20 x 20 : 400
+# Squer         : 25 x 25 : 625
+# Jellyfish     : 30 x 30 : 900
+# Progress      : 30 x 30 : 900
+# Fortress      : 60 x 30 : 1800
+# Sandwich      : 59 x 20 : 1180
+# Underground   : 59 x 20 : 1180
+# Intersection  : 49 x 25 : 1225
+# Valley        : 37 x 37 : 1669
+# Rivers        : 55 x 45 : 2475
+# Uncomfortable : 58 x 58 : 3364
+# Eckleburg     : 60 x 60 : 3600
+# Colosseum     : 60 x 60 : 3600
