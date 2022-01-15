@@ -1,6 +1,6 @@
 #!/bin/bash
 
-team1=AClericBot
+team1=APaladinBot
 team2=ODepleteBot
 
 mkdir -p logs

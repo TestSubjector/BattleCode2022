@@ -1,4 +1,4 @@
-package AClericBot;
+package APaladinBot;
 
 import battlecode.common.*;
 
