@@ -4,6 +4,7 @@ team1=ADepleteBot
 count1=0
 for team2 in OProductionBot OEcoBot OFleeingBot OEfficientBot OMicroBot OActualCombatBot OCombatBot ONewFrontierBot
 do
+rm -rf logs/${team1}_vs_${team2}/
 mkdir -p logs/${team1}_vs_${team2}
 # if test -f "logs/${team2}_results.log"; then
 #   mv logs/results.log logs/results_old.log
@@ -40,11 +41,11 @@ grep -E "Birth |vs. " logs/${team1}_vs_${team2}/log.log >> logs/${team1}_vs_${te
 # Squer         : 25 x 25 : 625
 # Jellyfish     : 30 x 30 : 900
 # Progress      : 30 x 30 : 900
-# Fortress      : 60 x 30 : 1800
 # Sandwich      : 59 x 20 : 1180
 # Underground   : 59 x 20 : 1180
 # Intersection  : 49 x 25 : 1225
 # Valley        : 37 x 37 : 1669
+# Fortress      : 60 x 30 : 1800
 # Rivers        : 55 x 45 : 2475
 # Uncomfortable : 58 x 58 : 3364
 # Eckleburg     : 60 x 60 : 3600
