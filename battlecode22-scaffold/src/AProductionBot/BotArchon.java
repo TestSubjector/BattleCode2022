@@ -32,6 +32,7 @@ public class BotArchon extends Util{
     private static RobotInfo[] inRangeAllies;
     private static int fleeIndex;
     private static MapLocation fleeLocation;
+    private static int enemyArchonQueueHead;
 
 
     // This will give each Archon which number it is in the queue
@@ -42,6 +43,7 @@ public class BotArchon extends Util{
         startingArchons = rc.getArchonCount();
         fleeIndex = 0;
         fleeLocation = null;
+        enemyArchonQueueHead = 0;
     }
     
     // Update weights of each Archon
@@ -313,6 +315,25 @@ public class BotArchon extends Util{
         }
     }
 
+
+    private static void incrementHead(){
+        enemyArchonQueueHead++;
+        enemyArchonQueueHead = enemyArchonQueueHead % archonCount;
+    }
+
+
+    public static void getEnemyArchonLocations() throws GameActionException{
+        if (commID != 0) return;
+        MapLocation[] enemyArchonLocations = Comms.findLocationsOfThisTypeAndWipeChannels(Comms.commType.COMBAT, Comms.SHAFlag.CONFIRMED_ENEMY_ARCHON_LOCATION);
+        if (enemyArchonLocations.length == 0) return;
+        for (MapLocation enemyArchon : enemyArchonLocations){
+            Comms.writeSHAFlagMessage(enemyArchon, Comms.SHAFlag.CONFIRMED_ENEMY_ARCHON_LOCATION, Comms.CHANNEL_ARCHON_START + enemyArchonQueueHead * 4 + 1);
+            // rc.writeSharedArray(, ;);
+            incrementHead();
+        }
+    }
+
+
     /**
     * Run a single turn for an Archon.
     * This code is wrapped inside the infinite loop in run(), so it is called once per turn.
@@ -320,6 +341,7 @@ public class BotArchon extends Util{
     public static void runArchon(RobotController rc) throws GameActionException {
         archonComms();
         updateVision();
+        getEnemyArchonLocations();
         updateArchonBuildUnits();
         buildDivision();
         shouldFlee();

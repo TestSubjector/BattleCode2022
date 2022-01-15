@@ -197,6 +197,62 @@ public class Comms extends Util{
     }
 
 
+    public static MapLocation findLocationOfThisTypeAndWipeChannel(commType type, SHAFlag flag) throws GameActionException{
+        int channel = -1;
+        MapLocation loc = null;
+        for (int i = type.commChannelStart; i < type.commChannelStop; ++i){
+            int message = rc.readSharedArray(i);
+            if (readSHAFlagFromMessage(message) == flag){
+                channel = i;
+                loc = readLocationFromMessage(message);
+                break;
+                // return readLocationFromMessage(message);
+            }
+        }
+        if (channel != -1) wipeChannel(channel);
+        return loc;
+    }
+
+
+    private static boolean checkInArrayIfLocationLocationThere(MapLocation[] locations, MapLocation loc){
+        if (locations.length == 0) return false;
+        for (int i = 0; i < locations.length; ++i){
+            if (locations[i] == null) continue;
+            if (locations[i].equals(loc)) return true;
+        }
+        return false;
+    }
+
+
+    public static MapLocation[] findLocationsOfThisTypeAndWipeChannels(commType type, SHAFlag flag) throws GameActionException{
+        MapLocation[] locations, tempLocs = new MapLocation[archonCount];
+        for (int i = 0; i < archonCount; ++i) tempLocs[i] = null;
+        int count = 0;
+        for (int i = type.commChannelStart; i < type.commChannelStop; ++i){
+            int message = rc.readSharedArray(i);
+            if (readSHAFlagFromMessage(message) == flag){
+                MapLocation loc = readLocationFromMessage(message);
+                if (checkInArrayIfLocationLocationThere(tempLocs, loc)){
+                    wipeChannel(i);
+                    continue;
+                }
+                tempLocs[count++] = readLocationFromMessage(message);
+                wipeChannel(i);
+            }
+        }
+        locations = new MapLocation[count];
+        switch(count){
+            case 4: locations[3] = tempLocs[3];
+            case 3: locations[2] = tempLocs[2];
+            case 2: locations[1] = tempLocs[1];
+            case 1: locations[0] = tempLocs[0];
+            // case 0: return locations;
+        }
+        return locations;
+    }
+
+
+
     /**
      * Finds and returns the nearest location (to the reference location) that has the given SHAFlag from the communication channels.
      * @param loc  : The reference location.
@@ -404,6 +460,13 @@ public class Comms extends Util{
     }
 
 
+    public static int writeCommMessageUsingQueueWithoutRedundancy(commType type, MapLocation loc, SHAFlag flag) throws GameActionException{
+        int message = intFromMapLocation(loc);
+        if (checkIfMessageThere(type, message, flag)) return -1;
+        return writeCommMessageOverrwriteLesserPriorityMessageUsingQueue(type, loc, flag);
+    }
+
+
     /** Writes to the communication channels (not Rubble or archon or various bot count channels). This searches for an empty channel in which it can write the message. If it can't find any empty channel, it then searches for a channel with a lesser priority than the current message (which it gets from the SHAFlag) to write the message.
      * @param type : either Comms.commType.LEAD or Comms.commType.COMBAT depending on whose (LEAD or COMBAT) channels need to be written into.
      * @param loc : the location that you want to write into a communication channel. If you want to send an int message there's another overloaded function with the same name that accepts int as input.
@@ -416,7 +479,7 @@ public class Comms extends Util{
      * **/
     public static int writeCommMessage(commType type, MapLocation loc, SHAFlag flag) throws GameActionException{
         int message = intFromMapLocation(loc);
-        if (checkIfMessegeThere(type, message, flag)) return -1;
+        if (checkIfMessageThere(type, message, flag)) return -1;
         int channel = getCommChannel(type);
         if (channel == -1) channel = getCommChannelOfLesserPriority(type, flag);
         // if (channel == 65) return channel;
@@ -479,7 +542,7 @@ public class Comms extends Util{
     }
     
 
-    public static boolean checkIfMessegeThere(commType type, int givenMessage, SHAFlag flag) throws GameActionException{
+    public static boolean checkIfMessageThere(commType type, int givenMessage, SHAFlag flag) throws GameActionException{
         for (int i = type.commChannelStart; i < type.commChannelStop; ++i){
             int message = rc.readSharedArray(i);
             if (readSHAFlagFromMessage(message) == flag && (message >> 4) == givenMessage) return true;

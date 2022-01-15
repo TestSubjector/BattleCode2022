@@ -40,7 +40,7 @@ public class BotMiner extends Explore{
 
     public static void setDepleteMineRadius(){
         // TODO: Tune this fraction
-        DEPLETE_MINE_RADIUS_LIMIT = (Math.min(MAP_WIDTH, MAP_HEIGHT) * 3)/7;
+        DEPLETE_MINE_RADIUS_LIMIT = (int)(((double)Math.min(MAP_WIDTH, MAP_HEIGHT) * 3.0d)/7.0d);
         DEPLETE_MINE_RADIUS_LIMIT *= DEPLETE_MINE_RADIUS_LIMIT;
     }
 
@@ -77,6 +77,7 @@ public class BotMiner extends Explore{
         minerComms();
         updateVision();
         depleteMine = checkIfEnemyArchonInVision();
+        // depleteMine = (checkIfEnemyArchonInVision() || checkIfToDepleteMine());
         // depleteMine = (checkIfToDepleteMine() || checkIfEnemyArchonInVision());
         if (!isSafeToMine(currentLocation)){
             isFleeing = true;
@@ -85,16 +86,24 @@ public class BotMiner extends Explore{
     }
 
 
-    public static boolean checkIfEnemyArchonInVision(){
+    public static boolean checkIfEnemyArchonInVision() throws GameActionException{
         for (RobotInfo bot : visibleEnemies){
-            if (bot.type == RobotType.ARCHON)
+            if (bot.type == RobotType.ARCHON){
+                Comms.writeCommMessageOverrwriteLesserPriorityMessageUsingQueue(Comms.commType.COMBAT, bot.getLocation(), Comms.SHAFlag.CONFIRMED_ENEMY_ARCHON_LOCATION);
+                // Comms.writeCommMessageUsingQueueWithoutRedundancy(Comms.commType.COMBAT, bot.getLocation(), Comms.SHAFlag.CONFIRMED_ENEMY_ARCHON_LOCATION);
                 return true;
+            }
         }
         return false;
     }
 
 
     public static boolean checkIfToDepleteMine() throws GameActionException{
+        // for (int i = Comms.CHANNEL_ARCHON_START + 1; i < Comms.channelArchonStop; i += 4){
+        //     MapLocation loc = Comms.readLocationFromMessage(rc.readSharedArray(i));
+        //     if (loc.distanceSquaredTo(currentLocation) <= DEPLETE_MINE_RADIUS_LIMIT) return true;
+        // }
+        // return false;
         for (int i = Comms.CHANNEL_ARCHON_START; i < Comms.channelArchonStop; i += 4){
             MapLocation loc = Comms.readLocationFromMessage(rc.readSharedArray(i));
             if (loc.distanceSquaredTo(currentLocation) <= DEPLETE_MINE_RADIUS_LIMIT) return false;
