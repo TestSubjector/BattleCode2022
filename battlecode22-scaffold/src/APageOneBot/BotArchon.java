@@ -279,7 +279,9 @@ public class BotArchon extends Util{
 
     private static void shouldFlee(){
         // You have more enemies attacking you than friends that could come save you and you are not the main producer Archon
-        if (CombatUtil.militaryCount(inRangeEnemies) > CombatUtil.militaryCount(visibleAllies) && commID > 0 && turnsWaitingToBuild > 0)
+        int enemyMilitaryCount = CombatUtil.militaryCount(inRangeEnemies);
+        if( enemyMilitaryCount > 2 && rc.getHealth() < 2.0/3.0 * rc.getType().getMaxHealth(rc.getLevel()))
+        if (enemyMilitaryCount > CombatUtil.militaryCount(visibleAllies) && archonCount !=0 && turnsWaitingToBuild > 0)
             fleeIndex++;
         else fleeIndex = 0;
     }
@@ -288,7 +290,7 @@ public class BotArchon extends Util{
         if (fleeIndex > 5 && rc.getMode()!= RobotMode.PORTABLE && rc.canTransform()) {
             if (fleeLocation == null) { 
                 fleeLocation = getClosestArchonLocation(true);
-                if (!rc.canSenseLocation(fleeLocation)) rc.transform();
+                if (fleeLocation!= null && !rc.canSenseLocation(fleeLocation)) rc.transform();
                 else fleeLocation = null;
             }
         }
@@ -299,7 +301,9 @@ public class BotArchon extends Util{
                 rc.transform(); // TODO - Doesn't account for Rubble
                 fleeLocation = null;
             }
-            if (fleeLocation != null) BFS.move(fleeLocation);
+            if (fleeLocation != null) {  
+                Movement.goToDirect(fleeLocation);
+            }
         }
     }
 
@@ -360,4 +364,3 @@ public class BotArchon extends Util{
     }
 
 }
-
