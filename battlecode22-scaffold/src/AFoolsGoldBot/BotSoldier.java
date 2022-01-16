@@ -27,17 +27,6 @@ public class BotSoldier extends CombatUtil{
         inRangeEnemies = rc.senseNearbyRobots(SOLDIER_ACTION_RADIUS, ENEMY_TEAM);
     }
 
-    // private static void detectIfAttackTargetIsGone() throws GameActionException {
-	// 	if (attackTarget != null) {
-	// 		if (currentLocation.distanceSquaredTo(attackTarget) <= 10) {
-	// 		    RobotInfo targetInfo = rc.senseRobotAtLocation(attackTarget);
-	// 			if (targetInfo.ID != attackTarget) {
-	// 				attackTarget = null;
-	// 			}
-	// 		}
-	// 	}
-	// }
-
     // TODO: Sense rubble at their location and factor that in to find more dangerous unit
     private static double getEnemyScore(RobotInfo enemyUnit) throws GameActionException{
         RobotType enemyType = enemyUnit.type;
@@ -194,7 +183,8 @@ public class BotSoldier extends CombatUtil{
 						closestDistSq = distSq;
 						closestHostileThatAttacksUs = hostile;
 					}
-					numHostilesThatAttackUs += 1;
+                    if (hostile.getType() == RobotType.ARCHON) numHostilesThatAttackUs += 3;
+                    else numHostilesThatAttackUs += 1;
 				}
 			}
 		}
@@ -209,7 +199,7 @@ public class BotSoldier extends CombatUtil{
 		}
 
         // TODO: Vision, action or 13?
-		RobotInfo[] nearbyAllies = rc.senseNearbyRobots(closestHostileThatAttacksUs.location, SOLDIER_VISION_RADIUS, MY_TEAM);
+		RobotInfo[] nearbyAllies = rc.senseNearbyRobots(closestHostileThatAttacksUs.location, SOLDIER_ACTION_RADIUS, MY_TEAM);
 		for (RobotInfo ally : nearbyAllies) {
 			if (ally.type.canAttack()) {
 				if (ally.location.distanceSquaredTo(closestHostileThatAttacksUs.location)
@@ -383,7 +373,7 @@ public class BotSoldier extends CombatUtil{
         soldierComms(); // 300 Bytecodes
         // TODO: Combat simulator for soldiers, sense all rubble in vision for 1v1 or 1vMany combat
         updateVision();
-        // checkIfEnemyArchonInVision();
+        checkIfEnemyArchonInVision();
         // simpleAttack();
         manageHealingState();
         // detectIfAttackTargetIsGone();
