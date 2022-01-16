@@ -77,8 +77,10 @@ public class BotMiner extends Explore{
         isFleeing = false;
         minerComms();
         updateVision();
-        depleteMine = checkIfEnemyArchonInVision();
-        // depleteMine = (checkIfEnemyArchonInVision() || checkIfToDepleteMine());
+        if (BotArchon.SMALL_MAP)
+            depleteMine = checkIfEnemyArchonInVision();
+        else
+            depleteMine = (checkIfEnemyArchonInVision() || checkIfToDepleteMine());
         // depleteMine = (checkIfToDepleteMine() || checkIfEnemyArchonInVision());
         if (!isSafeToMine(currentLocation)){
             isFleeing = true;
@@ -100,19 +102,22 @@ public class BotMiner extends Explore{
 
 
     public static boolean checkIfToDepleteMine() throws GameActionException{
-        int add;
-        if (DEPLETE_FROM_ENEMY_LOCATIONS) add = 1;
-        else add = 0;
-        for (int i = Comms.CHANNEL_ARCHON_START + add; i < Comms.channelArchonStop; i += 4){
-            MapLocation loc = Comms.readLocationFromMessage(rc.readSharedArray(i));
-            if (loc.distanceSquaredTo(currentLocation) <= DEPLETE_MINE_RADIUS_LIMIT) return DEPLETE_FROM_ENEMY_LOCATIONS;
+        for (int i = Comms.CHANNEL_ARCHON_START; i < Comms.channelArchonStop; i += 4){
+            MapLocation alliedLoc = Comms.readLocationFromMessage(rc.readSharedArray(i));
+            for (int j = Comms.CHANNEL_ARCHON_START + 1; j < Comms.channelArchonStop; j += 4){
+                MapLocation enemyLoc = Comms.readLocationFromMessage(rc.readSharedArray(j));
+                if ((rc.getLocation().distanceSquaredTo(enemyLoc)) >= (int)(((double)rc.getLocation().distanceSquaredTo(alliedLoc)) / 1.30d)) return false;
+            }
         }
-        return !DEPLETE_FROM_ENEMY_LOCATIONS;
-        // for (int i = Comms.CHANNEL_ARCHON_START; i < Comms.channelArchonStop; i += 4){
+        return true;
+        // int add;
+        // if (DEPLETE_FROM_ENEMY_LOCATIONS) add = 1;
+        // else add = 0;
+        // for (int i = Comms.CHANNEL_ARCHON_START + add; i < Comms.channelArchonStop; i += 4){
         //     MapLocation loc = Comms.readLocationFromMessage(rc.readSharedArray(i));
-        //     if (loc.distanceSquaredTo(currentLocation) <= DEPLETE_MINE_RADIUS_LIMIT) return false;
+        //     if (loc.distanceSquaredTo(currentLocation) <= DEPLETE_MINE_RADIUS_LIMIT) return DEPLETE_FROM_ENEMY_LOCATIONS;
         // }
-        // return true;
+        // return !DEPLETE_FROM_ENEMY_LOCATIONS;
     }
 
 
@@ -615,3 +620,4 @@ public class BotMiner extends Explore{
     }
 
 }
+

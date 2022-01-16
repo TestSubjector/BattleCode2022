@@ -5,90 +5,90 @@ import battlecode.common.*;
 public class Movement extends Util{
     
     public static boolean tryMoveInDirection(MapLocation dest) throws GameActionException {
-		try{
+        try{
             if(!rc.isMovementReady()) return false;
             MapLocation lCR = currentLocation;
-    	    if (lCR.equals(dest)) return false;
+            if (lCR.equals(dest)) return false;
             Direction forward = lCR.directionTo(dest);
             MapLocation dirLoc = null;
             Direction[] dirs;
-    	    if (preferLeft(dest)) {
-    	    	dirs = new Direction[] { forward, forward.rotateLeft(), forward.rotateRight()};			
-    	    } else {
-    	    	dirs = new Direction[] { forward, forward.rotateRight(), forward.rotateLeft()};
-    	    }
-    	    Direction bestDir = null;
-    	    double bestRubble = rc.senseRubble(rc.getLocation());
+            if (preferLeft(dest)) {
+                dirs = new Direction[] { forward, forward.rotateLeft(), forward.rotateRight()};         
+            } else {
+                dirs = new Direction[] { forward, forward.rotateRight(), forward.rotateLeft()};
+            }
+            Direction bestDir = null;
+            double bestRubble = rc.senseRubble(rc.getLocation());
             int currentDistSq = lCR.distanceSquaredTo(dest);
-    	    for (Direction direction : dirs) {
-    	    	dirLoc = lCR.add(direction);
+            for (Direction direction : dirs) {
+                dirLoc = lCR.add(direction);
                 if (!rc.onTheMap(dirLoc)) continue; // The location will always be in vision
                 if (bestDir != null && dirLoc.distanceSquaredTo(dest) > currentDistSq) continue;
-    	    	double rubble = rc.senseRubble(dirLoc);
+                double rubble = rc.senseRubble(dirLoc);
                 if ((rubble < bestRubble || rubble == 0) && rc.canMove(direction)) {
                     bestRubble = rubble;
                     bestDir = direction;
                 }
-    	    }
+            }
         
-    	    if (bestDir != null) {
-    	    	rc.move(bestDir);
+            if (bestDir != null) {
+                rc.move(bestDir);
                 currentLocation = rc.getLocation();
-    	    	return true;
-    	    }
-    	    return false;
+                return true;
+            }
+            return false;
         }
         catch (Exception e) {
             System.out.println("Exception in tryMoveInDirection: " + e.getMessage());
             e.printStackTrace();
             return false;
         }
-	}
+    }
 
     // Takes around 400 bytecodes to run 
     public static boolean goToDirect(MapLocation dest) throws GameActionException {
         try{
             MapLocation lCR = currentLocation;
             if(!rc.isMovementReady()) return false;
-    	    if (lCR.equals(dest)) return false;
+            if (lCR.equals(dest)) return false;
             Direction forward = lCR.directionTo(dest);
-    	    if (lCR.isAdjacentTo(dest)) {
-    	    	if (rc.canMove(forward)) {
-    	    		rc.move(forward);
+            if (lCR.isAdjacentTo(dest)) {
+                if (rc.canMove(forward)) {
+                    rc.move(forward);
                     currentLocation = rc.getLocation();
-    	    		return true;
-    	    	}
-    	    }	
+                    return true;
+                }
+            }   
             
-    	    Direction[] dirs;
-    	    if (preferLeft(dest)) {
-    	    	dirs = new Direction[] { forward, forward.rotateLeft(), forward.rotateRight(),
-    	    			forward.rotateLeft().rotateLeft(), forward.rotateRight().rotateRight()};			
-    	    } else {
-    	    	dirs = new Direction[] { forward, forward.rotateRight(), forward.rotateLeft(), 
-    	    			forward.rotateRight().rotateRight(), forward.rotateLeft().rotateLeft()};
-    	    }
+            Direction[] dirs;
+            if (preferLeft(dest)) {
+                dirs = new Direction[] { forward, forward.rotateLeft(), forward.rotateRight(),
+                        forward.rotateLeft().rotateLeft(), forward.rotateRight().rotateRight()};            
+            } else {
+                dirs = new Direction[] { forward, forward.rotateRight(), forward.rotateLeft(), 
+                        forward.rotateRight().rotateRight(), forward.rotateLeft().rotateLeft()};
+            }
         
-    	    Direction bestDir = null;
-    	    double bestRubble = MAX_RUBBLE+1;
-    	    int currentDistSq = lCR.distanceSquaredTo(dest);
-    	    for (Direction dir : dirs) {
-    	    	MapLocation dirLoc = lCR.add(dir);
+            Direction bestDir = null;
+            double bestRubble = MAX_RUBBLE+1;
+            int currentDistSq = lCR.distanceSquaredTo(dest);
+            for (Direction dir : dirs) {
+                MapLocation dirLoc = lCR.add(dir);
                 if (!rc.onTheMap(dirLoc)) continue; // The 5 directions around you are in vision
-    	    	if (bestDir!= null && dirLoc.distanceSquaredTo(dest) > currentDistSq) continue;
-    	    	double rubble = rc.senseRubble(dirLoc);
+                if (bestDir!= null && dirLoc.distanceSquaredTo(dest) > currentDistSq) continue;
+                double rubble = rc.senseRubble(dirLoc);
                 if (rubble < bestRubble && rc.canMove(dir)) {
                     bestRubble = rubble;
                     bestDir = dir;
                 }
-    	    }
+            }
         
-    	    if (bestDir != null) {
-    	    	rc.move(bestDir);
+            if (bestDir != null) {
+                rc.move(bestDir);
                 currentLocation = rc.getLocation();
-    	    	return true;
-    	    }
-    	    return false;
+                return true;
+            }
+            return false;
         }
         catch (Exception e) {
             System.out.println("Exception in goToDirect: " + e.getMessage());
@@ -97,10 +97,10 @@ public class Movement extends Util{
         }
     }
 
-	public static boolean moveToDest(MapLocation dest) throws GameActionException{
-		return goToDirect(dest);
-	}
-	
+    public static boolean moveToDest(MapLocation dest) throws GameActionException{
+        return goToDirect(dest);
+    }
+    
     public static boolean preferLeft(MapLocation dest) {
         Direction toDest = currentLocation.directionTo(dest);
         MapLocation leftLoc = currentLocation.add(toDest.rotateLeft());
@@ -118,7 +118,7 @@ public class Movement extends Util{
         }
     }
 
-	
+    
     public static MapLocation moveToLattice(int minLatticeDist, int weights){
         try { 
             MapLocation lCurrentLocation = currentLocation;
@@ -141,6 +141,7 @@ public class Movement extends Util{
                 if (Clock.getBytecodesLeft() < 2000) return bestLoc;
                 lCurrentLocation = lCurrentLocation.add(droidVisionDirs[i]);
                 if ((lCurrentLocation.x + lCurrentLocation.y) % 2 != congruence) continue;
+                if (!rc.canSenseLocation(lCurrentLocation)) continue;
                 if (!rc.onTheMap(lCurrentLocation)) continue;
                 if (rc.isLocationOccupied(lCurrentLocation)) continue;
                 if (UNIT_TYPE == RobotType.MINER && !BotMiner.commitSuicide && rc.senseLead(lCurrentLocation) == 0) continue;
@@ -164,53 +165,54 @@ public class Movement extends Util{
     }
     
     public static boolean retreatIfNecessary(RobotInfo[] visibleFriends, RobotInfo[] visibleHostiles) throws GameActionException {
-		if (visibleHostiles.length == 0 //|| visibleFriends.length >= visibleHostiles.length
+        if (visibleHostiles.length == 0 //|| visibleFriends.length >= visibleHostiles.length
         ) return false;
-		
-		boolean mustRetreat = false;
-		int bestClosestDistSq = Integer.MAX_VALUE;
+        
+        boolean mustRetreat = false;
+        int bestClosestDistSq = Integer.MAX_VALUE;
         MapLocation lCR = currentLocation;
-		for (RobotInfo hostile : visibleHostiles) {			
+        for (RobotInfo hostile : visibleHostiles) {         
             //Sage killing one miner is worth for sage action cooldown
-			if (hostile.type.canAttack() && hostile.type != RobotType.SAGE) {
-				int distSq = lCR.distanceSquaredTo(hostile.location);
-				if (distSq <= hostile.type.actionRadiusSquared) {
-					mustRetreat = true;
-					if (distSq < bestClosestDistSq) {
-						bestClosestDistSq = distSq;
-					}
-				}
-			}
-		}
-		if (!mustRetreat) return false;
-		
-		Direction bestDir = null;
-		Direction[] dirs = Direction.values();
-		for (int i = dirs.length; i--> 0;) {
-			Direction dir = dirs[i];
-			if (!rc.canMove(dir)) continue;
-			MapLocation dirLoc = lCR.add(dir);
-			int dirClosestDistSq = Integer.MAX_VALUE;
-			for (RobotInfo hostile : visibleHostiles) {
-				if (hostile.type.canAttack()) {
-					int distSq = dirLoc.distanceSquaredTo(hostile.location);
-					if (distSq < dirClosestDistSq) {
-						dirClosestDistSq = distSq;						
-						if (dirClosestDistSq <= bestClosestDistSq) break;
-					}
-				}
-			}
-			if (dirClosestDistSq > bestClosestDistSq) {
-				bestClosestDistSq = dirClosestDistSq;
-				bestDir = dir;
-			}
-		}
-		
-		if (bestDir != null) {
-			rc.move(bestDir);
+            if (hostile.type.canAttack() && hostile.type != RobotType.SAGE) {
+                int distSq = lCR.distanceSquaredTo(hostile.location);
+                if (distSq <= hostile.type.actionRadiusSquared) {
+                    mustRetreat = true;
+                    if (distSq < bestClosestDistSq) {
+                        bestClosestDistSq = distSq;
+                    }
+                }
+            }
+        }
+        if (!mustRetreat) return false;
+        
+        Direction bestDir = null;
+        Direction[] dirs = Direction.values();
+        for (int i = dirs.length; i--> 0;) {
+            Direction dir = dirs[i];
+            if (!rc.canMove(dir)) continue;
+            MapLocation dirLoc = lCR.add(dir);
+            int dirClosestDistSq = Integer.MAX_VALUE;
+            for (RobotInfo hostile : visibleHostiles) {
+                if (hostile.type.canAttack()) {
+                    int distSq = dirLoc.distanceSquaredTo(hostile.location);
+                    if (distSq < dirClosestDistSq) {
+                        dirClosestDistSq = distSq;                      
+                        if (dirClosestDistSq <= bestClosestDistSq) break;
+                    }
+                }
+            }
+            if (dirClosestDistSq > bestClosestDistSq) {
+                bestClosestDistSq = dirClosestDistSq;
+                bestDir = dir;
+            }
+        }
+        
+        if (bestDir != null) {
+            rc.move(bestDir);
             currentLocation = rc.getLocation();
-			return true;
-		}
-		return false;
-	}
+            return true;
+        }
+        return false;
+    }
 }
+
