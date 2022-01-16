@@ -1,4 +1,4 @@
-package APageOneBot;
+package OPageOneBot;
 
 import battlecode.common.*;
 
@@ -110,7 +110,7 @@ public class BotArchon extends Util{
         Direction[] biasedDirections = new Direction[] {biasDir, biasDir.rotateLeft(), biasDir.rotateRight(), biasDir.rotateLeft().rotateLeft(), biasDir.rotateRight().rotateRight(), biasDir.rotateLeft().rotateLeft().rotateLeft(), biasDir.rotateRight().rotateRight().rotateRight(), biasDir.opposite()};
         for (Direction dir : biasedDirections){
             MapLocation loc = currentLocation.add(dir);
-            if (!dirs[dir.ordinal()] || !rc.onTheMap(loc) || rc.canSenseRobotAtLocation(loc)) continue;
+            if (!dirs[dir.ordinal()] || !rc.onTheMap(loc) || rc.isLocationOccupied(loc)) continue;
             int rubbleVal = rc.senseRubble(loc);
             if (rubbleVal < val){
                 bestSpawnDir = dir;

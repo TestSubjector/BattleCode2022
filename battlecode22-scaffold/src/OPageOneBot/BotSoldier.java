@@ -1,4 +1,4 @@
-package APageOneBot;
+package OPageOneBot;
 
 import battlecode.common.*;
 
@@ -317,7 +317,6 @@ public class BotSoldier extends CombatUtil{
     public static boolean sendCombatLocation(RobotInfo[] visibleHostiles) throws GameActionException{
         if (visibleHostiles.length != 0 && Clock.getBytecodesLeft() > 600){
             RobotInfo closestHostile = getClosestUnitWithCombatPriority(visibleHostiles);
-            currentDestination = closestHostile.location;
             if (closestHostile != null)
 				Comms.writeCommMessageOverrwriteLesserPriorityMessageUsingQueue(Comms.commType.COMBAT, closestHostile.getLocation(), Comms.SHAFlag.COMBAT_LOCATION);
             return true;
@@ -327,8 +326,8 @@ public class BotSoldier extends CombatUtil{
 
     // If our current destination has no enemies left, move to the nearest new location with combat
     public static boolean findNewCombatLocation() throws GameActionException{
-        if (visibleEnemies.length == 0 && currentLocation.distanceSquaredTo(currentDestination) <= SOLDIER_VISION_RADIUS){
-            MapLocation combatLocation = Comms.findNearestLocationOfThisTypeOutOfVision(rc.getLocation(), Comms.commType.COMBAT, Comms.SHAFlag.COMBAT_LOCATION);
+        if (visibleEnemies.length == 0 && currentLocation.distanceSquaredTo(currentDestination) <= SOLDIER_ACTION_RADIUS){
+            MapLocation combatLocation = Comms.findNearestLocationOfThisType(rc.getLocation(), Comms.commType.COMBAT, Comms.SHAFlag.COMBAT_LOCATION);
             if (combatLocation != null){
                 currentDestination = combatLocation;
             }

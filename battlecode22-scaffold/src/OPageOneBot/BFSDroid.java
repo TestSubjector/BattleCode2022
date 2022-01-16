@@ -1,4 +1,4 @@
-package APageOneBot;
+package OPageOneBot;
 
 import battlecode.common.Direction;
 import battlecode.common.MapLocation;
@@ -436,7 +436,7 @@ public class BFSDroid extends Globals {
 
         try {
             if (rc.onTheMap(l71)) {
-                if (!rc.canSenseRobotAtLocation(l71)) {
+                if (!rc.isLocationOccupied(l71)) {
                     p71 = 10 + rc.senseRubble(l71);
                     if (v71 > v84 + p71) {
                         v71 = v84 + p71;
@@ -445,7 +445,7 @@ public class BFSDroid extends Globals {
                 }
             }
             if (rc.onTheMap(l83)) {
-                if (!rc.canSenseRobotAtLocation(l83)) {
+                if (!rc.isLocationOccupied(l83)) {
                     p83 = 10 + rc.senseRubble(l83);
                     if (v83 > v84 + p83) {
                         v83 = v84 + p83;
@@ -458,7 +458,7 @@ public class BFSDroid extends Globals {
                 }
             }
             if (rc.onTheMap(l85)) {
-                if (!rc.canSenseRobotAtLocation(l85)) {
+                if (!rc.isLocationOccupied(l85)) {
                     p85 = 10 + rc.senseRubble(l85);
                     if (v85 > v84 + p85) {
                         v85 = v84 + p85;
@@ -471,7 +471,7 @@ public class BFSDroid extends Globals {
                 }
             }
             if (rc.onTheMap(l97)) {
-                if (!rc.canSenseRobotAtLocation(l97)) {
+                if (!rc.isLocationOccupied(l97)) {
                     p97 = 10 + rc.senseRubble(l97);
                     if (v97 > v84 + p97) {
                         v97 = v84 + p97;
@@ -488,7 +488,7 @@ public class BFSDroid extends Globals {
                 }
             }
             if (rc.onTheMap(l70)) {
-                if (!rc.canSenseRobotAtLocation(l70)) {
+                if (!rc.isLocationOccupied(l70)) {
                     p70 = 10 + rc.senseRubble(l70);
                     if (v70 > v84 + p70) {
                         v70 = v84 + p70;
@@ -505,7 +505,7 @@ public class BFSDroid extends Globals {
                 }
             }
             if (rc.onTheMap(l72)) {
-                if (!rc.canSenseRobotAtLocation(l72)) {
+                if (!rc.isLocationOccupied(l72)) {
                     p72 = 10 + rc.senseRubble(l72);
                     if (v72 > v84 + p72) {
                         v72 = v84 + p72;
@@ -522,7 +522,7 @@ public class BFSDroid extends Globals {
                 }
             }
             if (rc.onTheMap(l96)) {
-                if (!rc.canSenseRobotAtLocation(l96)) {
+                if (!rc.isLocationOccupied(l96)) {
                     p96 = 10 + rc.senseRubble(l96);
                     if (v96 > v84 + p96) {
                         v96 = v84 + p96;
@@ -539,7 +539,7 @@ public class BFSDroid extends Globals {
                 }
             }
             if (rc.onTheMap(l98)) {
-                if (!rc.canSenseRobotAtLocation(l98)) {
+                if (!rc.isLocationOccupied(l98)) {
                     p98 = 10 + rc.senseRubble(l98);
                     if (v98 > v84 + p98) {
                         v98 = v84 + p98;
