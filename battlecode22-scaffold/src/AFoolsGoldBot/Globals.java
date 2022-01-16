@@ -118,6 +118,7 @@ public class Globals {
     public static int MAP_SIZE;
     public static boolean isMapSquare = true;
     public static MapLocation CENTER_OF_THE_MAP;
+    public static boolean SMALL_MAP;
     public static int mapSymmetry = 0; // 0 = vertical symmetry, 1 = horizontal symmetry, 2 = rotational symmetry
     public static int currentLeadReserves;
     // TODO: Flag for shape of map (square, rectangle, very rectangle(thin))
@@ -247,7 +248,7 @@ public class Globals {
         ENEMY_TEAM = MY_TEAM.opponent();
         START_LOCATION = rc.getLocation();
         ID = rc.getID();
-
+        SMALL_MAP = ((MAP_HEIGHT*MAP_WIDTH) < 1300);
         // For bytecode comparison of functions
         bytecodediff = Math.max(bytecodediff, 0);
 
@@ -274,16 +275,6 @@ public class Globals {
         isMapSquare = (MAP_WIDTH == MAP_HEIGHT);
         rememberedEnemyArchonLocations = new MapLocation[4];
         updateEnemyArchonLocation();
-        if(BIRTH_ROUND % 3 == 0) {
-            currentDestination = ratioPointBetweenTwoMapLocations(parentArchonLocation, rememberedEnemyArchonLocations[0], 0.15);
-        } 
-        else if (BIRTH_ROUND % 3 == 1){
-            currentDestination = ratioPointBetweenTwoMapLocations(parentArchonLocation, rememberedEnemyArchonLocations[1], 0.15);
-        }
-        else{
-            currentDestination = ratioPointBetweenTwoMapLocations(parentArchonLocation, rememberedEnemyArchonLocations[2], 0.15);
-        }
-        
     }
 
     public static void getParentArchonLocation() throws GameActionException{
@@ -329,9 +320,9 @@ public class Globals {
 
     // This function can error when we suicide Archon after creating a unit
     public static void updateEnemyArchonLocation() throws NullPointerException {
-        rememberedEnemyArchonLocations[0] = new MapLocation(MAP_WIDTH - parentArchonLocation.x, parentArchonLocation.y);
-        rememberedEnemyArchonLocations[1] = new MapLocation(parentArchonLocation.x, MAP_HEIGHT - parentArchonLocation.y);
-        rememberedEnemyArchonLocations[2] = new MapLocation(MAP_WIDTH - parentArchonLocation.x, MAP_HEIGHT - parentArchonLocation.y);
+        rememberedEnemyArchonLocations[0] = new MapLocation(MAP_WIDTH - parentArchonLocation.x -1, parentArchonLocation.y);
+        rememberedEnemyArchonLocations[1] = new MapLocation(parentArchonLocation.x, MAP_HEIGHT - parentArchonLocation.y - 1);
+        rememberedEnemyArchonLocations[2] = new MapLocation(MAP_WIDTH - parentArchonLocation.x -1, MAP_HEIGHT - parentArchonLocation.y - 1);
     }
 
     public static MapLocation ratioPointBetweenTwoMapLocations(MapLocation src, MapLocation dest, double ratio){

@@ -33,8 +33,6 @@ public class BotArchon extends Util{
     private static int fleeIndex;
     private static MapLocation fleeLocation;
     private static int enemyArchonQueueHead;
-    public static final boolean SMALL_MAP = ((MAP_HEIGHT*MAP_WIDTH) < 1300);
-
 
     // This will give each Archon which number it is in the queue
     public static void initBotArchon() throws GameActionException {    
@@ -281,7 +279,7 @@ public class BotArchon extends Util{
         // You have more enemies attacking you than friends that could come save you and you are not the main producer Archon
         int enemyMilitaryCount = CombatUtil.militaryCount(inRangeEnemies);
         if( enemyMilitaryCount > 1 && rc.getHealth() < 2.0/3.0 * rc.getType().getMaxHealth(rc.getLevel()))
-        if (enemyMilitaryCount > CombatUtil.militaryCount(visibleAllies) && archonCount !=0 && turnsWaitingToBuild > 0) // TODO: Make soldiers
+        if (enemyMilitaryCount > CombatUtil.militaryCount(visibleAllies) && archonCount > 1 && turnsWaitingToBuild > 0) // TODO: Make soldiers
             fleeIndex++;
         else fleeIndex = 0;
     }
