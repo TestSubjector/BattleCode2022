@@ -326,7 +326,7 @@ public class BotArchon extends Util{
 
     private static void incrementHead(){
         enemyArchonQueueHead++;
-        enemyArchonQueueHead = enemyArchonQueueHead % archonCount;
+        enemyArchonQueueHead = (enemyArchonQueueHead % archonCount);
     }
 
 
@@ -335,7 +335,7 @@ public class BotArchon extends Util{
         MapLocation[] enemyArchonLocations = Comms.findLocationsOfThisTypeAndWipeChannels(Comms.commType.COMBAT, Comms.SHAFlag.CONFIRMED_ENEMY_ARCHON_LOCATION);
         if (enemyArchonLocations.length == 0) return;
         for (MapLocation enemyArchon : enemyArchonLocations){
-            Comms.writeSHAFlagMessage(enemyArchon, Comms.SHAFlag.CONFIRMED_ENEMY_ARCHON_LOCATION, Comms.CHANNEL_ARCHON_START + enemyArchonQueueHead * 4 + 1);
+            Comms.writeSHAFlagMessage(enemyArchon, Comms.SHAFlag.CONFIRMED_ENEMY_ARCHON_LOCATION, Comms.CHANNEL_ARCHON_START + (enemyArchonQueueHead * 4) + 1);
             // rc.writeSharedArray(, ;);
             incrementHead();
         }

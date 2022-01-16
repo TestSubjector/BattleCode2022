@@ -398,6 +398,7 @@ public class BotSoldier extends CombatUtil{
                 chooseTargetAndAttack(inRangeEnemies);
             }
         }
+		// BFS.move(BotMiner.explore());
         // BotMiner.surveyForOpenMiningLocationsNearby(); // TODO: Reorganise to sprint
     }
 }

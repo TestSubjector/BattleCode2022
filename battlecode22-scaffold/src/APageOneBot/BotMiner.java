@@ -54,7 +54,7 @@ public class BotMiner extends Explore{
         lowHealthStratArchon = null;
         // System.out.println("Low Health Strategy Trigger value: " + LOW_HEALTH_STRAT_TRIGGER);
         // System.out.println("Low Health Strategy Trigger releaser: " + LOW_HEALTH_STRAT_RELEASER);
-        // adjacentLocations = rc.getAllLocationsWithinRadiusSquared(currentLocation, MINER_VISION_RADIUS);
+        // adjacentLocations = rc.getAllLocationsWithinRadiusSquared(rc.getLocation(), MINER_VISION_RADIUS);
         // explore();
     }
 
@@ -82,7 +82,7 @@ public class BotMiner extends Explore{
         else
             depleteMine = (checkIfEnemyArchonInVision() || checkIfToDepleteMine());
         // depleteMine = (checkIfToDepleteMine() || checkIfEnemyArchonInVision());
-        if (!isSafeToMine(currentLocation)){
+        if (!isSafeToMine(rc.getLocation())){
             isFleeing = true;
             isFleeing = BotSoldier.tryToBackUpToMaintainMaxRange(visibleEnemies);
         }
@@ -115,7 +115,7 @@ public class BotMiner extends Explore{
         // else add = 0;
         // for (int i = Comms.CHANNEL_ARCHON_START + add; i < Comms.channelArchonStop; i += 4){
         //     MapLocation loc = Comms.readLocationFromMessage(rc.readSharedArray(i));
-        //     if (loc.distanceSquaredTo(currentLocation) <= DEPLETE_MINE_RADIUS_LIMIT) return DEPLETE_FROM_ENEMY_LOCATIONS;
+        //     if (loc.distanceSquaredTo(rc.getLocation()) <= DEPLETE_MINE_RADIUS_LIMIT) return DEPLETE_FROM_ENEMY_LOCATIONS;
         // }
         // return !DEPLETE_FROM_ENEMY_LOCATIONS;
     }
@@ -134,7 +134,7 @@ public class BotMiner extends Explore{
 
     public static void mine() throws GameActionException{
         if (!rc.isActionReady()) return;
-        MapLocation[] adjacentLocations = rc.getAllLocationsWithinRadiusSquared(currentLocation, 2);
+        MapLocation[] adjacentLocations = rc.getAllLocationsWithinRadiusSquared(rc.getLocation(), 2);
         for (MapLocation loc : adjacentLocations){
             while(rc.canMineGold(loc)){
                 isMinedThisTurn = true;
@@ -171,7 +171,7 @@ public class BotMiner extends Explore{
         double value = 0;
         for (MapLocation loc : locations){
             double curValue;
-            if (searchByDistance) curValue = -currentLocation.distanceSquaredTo(loc);
+            if (searchByDistance) curValue = -rc.getLocation().distanceSquaredTo(loc);
             else curValue = ((double)rc.senseGold(loc)) / ((double)rc.senseRubble(loc));
             if (opt == null || curValue > value){
                 opt = loc;
@@ -188,7 +188,7 @@ public class BotMiner extends Explore{
         double value = 0;
         for (MapLocation loc : locations){
             double curValue;
-            if (searchByDistance) curValue = -currentLocation.distanceSquaredTo(loc);
+            if (searchByDistance) curValue = -rc.getLocation().distanceSquaredTo(loc);
             else curValue = ((double)rc.senseGold(loc)) / ((double)rc.senseRubble(loc));;
             if (opt == null || curValue > value){
                 opt = loc;
@@ -213,8 +213,8 @@ public class BotMiner extends Explore{
         if (prolificMiningLocationsAtBirth){
             return Movement.moveToLattice(2, 0);
         }
-        if (rc.senseGold(currentLocation) > 0 || rc.senseLead(currentLocation) > 20){
-            return currentLocation;
+        if (rc.senseGold(rc.getLocation()) > 0 || rc.senseLead(rc.getLocation()) > 20){
+            return rc.getLocation();
         }
         if (countOfMinersInVicinity() > CROWD_LIMIT){ 
             tooCrowded = true;
@@ -239,7 +239,7 @@ public class BotMiner extends Explore{
             return;
         }
         // inPlaceForMining = false from now on: 
-        int curDist = currentLocation.distanceSquaredTo(miningLocation);
+        int curDist = rc.getLocation().distanceSquaredTo(miningLocation);
         if (curDist <= 2) { // Reached location
             inPlaceForMining = true;
             mine();
@@ -290,9 +290,9 @@ public class BotMiner extends Explore{
 
     public static boolean foundMiningLocationFromComms() throws GameActionException{
         if (!tooCrowded) 
-            miningLocation = Comms.findNearestLocationOfThisTypeAndWipeChannel(currentLocation, Comms.commType.LEAD, Comms.SHAFlag.LEAD_LOCATION);
+            miningLocation = Comms.findNearestLocationOfThisTypeAndWipeChannel(rc.getLocation(), Comms.commType.LEAD, Comms.SHAFlag.LEAD_LOCATION);
         else
-            miningLocation = Comms.findNearestLocationOfThisTypeOutOfVisionAndWipeChannel(currentLocation, Comms.commType.LEAD, Comms.SHAFlag.LEAD_LOCATION);
+            miningLocation = Comms.findNearestLocationOfThisTypeOutOfVisionAndWipeChannel(rc.getLocation(), Comms.commType.LEAD, Comms.SHAFlag.LEAD_LOCATION);
         if (miningLocation != null){
             // desperationIndex--;
             desperationIndex = 0;
@@ -325,7 +325,7 @@ public class BotMiner extends Explore{
         }
         miningLocation = findOpenMiningLocationNearby();
         if (miningLocation != null){
-            inPlaceForMining = (currentLocation.distanceSquaredTo(miningLocation) <= 2);
+            inPlaceForMining = (rc.getLocation().distanceSquaredTo(miningLocation) <= 2);
             return true;
         }
         return false;
@@ -338,7 +338,7 @@ public class BotMiner extends Explore{
 
 
     public static Direction findBiasDirection(){
-        return currentLocation.directionTo(CENTER_OF_THE_MAP);
+        return rc.getLocation().directionTo(CENTER_OF_THE_MAP);
     }
 
 
@@ -355,7 +355,7 @@ public class BotMiner extends Explore{
     public static void getExploreDir(){
         MapLocation closestArchon = getClosestArchonLocation();
         if (rc.canSenseLocation(closestArchon)) 
-            assignExplore3Dir(closestArchon.directionTo(currentLocation));
+            assignExplore3Dir(closestArchon.directionTo(rc.getLocation()));
         // else assignExplore3Dir(directions[(int)(Math.random()*8)]);
         else assignExplore3Dir(directions[Globals.rng.nextInt(8)]);
         // else{
@@ -371,7 +371,7 @@ public class BotMiner extends Explore{
             getExploreDir();
         return getExplore3Target();
 
-        // int cx = currentLocation.x, cy = currentLocation.y, px = closestArchon.x, py = closestArchon.y;
+        // int cx = rc.getLocation().x, cy = rc.getLocation().y, px = closestArchon.x, py = closestArchon.y;
         // int newX = Math.min(Math.max(2*cx - px, 0), MAP_WIDTH - 1), newY = Math.min(Math.max(2*cy - py, 0), MAP_HEIGHT-1);
         // return (new MapLocation(newX, newY));
     }
@@ -390,7 +390,7 @@ public class BotMiner extends Explore{
         
         if (!BFS.move(explore())) desperationIndex++;
         // if (!Movement.goToDirect(explore())) desperationIndex++;
-        // if (!Movement.goToDirect(currentLocation.add(persistingRandomMovement()))) desperationIndex++;
+        // if (!Movement.goToDirect(rc.getLocation().add(persistingRandomMovement()))) desperationIndex++;
         
         // The Final Option:
         // if (goAheadAndDie()) return;
@@ -413,7 +413,7 @@ public class BotMiner extends Explore{
         for (MapLocation loc : potentialMiningLocations){  // Team bias
             if (Clock.getBytecodesLeft() < 1200)
                 break;
-            if (currentLocation.distanceSquaredTo(loc) > 2 && goodMiningSpot(loc)){
+            if (rc.getLocation().distanceSquaredTo(loc) > 2 && goodMiningSpot(loc)){
                 Comms.writeCommMessageOverrwriteLesserPriorityMessageUsingQueue(Comms.commType.LEAD, loc, Comms.SHAFlag.LEAD_LOCATION);
             }
         }
@@ -446,7 +446,7 @@ public class BotMiner extends Explore{
             if (enemy.type.canAttack()
             //  || enemy.type == RobotType.LAUNCHER // Currently not needed, might be needed after buffing of watchtowers
              ) {
-                int distSq = currentLocation.distanceSquaredTo(enemy.location);
+                int distSq = rc.getLocation().distanceSquaredTo(enemy.location);
                 if (distSq < smallestDistSq) {
                     smallestDistSq = distSq;
                     nearestEnemy = enemy;
@@ -455,13 +455,13 @@ public class BotMiner extends Explore{
         }
         if (nearestEnemy == null) return;
 
-        Direction away = nearestEnemy.location.directionTo(currentLocation);
+        Direction away = nearestEnemy.location.directionTo(rc.getLocation());
         Direction[] dirs = new Direction[] { away, away.rotateLeft(), away.rotateRight(), away.rotateLeft().rotateLeft(), away.rotateRight().rotateRight() };
         double bestCost = Double.MAX_VALUE;
         Direction bestDir = null;
         for (Direction dir : dirs) {
             if (rc.canMove(dir)) {
-                MapLocation loc = currentLocation.add(dir);
+                MapLocation loc = rc.getLocation().add(dir);
                 int rubbleValue = rc.senseRubble(loc);
                 
                 if (bestCost >  rc.senseRubble(loc)){
@@ -483,14 +483,14 @@ public class BotMiner extends Explore{
         MapLocation[] nearbyLocations = rc.senseNearbyLocationsWithGold();
         if (nearbyLocations.length > 0){ 
             miningLocation = findOptimalLocationForMiningGold(nearbyLocations);
-            inPlaceForMining = (currentLocation.distanceSquaredTo(miningLocation) <= 2);
+            inPlaceForMining = (rc.getLocation().distanceSquaredTo(miningLocation) <= 2);
             return;
         }
         if (!depleteMine) nearbyLocations = rc.senseNearbyLocationsWithLead(MINER_VISION_RADIUS, 20);
         else nearbyLocations = rc.senseNearbyLocationsWithLead();
         if (nearbyLocations.length > 0){ 
             miningLocation = findOptimalLocationForMiningLead(nearbyLocations);
-            if (miningLocation != null) inPlaceForMining = (currentLocation.distanceSquaredTo(miningLocation) <= 2);
+            if (miningLocation != null) inPlaceForMining = (rc.getLocation().distanceSquaredTo(miningLocation) <= 2);
             else inPlaceForMining = false;
             return;
         }
@@ -500,7 +500,7 @@ public class BotMiner extends Explore{
     public static void moveIfNeeded() throws GameActionException{
         // int leadVal = -1;
         int rubbleVal = Integer.MAX_VALUE;
-        int homeRubbleVal = rc.senseRubble(currentLocation);
+        int homeRubbleVal = rc.senseRubble(rc.getLocation());
         MapLocation selectedLoc = null;
         MapLocation[] mineAdjacentLocations = rc.getAllLocationsWithinRadiusSquared(miningLocation, MINER_ACTION_RADIUS);
         for(MapLocation loc : mineAdjacentLocations){
@@ -515,7 +515,7 @@ public class BotMiner extends Explore{
         }
         Direction dir = null;
         if (selectedLoc != null){
-            dir = currentLocation.directionTo(selectedLoc);
+            dir = rc.getLocation().directionTo(selectedLoc);
             if (rc.canMove(dir)){
                 rc.move(dir);
                 // miningLocation = selectedLoc;
@@ -530,7 +530,7 @@ public class BotMiner extends Explore{
         if (isFleeing) return;
         opportunisticMining();
         if (inPlaceForMining){
-            // if (isSafeToMine(currentLocation))
+            // if (isSafeToMine(rc.getLocation()))
             moveIfNeeded();
             mine();
             // else runAway();
@@ -583,14 +583,14 @@ public class BotMiner extends Explore{
         }
         if (!lowHealthStratInPlay) return;
         if (lowHealthStratArchon == null){
-            System.out.println("Should never happen");
+            System.out.println("Warning, Should never happen");
             lowHealthStratArchon = getClosestArchonLocation();
         }
         if (lowHealthStratArchon == null){
-            System.out.println("Still happening?!!");
+            System.out.println("Warning, Still happening?!!");
             return;
         }
-        if (currentLocation.distanceSquaredTo(lowHealthStratArchon) > ARCHON_ACTION_RADIUS){
+        if (rc.getLocation().distanceSquaredTo(lowHealthStratArchon) > ARCHON_ACTION_RADIUS){
             BFS.move(lowHealthStratArchon);
             return;
         }

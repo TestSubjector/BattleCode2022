@@ -90,7 +90,7 @@ public class Util extends Globals {
 
     // Bytecode Cost: 50-60
     public static MapLocation getClosestArchonLocation(){
-        int minDistance = MAX_DISTANCE;
+        int minDistance = Integer.MAX_VALUE;
         int curDistance = 0;
         MapLocation closest = null;
         for(int i = 0; i < archonCount; i++){
@@ -104,7 +104,7 @@ public class Util extends Globals {
     }
 
     public static MapLocation getClosestArchonLocation(boolean isArchon){
-        int minDistance = MAX_DISTANCE;
+        int minDistance = Integer.MAX_VALUE;
         int curDistance = 0;
         MapLocation closest = null;
         for(int i = 0; i < archonCount; i++){
