@@ -364,6 +364,16 @@ public class BotSoldier extends CombatUtil{
 		return true;
 	}
 
+    private static boolean checkIfEnemyArchonInVision() throws GameActionException{
+        for (RobotInfo bot : visibleEnemies){
+            if (bot.type == RobotType.ARCHON){
+                Comms.writeCommMessageOverrwriteLesserPriorityMessageUsingQueue(Comms.commType.COMBAT, bot.getLocation(), Comms.SHAFlag.CONFIRMED_ENEMY_ARCHON_LOCATION);
+                return true;
+            }
+        }
+        return false;
+    }
+
 
     /**
     * Run a single turn for a Soldier.
@@ -371,9 +381,9 @@ public class BotSoldier extends CombatUtil{
     */
     static void runSoldier(RobotController rc) throws GameActionException {
         soldierComms(); // 300 Bytecodes
-        
         // TODO: Combat simulator for soldiers, sense all rubble in vision for 1v1 or 1vMany combat
         updateVision();
+        checkIfEnemyArchonInVision();
         // simpleAttack();
         manageHealingState();
         // detectIfAttackTargetIsGone();

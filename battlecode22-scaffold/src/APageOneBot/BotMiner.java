@@ -89,7 +89,7 @@ public class BotMiner extends Explore{
     }
 
 
-    public static boolean checkIfEnemyArchonInVision() throws GameActionException{
+    private static boolean checkIfEnemyArchonInVision() throws GameActionException{
         for (RobotInfo bot : visibleEnemies){
             if (bot.type == RobotType.ARCHON){
                 Comms.writeCommMessageOverrwriteLesserPriorityMessageUsingQueue(Comms.commType.COMBAT, bot.getLocation(), Comms.SHAFlag.CONFIRMED_ENEMY_ARCHON_LOCATION);
@@ -620,4 +620,3 @@ public class BotMiner extends Explore{
     }
 
 }
-
