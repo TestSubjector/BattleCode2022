@@ -1,7 +1,4 @@
-package AFoolsGoldBot;
-
-import java.lang.reflect.Array;
-import java.util.Arrays;
+package AFoolsGoldNewBot;
 
 import battlecode.common.*;
 
@@ -14,42 +11,8 @@ public class BotSoldier extends CombatUtil{
     private static RobotInfo attackTarget;
     private static boolean inHealingState;
 
-
-    public static boolean enemyArchonLocationGuessIsFalse(MapLocation enemyArchon) throws GameActionException{
-        for (int j = 0; j < archonCount; j++){
-            if (enemyArchon.equals(archonLocations[j])){
-                return true;
-            }
-        }
-        return false;
-    }
-
-    public static void initBotSoldier() throws GameActionException{
+    public static void initBotSoldier(){
         inHealingState = false;
-        Comms.updateArchonLocations();
-
-        // if (!SMALL_MAP){
-        //     for (int i = 0; i < 4; i++){
-        //         if (rememberedEnemyArchonLocations[i] != null && enemyArchonLocationGuessIsFalse(rememberedEnemyArchonLocations[i]))
-        //             rememberedEnemyArchonLocations[i] = null;
-        //     }
-        // }
-
-        int tokenNumber = BIRTH_ROUND % 3;
-    
-        if (rememberedEnemyArchonLocations[tokenNumber%3] != null) {
-            currentDestination = ratioPointBetweenTwoMapLocations(parentArchonLocation, rememberedEnemyArchonLocations[tokenNumber%3], 0.15);
-        } 
-        else if (rememberedEnemyArchonLocations[(tokenNumber+1)%3] != null){
-            currentDestination = ratioPointBetweenTwoMapLocations(parentArchonLocation, rememberedEnemyArchonLocations[(tokenNumber+1)%3], 0.15);
-        }
-        else if (rememberedEnemyArchonLocations[(tokenNumber+2)%3] != null){
-            currentDestination = ratioPointBetweenTwoMapLocations(parentArchonLocation, rememberedEnemyArchonLocations[(tokenNumber+2)%3], 0.15);
-        }
-        else{
-            System.out.println("ERROR: No enemy archon locations");
-            currentDestination = CENTER_OF_THE_MAP;
-        }
     }
 
     public static void soldierComms() throws GameActionException {
@@ -63,6 +26,17 @@ public class BotSoldier extends CombatUtil{
         visibleEnemies = rc.senseNearbyRobots(SOLDIER_VISION_RADIUS, ENEMY_TEAM);
         inRangeEnemies = rc.senseNearbyRobots(SOLDIER_ACTION_RADIUS, ENEMY_TEAM);
     }
+
+    // private static void detectIfAttackTargetIsGone() throws GameActionException {
+	// 	if (attackTarget != null) {
+	// 		if (currentLocation.distanceSquaredTo(attackTarget) <= 10) {
+	// 		    RobotInfo targetInfo = rc.senseRobotAtLocation(attackTarget);
+	// 			if (targetInfo.ID != attackTarget) {
+	// 				attackTarget = null;
+	// 			}
+	// 		}
+	// 	}
+	// }
 
     // TODO: Sense rubble at their location and factor that in to find more dangerous unit
     private static double getEnemyScore(RobotInfo enemyUnit) throws GameActionException{
@@ -220,8 +194,7 @@ public class BotSoldier extends CombatUtil{
 						closestDistSq = distSq;
 						closestHostileThatAttacksUs = hostile;
 					}
-                    if (hostile.getType() == RobotType.ARCHON) numHostilesThatAttackUs += 3;
-                    else numHostilesThatAttackUs += 1;
+					numHostilesThatAttackUs += 1;
 				}
 			}
 		}
@@ -236,7 +209,7 @@ public class BotSoldier extends CombatUtil{
 		}
 
         // TODO: Vision, action or 13?
-		RobotInfo[] nearbyAllies = rc.senseNearbyRobots(closestHostileThatAttacksUs.location, SOLDIER_ACTION_RADIUS, MY_TEAM);
+		RobotInfo[] nearbyAllies = rc.senseNearbyRobots(closestHostileThatAttacksUs.location, SOLDIER_VISION_RADIUS, MY_TEAM);
 		for (RobotInfo ally : nearbyAllies) {
 			if (ally.type.canAttack()) {
 				if (ally.location.distanceSquaredTo(closestHostileThatAttacksUs.location)
@@ -408,12 +381,12 @@ public class BotSoldier extends CombatUtil{
     */
     static void runSoldier(RobotController rc) throws GameActionException {
         soldierComms(); // 300 Bytecodes
-
+        // TODO: Combat simulator for soldiers, sense all rubble in vision for 1v1 or 1vMany combat
         updateVision();
-        checkIfEnemyArchonInVision();
+        // checkIfEnemyArchonInVision();
         // simpleAttack();
         manageHealingState();
-
+        // detectIfAttackTargetIsGone();
         tryToMicro();
         updateVision();
         // TODO: Turret avoidance Comms code
@@ -422,6 +395,7 @@ public class BotSoldier extends CombatUtil{
             return;
         } 
         if (visibleEnemies.length == 0) {
+            // Do normal pathfinding only when no enemy units around
             BFS.move(currentDestination); // 2700 Bytecodes
         }
         updateVision();
@@ -435,5 +409,7 @@ public class BotSoldier extends CombatUtil{
                 chooseTargetAndAttack(inRangeEnemies);
             }
         }
+		// BFS.move(BotMiner.explore());
+        // BotMiner.surveyForOpenMiningLocationsNearby(); // TODO: Reorganise to sprint
     }
 }

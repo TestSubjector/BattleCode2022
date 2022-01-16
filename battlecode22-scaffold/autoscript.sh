@@ -1,7 +1,7 @@
 #!/bin/bash
 
-team1=AFoolsGoldBot
-team2=OPageOneBot
+team1=AFoolsGoldNewBot
+team2=OGoldenBot
 
 mkdir -p logs
 if test -f "logs/results.log"; then
