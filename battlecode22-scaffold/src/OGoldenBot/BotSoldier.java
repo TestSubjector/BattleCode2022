@@ -1,4 +1,4 @@
-package AGoldenBot;
+package OGoldenBot;
 
 import battlecode.common.*;
 
@@ -182,6 +182,98 @@ public class BotSoldier extends CombatUtil{
 		return false;
 	}
 
+    private static boolean retreatIfOutnumbered(RobotInfo[] visibleHostiles) throws GameActionException {
+		RobotInfo closestHostileThatAttacksUs = null;
+		int closestDistSq = Integer.MAX_VALUE;
+		int numHostilesThatAttackUs = 0;
+		for (RobotInfo hostile : visibleHostiles) {
+			if (hostile.type.canAttack()) {
+				int distSq = hostile.location.distanceSquaredTo(rc.getLocation());
+				if (distSq <= hostile.type.actionRadiusSquared) {
+					if (distSq < closestDistSq) {
+						closestDistSq = distSq;
+						closestHostileThatAttacksUs = hostile;
+					}
+					numHostilesThatAttackUs += 1;
+				}
+			}
+		}
+		
+		if (numHostilesThatAttackUs == 0) {
+			return false;
+		}
+		
+		int numAlliesAttackingClosestHostile = 0;
+		if (rc.getLocation().distanceSquaredTo(closestHostileThatAttacksUs.location) <= SOLDIER_ACTION_RADIUS) {
+			numAlliesAttackingClosestHostile += 1;
+		}
+
+        // TODO: Vision, action or 13?
+		RobotInfo[] nearbyAllies = rc.senseNearbyRobots(closestHostileThatAttacksUs.location, SOLDIER_VISION_RADIUS, MY_TEAM);
+		for (RobotInfo ally : nearbyAllies) {
+			if (ally.type.canAttack()) {
+				if (ally.location.distanceSquaredTo(closestHostileThatAttacksUs.location)
+						<= ally.type.actionRadiusSquared) {
+					numAlliesAttackingClosestHostile += 1;
+				}
+			}
+		}
+		
+		if (numAlliesAttackingClosestHostile > numHostilesThatAttackUs) {
+			return false;
+		} 
+		if (numAlliesAttackingClosestHostile == numHostilesThatAttackUs) {
+			if (numHostilesThatAttackUs == 1) {
+				if (rc.getHealth() >= closestHostileThatAttacksUs.health) {
+					return false;
+				}
+			} else {
+				return false;
+			}
+		}
+		
+		MapLocation retreatTarget = rc.getLocation();
+		for (RobotInfo hostile : visibleHostiles) {
+			if (!hostile.type.canAttack()) continue;			
+			retreatTarget = retreatTarget.add(hostile.location.directionTo(rc.getLocation()));
+		}
+		if (!rc.getLocation().equals(retreatTarget)) {
+			Direction retreatDir = rc.getLocation().directionTo(retreatTarget);
+			return tryHardMoveInDirection(retreatDir);
+		}
+		return false;
+	}
+    
+    public static boolean tryHardMoveInDirection(Direction dir) throws GameActionException {
+        // TODO: Pick minimum rubble one?
+        int curRubble = rc.senseRubble(rc.getLocation());
+		if (rc.canMove(dir) && rc.senseRubble(rc.getLocation().add(dir)) < curRubble) {
+			rc.move(dir);
+			return true;
+		}
+		Direction left = dir.rotateLeft();
+		if (rc.canMove(left) && rc.senseRubble(rc.getLocation().add(left)) < curRubble) {
+			rc.move(left);
+			return true;
+		}
+		Direction right = dir.rotateRight();
+		if (rc.canMove(right) && rc.senseRubble(rc.getLocation().add(right)) < curRubble) {
+			rc.move(right);
+			return true;
+		}
+		Direction leftLeft = left.rotateLeft();
+		if (rc.canMove(leftLeft) && rc.senseRubble(rc.getLocation().add(leftLeft)) < curRubble) {
+			rc.move(leftLeft);
+			return true;
+		}
+		Direction rightRight = right.rotateRight();
+		if (rc.canMove(rightRight) && rc.senseRubble(rc.getLocation().add(rightRight)) < curRubble) {
+			rc.move(rightRight);
+			return true;
+		}
+		return false;
+	}
+
     private static boolean tryToMicro() throws GameActionException {
         if (visibleEnemies.length == 0) { // TODO: Either wait or get out of any possible Watchtower range. Skip if charging
             return false;
@@ -195,6 +287,11 @@ public class BotSoldier extends CombatUtil{
         //     // TODO: Improve fleeing?
         //     return false;
         // }
+
+        if (rc.isMovementReady()){
+            if(retreatIfOutnumbered(visibleEnemies)) return true;
+            // if(retreatFromEnemyWatchTowerRange()) return true;
+        }
 
         if (rc.isActionReady()){
             if (inRangeEnemies.length > 0) {
@@ -219,7 +316,7 @@ public class BotSoldier extends CombatUtil{
 
     public static boolean sendCombatLocation(RobotInfo[] visibleHostiles) throws GameActionException{
         if (visibleHostiles.length != 0 && Clock.getBytecodesLeft() > 600){
-            RobotInfo closestHostile = getClosestUnit(visibleHostiles);
+            RobotInfo closestHostile = getClosestUnitWithCombatPriority(visibleHostiles);
             if (closestHostile != null)
 				Comms.writeCommMessageOverrwriteLesserPriorityMessageUsingQueue(Comms.commType.COMBAT, closestHostile.getLocation(), Comms.SHAFlag.COMBAT_LOCATION);
             return true;

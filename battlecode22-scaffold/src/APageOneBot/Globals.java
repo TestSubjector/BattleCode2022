@@ -1,4 +1,4 @@
-package AGoldenBot;
+package APageOneBot;
 
 import java.util.Random;
 

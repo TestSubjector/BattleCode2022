@@ -1,4 +1,4 @@
-package AGoldenBot;
+package APageOneBot;
 
 import battlecode.common.*;
 
