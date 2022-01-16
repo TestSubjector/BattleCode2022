@@ -110,7 +110,7 @@ public class BotArchon extends Util{
         Direction[] biasedDirections = new Direction[] {biasDir, biasDir.rotateLeft(), biasDir.rotateRight(), biasDir.rotateLeft().rotateLeft(), biasDir.rotateRight().rotateRight(), biasDir.rotateLeft().rotateLeft().rotateLeft(), biasDir.rotateRight().rotateRight().rotateRight(), biasDir.opposite()};
         for (Direction dir : biasedDirections){
             MapLocation loc = currentLocation.add(dir);
-            if (!dirs[dir.ordinal()] || !rc.onTheMap(loc) || rc.isLocationOccupied(loc)) continue;
+            if (!dirs[dir.ordinal()] || !rc.onTheMap(loc) || rc.canSenseRobotAtLocation(loc)) continue;
             int rubbleVal = rc.senseRubble(loc);
             if (rubbleVal < val){
                 bestSpawnDir = dir;
@@ -280,8 +280,8 @@ public class BotArchon extends Util{
     private static void shouldFlee(){
         // You have more enemies attacking you than friends that could come save you and you are not the main producer Archon
         int enemyMilitaryCount = CombatUtil.militaryCount(inRangeEnemies);
-        if( enemyMilitaryCount > 2 && rc.getHealth() < 2.0/3.0 * rc.getType().getMaxHealth(rc.getLevel()))
-        if (enemyMilitaryCount > CombatUtil.militaryCount(visibleAllies) && archonCount !=0 && turnsWaitingToBuild > 0)
+        if( enemyMilitaryCount > 1 && rc.getHealth() < 2.0/3.0 * rc.getType().getMaxHealth(rc.getLevel()))
+        if (enemyMilitaryCount > CombatUtil.militaryCount(visibleAllies) && archonCount !=0 && turnsWaitingToBuild > 0) // TODO: Make soldiers
             fleeIndex++;
         else fleeIndex = 0;
     }

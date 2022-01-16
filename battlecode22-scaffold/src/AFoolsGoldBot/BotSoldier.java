@@ -1,4 +1,4 @@
-package APageOneBot;
+package AFoolsGoldBot;
 
 import battlecode.common.*;
 
@@ -383,7 +383,7 @@ public class BotSoldier extends CombatUtil{
         soldierComms(); // 300 Bytecodes
         // TODO: Combat simulator for soldiers, sense all rubble in vision for 1v1 or 1vMany combat
         updateVision();
-        checkIfEnemyArchonInVision();
+        // checkIfEnemyArchonInVision();
         // simpleAttack();
         manageHealingState();
         // detectIfAttackTargetIsGone();

@@ -1,4 +1,4 @@
-package APageOneBot;
+package AFoolsGoldBot;
 
 import battlecode.common.*;
 
@@ -144,7 +144,7 @@ public class Movement extends Util{
                 if (!rc.canSenseLocation(lCurrentLocation)) continue;
                 if (!rc.onTheMap(lCurrentLocation)) continue;
                 if (rc.canSenseRobotAtLocation(lCurrentLocation)) continue;
-                if (UNIT_TYPE == RobotType.MINER && !BotMiner.commitSuicide && rc.senseLead(lCurrentLocation) == 0) continue;
+                if (UNIT_TYPE == RobotType.MINER && rc.senseLead(lCurrentLocation) == 0) continue;
 
                 int estimatedDistance = lCurrentLocation.distanceSquaredTo(lArchonLocation);
 

@@ -1,4 +1,4 @@
-package APageOneBot;
+package AFoolsGoldBot;
 
 import battlecode.common.Direction;
 import battlecode.common.MapLocation;

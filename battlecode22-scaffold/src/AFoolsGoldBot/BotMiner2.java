@@ -1,28 +1,18 @@
-package APageOneBot;
+// Cleaned BotMiner code: Jan 15
+package AFoolsGoldBot;
 
 import battlecode.common.*;
 
-public class BotMiner extends Explore{
+public class BotMiner2 extends Explore{
 
-    public static boolean isMinedThisTurn;
-    public static int numOfMiners;
+    public static boolean isMinedThisTurn, inPlaceForMining, prolificMiningLocationsAtBirth;
     private static MapLocation miningLocation;
-    private static boolean inPlaceForMining;
-    public static boolean commitSuicide;
-    private static MapLocation suicideLocation;
-    public static int desperationIndex;
-    private static final int MIN_SUICIDE_DIST = 4;
-    public static boolean prolificMiningLocationsAtBirth;
-    private static boolean moveOut;
     private static RobotInfo[] visibleEnemies;
-    private static boolean isFleeing;
+    private static boolean isFleeing, moveOut, tooCrowded, depleteMine;
     private static final boolean searchByDistance = false;
-    private static final int randomPersistance = 20;
-    private static boolean tooCrowded;
     private static final int CROWD_LIMIT = 3;
-    private static boolean depleteMine;
     private static int DEPLETE_MINE_RADIUS_LIMIT;
-    private static final boolean DEPLETE_FROM_ENEMY_LOCATIONS = true;
+    public static final boolean DEPLETE_FROM_ENEMY_LOCATIONS = true;
     private static final int LOW_HEALTH_STRAT_TRIGGER = (int)((MAX_HEALTH*3.0d)/10.0d);
     private static final int LOW_HEALTH_STRAT_RELEASER = (int)((MAX_HEALTH*8.0d)/10.0d);
     public static boolean lowHealthStratInPlay = false;
@@ -89,7 +79,7 @@ public class BotMiner extends Explore{
     }
 
 
-    private static boolean checkIfEnemyArchonInVision() throws GameActionException{
+    public static boolean checkIfEnemyArchonInVision() throws GameActionException{
         for (RobotInfo bot : visibleEnemies){
             if (bot.type == RobotType.ARCHON){
                 Comms.writeCommMessageOverrwriteLesserPriorityMessageUsingQueue(Comms.commType.COMBAT, bot.getLocation(), Comms.SHAFlag.CONFIRMED_ENEMY_ARCHON_LOCATION);
@@ -124,10 +114,7 @@ public class BotMiner extends Explore{
     private static void resetVariables(){
         miningLocation = null;
         inPlaceForMining = false;
-        commitSuicide = false;
-        suicideLocation = null;
-        desperationIndex = 0;
-        moveOut = true; 
+        // moveOut = true; 
         isFleeing = false;
         depleteMine = false;
     }
@@ -246,27 +233,23 @@ public class BotMiner extends Explore{
             return;
         }
         // If outside of vision or Location is not occupied:
-        if (curDist > MINER_VISION_RADIUS || !rc.isLocationOccupied(miningLocation)){
+        if (curDist > MINER_VISION_RADIUS || !rc.canSenseRobotAtLocation(miningLocation)){
         // if (curDist > MINER_VISION_RADIUS || !isLocationBeingMined(miningLocation)){
-            if (!BFS.move(miningLocation)) desperationIndex++;
-            // if (!Movement.goToDirect(miningLocation)) desperationIndex++;
+            BFS.move(miningLocation);
             return;
         }
         // miningLocation is inside vision range and is occupied now:
-        miningLocation = null;
-        inPlaceForMining = false;
-        if (Clock.getBytecodesLeft() < 3000) return;
-        getMiningLocation();
-        if (!rc.isMovementReady()) return;
+        moveOut = true;
+        return;
+        // miningLocation = null;
+        // inPlaceForMining = false;
+        // if (Clock.getBytecodesLeft() < 3000) return;
+        // getMiningLocation();
+        // if (!rc.isMovementReady()) return;
         
-        // goToMine(); // Be careful of recursive calls.
-        if (miningLocation!= null && !BFS.move(miningLocation)) desperationIndex++;
-        // if (miningLocation!= null && !Movement.goToDirect(miningLocation)) desperationIndex++;
-    }
-
-
-    public static MapLocation findGoodPlaceToDie() throws GameActionException{
-        return Movement.moveToLattice(MIN_SUICIDE_DIST, 0);
+        // // goToMine(); // Be careful of recursive calls.
+        // if (miningLocation != null) BFS.move(miningLocation);
+        // if (miningLocation!= null && !BFS.move(miningLocation)) desperationIndex++;
     }
 
 
@@ -274,7 +257,7 @@ public class BotMiner extends Explore{
         int count = 0;
         for (Direction dir: directions){
             MapLocation loc = location.add(dir);
-            if (rc.canSenseLocation(loc) && rc.isLocationOccupied(loc))
+            if (rc.canSenseLocation(loc) && rc.canSenseRobotAtLocation(loc))
                 count++;
         }
         return count;
@@ -293,27 +276,7 @@ public class BotMiner extends Explore{
             miningLocation = Comms.findNearestLocationOfThisTypeAndWipeChannel(rc.getLocation(), Comms.commType.LEAD, Comms.SHAFlag.LEAD_LOCATION);
         else
             miningLocation = Comms.findNearestLocationOfThisTypeOutOfVisionAndWipeChannel(rc.getLocation(), Comms.commType.LEAD, Comms.SHAFlag.LEAD_LOCATION);
-        if (miningLocation != null){
-            // desperationIndex--;
-            desperationIndex = 0;
-            // exploreDir = CENTER;
-            return true;
-        }
-        return false;
-    }
-
-
-    public static Direction persistingRandomMovement() throws GameActionException{
-        return Direction.values()[((BIRTH_ROUND + Globals.rng.nextInt(turnCount)) % randomPersistance) % 9];
-    }
-
-
-    public static boolean goAheadAndDie() throws GameActionException{
-        commitSuicide = true;
-        suicideLocation = findGoodPlaceToDie();
-        if (suicideLocation != null){
-            return true;
-        }
+        if (miningLocation != null) return true;
         return false;
     }
 
@@ -333,7 +296,7 @@ public class BotMiner extends Explore{
 
 
     public static Direction biasedRandomDirectionGenerator(Direction bias){
-        return directions[biasedRandomNumberGenerator(0, 8, bias.ordinal(), 50)]; // tune the biasPercentage
+        return directions[biasedRandomNumberGenerator(0, 7, bias.ordinal(), 50)]; // tune the biasPercentage
     }
 
 
@@ -343,9 +306,9 @@ public class BotMiner extends Explore{
 
 
     public static int biasedRandomNumberGenerator(int start, int end, int bias, int biasPercentage){
-        int excessCount = ((end - start) * biasPercentage)/100;
+        int excessCount = (int) (((double)(biasPercentage *(end - start + 1) - 100)) / ((double)(100.0d - biasPercentage)));
         int size = excessCount + end - start + 1;
-        int rnd = (int)(Math.random()*size) + start;
+        int rnd = (Globals.rng.nextInt(size)) + start;
         if (rnd < bias) return rnd;
         else if (rnd >= bias && rnd <= bias + excessCount) return bias;
         else return rnd - excessCount;
@@ -354,8 +317,39 @@ public class BotMiner extends Explore{
 
     public static void getExploreDir(){
         MapLocation closestArchon = getClosestArchonLocation();
-        if (rc.canSenseLocation(closestArchon)) 
-            assignExplore3Dir(closestArchon.directionTo(rc.getLocation()));
+        if (rc.canSenseLocation(closestArchon)){
+            // if(BIRTH_ROUND % 8 == 0) {
+            //     assignExplore3Dir(Direction.NORTHEAST);
+            //     // currentDestination = ratioPointBetweenTwoMapLocations(parentArchonLocation, rememberedEnemyArchonLocations[0], 0.15);
+            // }
+            // else if (BIRTH_ROUND % 8 == 1){
+            //     assignExplore3Dir(Direction.SOUTHEAST);
+            //     // currentDestination = ratioPointBetweenTwoMapLocations(parentArchonLocation, rememberedEnemyArchonLocations[1], 0.15);
+            // }
+            // else if (BIRTH_ROUND % 8 == 2){
+            //     assignExplore3Dir(Direction.NORTHWEST);
+            //     // currentDestination = ratioPointBetweenTwoMapLocations(parentArchonLocation, rememberedEnemyArchonLocations[2], 0.15);
+            // }
+            // else if (BIRTH_ROUND % 8 == 3){
+            //     assignExplore3Dir(Direction.SOUTHWEST);
+            // }
+            // else if (BIRTH_ROUND % 8 == 4){
+            //     assignExplore3Dir(Direction.NORTH);
+            // }
+            // else if (BIRTH_ROUND % 8 == 5){
+            //     assignExplore3Dir(Direction.WEST);
+            // }
+            // else if (BIRTH_ROUND % 8 == 6){
+            //     assignExplore3Dir(Direction.SOUTH);
+            // }
+            // else{
+            //     assignExplore3Dir(Direction.EAST);
+            // }
+            if (BIRTH_ROUND % 3 == 0)
+                assignExplore3Dir(rc.getLocation().directionTo(CENTER_OF_THE_MAP));
+            else
+                assignExplore3Dir(closestArchon.directionTo(rc.getLocation()));
+        }
         // else assignExplore3Dir(directions[(int)(Math.random()*8)]);
         else assignExplore3Dir(directions[Globals.rng.nextInt(8)]);
         // else{
@@ -387,8 +381,11 @@ public class BotMiner extends Explore{
         // if (foundMiningLocationFromComms()) return;
         // Explore now how?
         // Head away from parent Archon to explore. Might get us new mining locations
-        
-        if (!BFS.move(explore())) desperationIndex++;
+        miningLocation = null;
+        inPlaceForMining = false;
+        BFS.move(explore());
+        moveOut = true;
+        // if (!BFS.move(explore())) desperationIndex++;
         // if (!Movement.goToDirect(explore())) desperationIndex++;
         // if (!Movement.goToDirect(rc.getLocation().add(persistingRandomMovement()))) desperationIndex++;
         
@@ -484,13 +481,17 @@ public class BotMiner extends Explore{
         if (nearbyLocations.length > 0){ 
             miningLocation = findOptimalLocationForMiningGold(nearbyLocations);
             inPlaceForMining = (rc.getLocation().distanceSquaredTo(miningLocation) <= 2);
+            moveOut = false; // new
             return;
         }
         if (!depleteMine) nearbyLocations = rc.senseNearbyLocationsWithLead(MINER_VISION_RADIUS, 20);
         else nearbyLocations = rc.senseNearbyLocationsWithLead();
         if (nearbyLocations.length > 0){ 
             miningLocation = findOptimalLocationForMiningLead(nearbyLocations);
-            if (miningLocation != null) inPlaceForMining = (rc.getLocation().distanceSquaredTo(miningLocation) <= 2);
+            if (miningLocation != null){ 
+                inPlaceForMining = (rc.getLocation().distanceSquaredTo(miningLocation) <= 2);
+                moveOut = false;
+            }
             else inPlaceForMining = false;
             return;
         }
@@ -498,75 +499,46 @@ public class BotMiner extends Explore{
 
 
     public static void moveIfNeeded() throws GameActionException{
-        // int leadVal = -1;
         int rubbleVal = Integer.MAX_VALUE;
         int homeRubbleVal = rc.senseRubble(rc.getLocation());
         MapLocation selectedLoc = null;
         MapLocation[] mineAdjacentLocations = rc.getAllLocationsWithinRadiusSquared(miningLocation, MINER_ACTION_RADIUS);
         for(MapLocation loc : mineAdjacentLocations){
+            if (!rc.canSenseLocation(loc)) continue;
             int curRubbleVal = rc.senseRubble(loc);
-            if (homeRubbleVal > curRubbleVal && rubbleVal >= curRubbleVal){
-                // if (rubbleVal == curRubbleVal){
+            if (homeRubbleVal > curRubbleVal && rubbleVal >= curRubbleVal)
                 selectedLoc = loc;
-                // }
-                // leadVal = curLeadVal;
-                
-            }
         }
         Direction dir = null;
         if (selectedLoc != null){
             dir = rc.getLocation().directionTo(selectedLoc);
-            if (rc.canMove(dir)){
-                rc.move(dir);
-                // miningLocation = selectedLoc;
-                // inPlaceForMining = true;
-            }
+            if (rc.canMove(dir)) rc.move(dir);
         }
-        // if (rc.canMove(selectedLoc)) rc.move(dir);
     }
 
 
     public static void doMining() throws GameActionException{
         if (isFleeing) return;
         opportunisticMining();
-        if (inPlaceForMining){
-            // if (isSafeToMine(rc.getLocation()))
-            moveIfNeeded();
-            mine();
-            // else runAway();
-            // else BotSoldier.tryToBackUpToMaintainMaxRange(visibleEnemies);
-        }
-        else if (miningLocation != null){
-            goToMine();
-            mine();
-        }
+        if (inPlaceForMining) moveIfNeeded();
+        else if (miningLocation != null) goToMine();
         else{
             if (lowHealthStratInPlay) return;
             getMiningLocation();
             goToMine();
-            mine();
         }
     }
 
 
     public static void goMoveOut() throws GameActionException{
+        if (!moveOut) return;
         inPlaceForMining = false;
         miningLocation = null;
         if (Clock.getBytecodesLeft() < 500) return;
         getMiningLocation();
         if (!rc.isMovementReady()) return;
         if (miningLocation != null) goToMine();
-        else {
-            BFS.move(explore());
-        }
-    }
-
-
-    public static void toDieOrNotToDie(){
-        if (desperationIndex > 50){
-            System.out.println("Forced to take the final option");
-            rc.disintegrate(); // Bye Bye
-        }
+        else BFS.move(explore());
     }
 
 
@@ -591,11 +563,10 @@ public class BotMiner extends Explore{
             return;
         }
         if (rc.getLocation().distanceSquaredTo(lowHealthStratArchon) > ARCHON_ACTION_RADIUS){
-            BFS.move(lowHealthStratArchon);
+            if (!isFleeing) BFS.move(lowHealthStratArchon);
             return;
         }
     }
-
 
 
     /**
@@ -606,17 +577,13 @@ public class BotMiner extends Explore{
         mine();
         updateMiner();
         lowHealthStrategy();
-        // toDieOrNotToDie();
-
         doMining();
-        // if (Clock.getBytecodesLeft() < 1000) return;
-        if (moveOut) goMoveOut();
         mine();
-        // if (Clock.getBytecodesLeft() < 2000) return;
+        goMoveOut();
+        mine();
         BotSoldier.sendCombatLocation(visibleEnemies);
-        // if (Clock.getBytecodesLeft() < 2000) return;
-        // surveyForOpenMiningLocationsNearby();
-        
     }
 
 }
+
+

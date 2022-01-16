@@ -143,8 +143,8 @@ public class Movement extends Util{
                 if ((lCurrentLocation.x + lCurrentLocation.y) % 2 != congruence) continue;
                 if (!rc.canSenseLocation(lCurrentLocation)) continue;
                 if (!rc.onTheMap(lCurrentLocation)) continue;
-                if (rc.isLocationOccupied(lCurrentLocation)) continue;
-                if (UNIT_TYPE == RobotType.MINER && !BotMiner.commitSuicide && rc.senseLead(lCurrentLocation) == 0) continue;
+                if (rc.canSenseRobotAtLocation(lCurrentLocation)) continue;
+                if (UNIT_TYPE == RobotType.MINER && rc.senseLead(lCurrentLocation) == 0) continue;
 
                 int estimatedDistance = lCurrentLocation.distanceSquaredTo(lArchonLocation);
 

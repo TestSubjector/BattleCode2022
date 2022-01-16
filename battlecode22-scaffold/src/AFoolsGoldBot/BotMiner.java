@@ -1,4 +1,4 @@
-package OPageOneBot;
+package AFoolsGoldBot;
 
 import battlecode.common.*;
 
