@@ -1,5 +1,5 @@
 // Cleaned BotMiner code: Jan 15
-package AFoolsGoldBot;
+package OFoolsGoldBot;
 
 import battlecode.common.*;
 

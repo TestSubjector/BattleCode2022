@@ -1,4 +1,4 @@
-package AFoolsGoldBot;
+package OFoolsGoldBot;
 
 import battlecode.common.MapLocation;
 

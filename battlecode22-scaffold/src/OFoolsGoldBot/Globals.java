@@ -1,4 +1,4 @@
-package AFoolsGoldBot;
+package OFoolsGoldBot;
 
 import java.util.Random;
 
