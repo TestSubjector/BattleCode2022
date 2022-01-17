@@ -83,11 +83,12 @@ public class Comms extends Util{
         LEAD_LOCATION, // 0x4
         IDEAL_WATCHTOWER_BUILD_LOCATION, // 0x5
         ENEMY_WATCHTOWER_BUILD_LOCATION, // 0x6
-        COMBAT_LOCATION, // 0x7
-        POTENTIAL_ENEMY_ARCHON_LOCATION, // 0x8
-        ENEMY_NEAR_ARCHON_LOCATION, // 0x9
-        CONFIRMED_ENEMY_ARCHON_LOCATION, // 0xA
-        ARCHON_LOCATION; // 0xB
+        // ENEMY_MINER_LOCATION, // 0x7
+        COMBAT_LOCATION, // 0x8
+        POTENTIAL_ENEMY_ARCHON_LOCATION, // 0x9
+        ENEMY_NEAR_ARCHON_LOCATION, // 0xA
+        CONFIRMED_ENEMY_ARCHON_LOCATION, // 0xB
+        ARCHON_LOCATION; // 0xC
 
         public boolean higherPriority(SHAFlag flag){
             return (this.ordinal() > flag.ordinal());

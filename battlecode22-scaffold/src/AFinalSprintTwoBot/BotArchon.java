@@ -415,7 +415,7 @@ public class BotArchon extends Util{
         archonComms();
         updateVision();
         Comms.writeArchonMode(rc.getMode());
-        Comms.wipeChannels(Comms.commType.COMBAT);
+        if (commID == 0) Comms.wipeChannels(Comms.commType.COMBAT);
         shouldTransformAndMove();
         getEnemyArchonLocations();
         updateArchonBuildUnits();
@@ -510,7 +510,16 @@ public class BotArchon extends Util{
         }
         else if (rc.getTeamLeadAmount(MY_TEAM) < LEAD_RESERVE_UPPER_BOUND)
             loc = Comms.findNearestLocationOfThisTypeOutOfVision(rc.getLocation(), Comms.commType.COMBAT, Comms.SHAFlag.COMBAT_LOCATION);
-        if (loc != null) transformAndMoveTarget = loc;
+        if (loc != null){
+            if (transformAndMoveTarget == null){
+                transformAndMoveTarget = loc;
+                return;
+            }
+            if (Math.abs(rc.getLocation().distanceSquaredTo(loc) - rc.getLocation().distanceSquaredTo(transformAndMoveTarget)) > 8){
+                transformAndMoveTarget = loc;
+                return;
+            }
+        }
     }
 
 

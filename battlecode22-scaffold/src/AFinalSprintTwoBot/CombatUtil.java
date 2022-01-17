@@ -46,4 +46,21 @@ public class CombatUtil extends Util{
 		else return closestUnit;
 	}
 
+
+    public static RobotInfo getClosestMilitaryUnit(RobotInfo[] units) {
+        RobotInfo closestCombatUnit = null;
+        int minCombatDistSq = Integer.MAX_VALUE;
+        int distSq = 0;
+        MapLocation lCR = rc.getLocation();
+		for (int i = units.length; --i >= 0; ) {
+            if (!isMilitaryUnit(units[i].getType())) continue;
+			distSq = lCR.distanceSquaredTo(units[i].location);
+            if (distSq < minCombatDistSq) {
+				minCombatDistSq = distSq;
+				closestCombatUnit = units[i];
+			}
+		}
+        return closestCombatUnit;
+	}
+
 }
