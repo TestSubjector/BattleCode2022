@@ -29,3 +29,7 @@
 * Some update visions when archon is moving and goodlocationtosettle() should use current location rubble as base rather
 than max rubble.
 * Soldiers will move to enemy archon location if they know it.
+
+## SprintTwoBot
+
+* Create bot for final Sprint 2 tournament submission

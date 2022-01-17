@@ -1,4 +1,4 @@
-package ATopTenBot;
+package ASprintTwoBot;
 
 import battlecode.common.*;
 

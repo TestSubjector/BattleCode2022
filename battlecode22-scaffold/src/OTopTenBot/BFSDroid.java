@@ -1,4 +1,4 @@
-package ATopTenBot;
+package OTopTenBot;
 
 import battlecode.common.Direction;
 import battlecode.common.MapLocation;
