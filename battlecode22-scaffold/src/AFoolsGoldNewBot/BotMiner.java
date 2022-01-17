@@ -84,6 +84,8 @@ public class BotMiner extends Explore{
         // depleteMine = (checkIfToDepleteMine() || checkIfEnemyArchonInVision());
         if (!isSafeToMine(rc.getLocation())){
             isFleeing = true;
+            miningLocation = null;
+            inPlaceForMining = false;
             isFleeing = BotSoldier.tryToBackUpToMaintainMaxRange(visibleEnemies);
         }
     }
@@ -136,6 +138,7 @@ public class BotMiner extends Explore{
         if (!rc.isActionReady()) return;
         MapLocation[] adjacentLocations = rc.getAllLocationsWithinRadiusSquared(rc.getLocation(), 2);
         for (MapLocation loc : adjacentLocations){
+            if (!rc.isActionReady()) return;
             while(rc.canMineGold(loc)){
                 isMinedThisTurn = true;
                 rc.mineGold(loc);
@@ -150,7 +153,6 @@ public class BotMiner extends Explore{
             }
         }
     }
-
 
 
     public static void minerComms() throws GameActionException {

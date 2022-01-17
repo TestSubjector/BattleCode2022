@@ -4,25 +4,14 @@ import battlecode.common.*;
 
 public class BotMiner extends Explore{
 
-    public static boolean isMinedThisTurn;
-    public static int numOfMiners;
+    public static boolean isMinedThisTurn, inPlaceForMining, prolificMiningLocationsAtBirth;
     private static MapLocation miningLocation;
-    private static boolean inPlaceForMining;
-    public static boolean commitSuicide;
-    private static MapLocation suicideLocation;
-    public static int desperationIndex;
-    private static final int MIN_SUICIDE_DIST = 4;
-    public static boolean prolificMiningLocationsAtBirth;
-    private static boolean moveOut;
     private static RobotInfo[] visibleEnemies;
-    private static boolean isFleeing;
+    private static boolean isFleeing, moveOut, tooCrowded, depleteMine;
     private static final boolean searchByDistance = false;
-    private static final int randomPersistance = 20;
-    private static boolean tooCrowded;
     private static final int CROWD_LIMIT = 3;
-    private static boolean depleteMine;
     private static int DEPLETE_MINE_RADIUS_LIMIT;
-    private static final boolean DEPLETE_FROM_ENEMY_LOCATIONS = true;
+    public static final boolean DEPLETE_FROM_ENEMY_LOCATIONS = true;
     private static final int LOW_HEALTH_STRAT_TRIGGER = (int)((MAX_HEALTH*3.0d)/10.0d);
     private static final int LOW_HEALTH_STRAT_RELEASER = (int)((MAX_HEALTH*8.0d)/10.0d);
     public static boolean lowHealthStratInPlay = false;
@@ -84,6 +73,8 @@ public class BotMiner extends Explore{
         // depleteMine = (checkIfToDepleteMine() || checkIfEnemyArchonInVision());
         if (!isSafeToMine(rc.getLocation())){
             isFleeing = true;
+            // miningLocation = null;
+            // inPlaceForMining = false;
             isFleeing = BotSoldier.tryToBackUpToMaintainMaxRange(visibleEnemies);
         }
     }
@@ -124,9 +115,6 @@ public class BotMiner extends Explore{
     private static void resetVariables(){
         miningLocation = null;
         inPlaceForMining = false;
-        commitSuicide = false;
-        suicideLocation = null;
-        desperationIndex = 0;
         moveOut = true; 
         isFleeing = false;
         depleteMine = false;
@@ -172,7 +160,7 @@ public class BotMiner extends Explore{
         for (MapLocation loc : locations){
             double curValue;
             if (searchByDistance) curValue = -rc.getLocation().distanceSquaredTo(loc);
-            else curValue = ((double)rc.senseGold(loc)) / ((double)rc.senseRubble(loc));
+            else curValue = ((double)rc.senseGold(loc) + 1) / ((double)rc.senseRubble(loc) + 1);
             if (opt == null || curValue > value){
                 opt = loc;
                 value = curValue;
@@ -246,27 +234,34 @@ public class BotMiner extends Explore{
             return;
         }
         // If outside of vision or Location is not occupied:
-        if (curDist > MINER_VISION_RADIUS || !rc.isLocationOccupied(miningLocation)){
+        if (curDist > MINER_VISION_RADIUS || !rc.canSenseRobotAtLocation(miningLocation)){
         // if (curDist > MINER_VISION_RADIUS || !isLocationBeingMined(miningLocation)){
-            if (!BFS.move(miningLocation)) desperationIndex++;
-            // if (!Movement.goToDirect(miningLocation)) desperationIndex++;
+            // if (!BFS.move(miningLocation)) desperationIndex++;
+            BFS.move(miningLocation);
             return;
         }
         // miningLocation is inside vision range and is occupied now:
+        // RobotInfo bot = rc.senseRobotAtLocation(miningLocation);
+        // if (bot.type == RobotType.SOLDIER || bot.type == RobotType.SAGE || bot.type == RobotType.WATCHTOWER){
+        //     isFleeing = true;
+        //     BotSoldier.tryToBackUpToMaintainMaxRange(visibleEnemies);
+        //     System.out.println("Never should this have happened!");
+        //     return;
+        // }
+            
+        // if (bot.type != RobotType.MINER){
+        //     // if (bot.team == ENEMY_TEAM) depleteMine = true;
+        //     BFS.move(miningLocation);
+        //     return;
+        // }
+        // miningLocation is inside vision and is occupied by a miner now:
         miningLocation = null;
         inPlaceForMining = false;
-        if (Clock.getBytecodesLeft() < 3000) return;
+        // if (Clock.getBytecodesLeft() < 3000) return;
         getMiningLocation();
         if (!rc.isMovementReady()) return;
         
-        // goToMine(); // Be careful of recursive calls.
-        if (miningLocation!= null && !BFS.move(miningLocation)) desperationIndex++;
-        // if (miningLocation!= null && !Movement.goToDirect(miningLocation)) desperationIndex++;
-    }
-
-
-    public static MapLocation findGoodPlaceToDie() throws GameActionException{
-        return Movement.moveToLattice(MIN_SUICIDE_DIST, 0);
+        if (miningLocation != null) BFS.move(miningLocation);
     }
 
 
@@ -274,7 +269,7 @@ public class BotMiner extends Explore{
         int count = 0;
         for (Direction dir: directions){
             MapLocation loc = location.add(dir);
-            if (rc.canSenseLocation(loc) && rc.isLocationOccupied(loc))
+            if (rc.canSenseLocation(loc) && rc.canSenseRobotAtLocation(loc))
                 count++;
         }
         return count;
@@ -293,27 +288,7 @@ public class BotMiner extends Explore{
             miningLocation = Comms.findNearestLocationOfThisTypeAndWipeChannel(rc.getLocation(), Comms.commType.LEAD, Comms.SHAFlag.LEAD_LOCATION);
         else
             miningLocation = Comms.findNearestLocationOfThisTypeOutOfVisionAndWipeChannel(rc.getLocation(), Comms.commType.LEAD, Comms.SHAFlag.LEAD_LOCATION);
-        if (miningLocation != null){
-            // desperationIndex--;
-            desperationIndex = 0;
-            // exploreDir = CENTER;
-            return true;
-        }
-        return false;
-    }
-
-
-    public static Direction persistingRandomMovement() throws GameActionException{
-        return Direction.values()[((BIRTH_ROUND + Globals.rng.nextInt(turnCount)) % randomPersistance) % 9];
-    }
-
-
-    public static boolean goAheadAndDie() throws GameActionException{
-        commitSuicide = true;
-        suicideLocation = findGoodPlaceToDie();
-        if (suicideLocation != null){
-            return true;
-        }
+        if (miningLocation != null) return true;
         return false;
     }
 
@@ -332,36 +307,16 @@ public class BotMiner extends Explore{
     }
 
 
-    public static Direction biasedRandomDirectionGenerator(Direction bias){
-        return directions[biasedRandomNumberGenerator(0, 8, bias.ordinal(), 50)]; // tune the biasPercentage
-    }
-
-
-    public static Direction findBiasDirection(){
-        return rc.getLocation().directionTo(CENTER_OF_THE_MAP);
-    }
-
-
-    public static int biasedRandomNumberGenerator(int start, int end, int bias, int biasPercentage){
-        int excessCount = ((end - start) * biasPercentage)/100;
-        int size = excessCount + end - start + 1;
-        int rnd = (int)(Math.random()*size) + start;
-        if (rnd < bias) return rnd;
-        else if (rnd >= bias && rnd <= bias + excessCount) return bias;
-        else return rnd - excessCount;
-    }
-
-
     public static void getExploreDir(){
         MapLocation closestArchon = getClosestArchonLocation();
-        if (rc.canSenseLocation(closestArchon)) 
+        if (rc.canSenseLocation(closestArchon)){
+            // if (BIRTH_ROUND % 3 == 0)
+            //     assignExplore3Dir(rc.getLocation().directionTo(CENTER_OF_THE_MAP));
+            // else
             assignExplore3Dir(closestArchon.directionTo(rc.getLocation()));
-        // else assignExplore3Dir(directions[(int)(Math.random()*8)]);
+            // assignExplore3Dir(closestArchon.directionTo(rc.getLocation()));
+        }
         else assignExplore3Dir(directions[Globals.rng.nextInt(8)]);
-        // else{
-        //     System.out.println("Biased random direction being used");
-        //     assignExplore3Dir(biasedRandomDirectionGenerator(findBiasDirection()));
-        // }
     }
 
 
@@ -370,10 +325,6 @@ public class BotMiner extends Explore{
         if (exploreDir == CENTER)
             getExploreDir();
         return getExplore3Target();
-
-        // int cx = rc.getLocation().x, cy = rc.getLocation().y, px = closestArchon.x, py = closestArchon.y;
-        // int newX = Math.min(Math.max(2*cx - px, 0), MAP_WIDTH - 1), newY = Math.min(Math.max(2*cy - py, 0), MAP_HEIGHT-1);
-        // return (new MapLocation(newX, newY));
     }
 
 
@@ -391,19 +342,7 @@ public class BotMiner extends Explore{
         // if (foundMiningLocationFromComms()) return;
         // Explore now how?
         // Head away from parent Archon to explore. Might get us new mining locations
-        
-        if (!BFS.move(explore())) desperationIndex++;
-        // if (!Movement.goToDirect(explore())) desperationIndex++;
-        // if (!Movement.goToDirect(rc.getLocation().add(persistingRandomMovement()))) desperationIndex++;
-        
-        // The Final Option:
-        // if (goAheadAndDie()) return;
-        // Now what??
-
-        // System.out.println("This code is never run, right?!");
-        // commitSuicide = false;
-        // desperationIndex++;
-        // Now what to do?
+        BFS.move(explore());
     }
 
 
@@ -566,12 +505,12 @@ public class BotMiner extends Explore{
     }
 
 
-    public static void toDieOrNotToDie(){
-        if (desperationIndex > 50){
-            System.out.println("Forced to take the final option");
-            rc.disintegrate(); // Bye Bye
-        }
-    }
+    // public static void toDieOrNotToDie(){
+    //     if (desperationIndex > 50){
+    //         System.out.println("Forced to take the final option");
+    //         rc.disintegrate(); // Bye Bye
+    //     }
+    // }
 
 
     public static void lowHealthStrategy() throws GameActionException{

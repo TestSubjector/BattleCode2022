@@ -1,8 +1,8 @@
 #!/bin/bash
 
-team1=ADepleteBot
+team1=AFoolsGoldNewBot
 count1=0
-for team2 in OProductionBot OEcoBot OFleeingBot OEfficientBot OMicroBot OActualCombatBot OCombatBot ONewFrontierBot
+for team2 in OPageOneBot OGoldenBot OPaladinBot ODepleteBot OProductionBot OEcoBot OFleeingBot OEfficientBot OMicroBot OActualCombatBot OCombatBot
 do
 rm -rf logs/${team1}_vs_${team2}/
 mkdir -p logs/${team1}_vs_${team2}

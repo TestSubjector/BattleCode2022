@@ -6,3 +6,6 @@
 * Reintroduced update_enemy_archon location for soldiers
 * Some tweaking to the retreat function calculation
 * More accurate enemy locations and skip our own archon locations for small maps
+
+# FoolsGoldNewBot:
+* Added reset miningLocation and inPlaceToMine when fleeing from enemy robot.
