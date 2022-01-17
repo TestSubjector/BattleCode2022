@@ -1,4 +1,4 @@
-package AGrindstoneBot;
+package OGrindstoneBot;
 
 import battlecode.common.MapLocation;
 import battlecode.common.Clock;

@@ -1,4 +1,4 @@
-package AGrindstoneBot;
+package OGrindstoneBot;
 
 import battlecode.common.*;
 

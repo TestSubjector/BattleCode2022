@@ -1,7 +1,7 @@
-package AGrindstoneBot;
+package OGrindstoneBot;
 
-import AGrindstoneBot.Comms.SHAFlag;
-import AGrindstoneBot.Comms.commType;
+import OGrindstoneBot.Comms.SHAFlag;
+import OGrindstoneBot.Comms.commType;
 import battlecode.common.*;
 
 public class BotArchon extends Util{

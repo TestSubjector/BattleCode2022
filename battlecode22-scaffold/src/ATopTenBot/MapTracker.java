@@ -1,4 +1,4 @@
-package AGrindstoneBot;
+package ATopTenBot;
 
 import battlecode.common.MapLocation;
 
