@@ -11,8 +11,23 @@ public class BotSoldier extends CombatUtil{
     private static RobotInfo attackTarget;
     private static boolean inHealingState;
 
-    public static void initBotSoldier(){
+    public static void initBotSoldier() throws GameActionException{
         inHealingState = false;
+        // if (rc.getRoundNum() > 500){
+        //     findNewCombatLocation();
+        // }
+        currentDestination = Comms.findNearestLocationOfThisTypeOutOfVision(rc.getLocation(), Comms.commType.COMBAT, Comms.SHAFlag.CONFIRMED_ENEMY_ARCHON_LOCATION);
+        if (currentDestination == null){
+            if(BIRTH_ROUND % 3 == 0) {
+                currentDestination = ratioPointBetweenTwoMapLocations(parentArchonLocation, rememberedEnemyArchonLocations[0], 0.15);
+            } 
+            else if (BIRTH_ROUND % 3 == 1){
+                currentDestination = ratioPointBetweenTwoMapLocations(parentArchonLocation, rememberedEnemyArchonLocations[1], 0.15);
+            }
+            else{
+                currentDestination = ratioPointBetweenTwoMapLocations(parentArchonLocation, rememberedEnemyArchonLocations[2], 0.15);
+            }
+        }
     }
 
     public static void soldierComms() throws GameActionException {
@@ -364,15 +379,15 @@ public class BotSoldier extends CombatUtil{
 		return true;
 	}
 
-    private static boolean checkIfEnemyArchonInVision() throws GameActionException{
-        for (RobotInfo bot : visibleEnemies){
-            if (bot.type == RobotType.ARCHON){
-                Comms.writeCommMessageOverrwriteLesserPriorityMessageUsingQueue(Comms.commType.COMBAT, bot.getLocation(), Comms.SHAFlag.CONFIRMED_ENEMY_ARCHON_LOCATION);
-                return true;
-            }
-        }
-        return false;
-    }
+    // private static boolean checkIfEnemyArchonInVision() throws GameActionException{
+    //     for (RobotInfo bot : visibleEnemies){
+    //         if (bot.type == RobotType.ARCHON){
+    //             Comms.writeCommMessageOverrwriteLesserPriorityMessageUsingQueue(Comms.commType.COMBAT, bot.getLocation(), Comms.SHAFlag.CONFIRMED_ENEMY_ARCHON_LOCATION);
+    //             return true;
+    //         }
+    //     }
+    //     return false;
+    // }
 
 
     /**

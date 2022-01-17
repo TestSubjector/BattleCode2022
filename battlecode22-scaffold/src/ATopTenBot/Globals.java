@@ -275,16 +275,6 @@ public class Globals {
         isMapSquare = (MAP_WIDTH == MAP_HEIGHT);
         rememberedEnemyArchonLocations = new MapLocation[4];
         updateEnemyArchonLocation();
-        if(BIRTH_ROUND % 3 == 0) {
-            currentDestination = ratioPointBetweenTwoMapLocations(parentArchonLocation, rememberedEnemyArchonLocations[0], 0.15);
-        } 
-        else if (BIRTH_ROUND % 3 == 1){
-            currentDestination = ratioPointBetweenTwoMapLocations(parentArchonLocation, rememberedEnemyArchonLocations[1], 0.15);
-        }
-        else{
-            currentDestination = ratioPointBetweenTwoMapLocations(parentArchonLocation, rememberedEnemyArchonLocations[2], 0.15);
-        }
-        
     }
 
     public static void getParentArchonLocation() throws GameActionException{

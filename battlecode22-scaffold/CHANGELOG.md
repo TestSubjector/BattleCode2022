@@ -28,3 +28,4 @@
 * Small maps made global, definition changed to 1000
 * Some update visions when archon is moving and goodlocationtosettle() should use current location rubble as base rather
 than max rubble.
+* Soldiers will move to enemy archon location if they know it.
