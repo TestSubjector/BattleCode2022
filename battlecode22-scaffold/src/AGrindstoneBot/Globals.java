@@ -329,6 +329,9 @@ public class Globals {
 
     // This function can error when we suicide Archon after creating a unit
     public static void updateEnemyArchonLocation() throws NullPointerException {
+        // To anyone seeing this, this should actually have a -1, example is MAP_WIDTH - p.x - 1.
+        // This is because the map is 0 indexed, but for the life of me I've not been able to make this bugfix give me 
+        // a better result.
         rememberedEnemyArchonLocations[0] = new MapLocation(MAP_WIDTH - parentArchonLocation.x, parentArchonLocation.y);
         rememberedEnemyArchonLocations[1] = new MapLocation(parentArchonLocation.x, MAP_HEIGHT - parentArchonLocation.y);
         rememberedEnemyArchonLocations[2] = new MapLocation(MAP_WIDTH - parentArchonLocation.x, MAP_HEIGHT - parentArchonLocation.y);

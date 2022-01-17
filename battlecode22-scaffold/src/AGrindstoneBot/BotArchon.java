@@ -40,6 +40,7 @@ public class BotArchon extends Util{
     public static final boolean SMALL_MAP = ((MAP_HEIGHT*MAP_WIDTH) < 1300);
     private static boolean transformAndMove;
     private static boolean atTargetLocationForTransform;
+    private static boolean isFleeing = false;
 
 
     // This will give each Archon which number it is in the queue
@@ -307,13 +308,15 @@ public class BotArchon extends Util{
                 fleeLocation = getClosestArchonLocation(true);
                 if (fleeLocation!= null && !rc.canSenseLocation(fleeLocation)) rc.transform();
                 else fleeLocation = null;
+                isFleeing = true;
             }
         }
 
-        if (rc.getMode() == RobotMode.PORTABLE){ 
+        if (rc.getMode() == RobotMode.PORTABLE && isFleeing){ 
             // Enemies contained and transform cooldown gone
             if (rc.canTransform() && currentLocation.isWithinDistanceSquared(fleeLocation, ARCHON_ACTION_RADIUS)){
                 rc.transform(); // TODO - Doesn't account for Rubble
+                isFleeing = false;
                 fleeLocation = null;
             }
             if (fleeLocation != null) {  

@@ -3,6 +3,7 @@ package AGrindstoneBot;
 import battlecode.common.Direction;
 import battlecode.common.MapLocation;
 import battlecode.common.RobotController;
+import battlecode.common.RobotType;
 
 public class BFSDroid extends Globals {
 
@@ -1432,54 +1433,64 @@ public class BFSDroid extends Globals {
             Direction ans = null;
             double bestEstimation = 0;
             double initialDist = Math.sqrt(l84.distanceSquaredTo(target));
+            double cost = Double.MAX_VALUE;
 
             double dist32 = (initialDist - Math.sqrt(l32.distanceSquaredTo(target))) / v32;
             if (dist32 > bestEstimation) {
                 bestEstimation = dist32;
                 ans = d32;
+                cost = v32;
             }
             double dist42 = (initialDist - Math.sqrt(l42.distanceSquaredTo(target))) / v42;
             if (dist42 > bestEstimation) {
                 bestEstimation = dist42;
                 ans = d42;
+                cost = v42;
             }
             double dist48 = (initialDist - Math.sqrt(l48.distanceSquaredTo(target))) / v48;
             if (dist48 > bestEstimation) {
                 bestEstimation = dist48;
                 ans = d48;
+                cost = v48;
             }
             double dist80 = (initialDist - Math.sqrt(l80.distanceSquaredTo(target))) / v80;
             if (dist80 > bestEstimation) {
                 bestEstimation = dist80;
                 ans = d80;
+                cost = v80;
             }
             double dist88 = (initialDist - Math.sqrt(l88.distanceSquaredTo(target))) / v88;
             if (dist88 > bestEstimation) {
                 bestEstimation = dist88;
                 ans = d88;
+                cost = v88;
             }
             double dist120 = (initialDist - Math.sqrt(l120.distanceSquaredTo(target))) / v120;
             if (dist120 > bestEstimation) {
                 bestEstimation = dist120;
                 ans = d120;
+                cost = v120;
             }
             double dist126 = (initialDist - Math.sqrt(l126.distanceSquaredTo(target))) / v126;
             if (dist126 > bestEstimation) {
                 bestEstimation = dist126;
                 ans = d126;
+                cost = v126;
             }
             double dist136 = (initialDist - Math.sqrt(l136.distanceSquaredTo(target))) / v136;
             if (dist136 > bestEstimation) {
                 bestEstimation = dist136;
                 ans = d136;
+                cost = v136;
             }
+            if (cost > 150) 
+                return BugNav.walkTowards(target);
+            // if(rc.getType() == RobotType.SOLDIER) System.out.println("For destination " + target + " bestEstimation: " + bestEstimation + " cost: " + cost);
             return ans;
+
         } catch (Exception e){
             e.printStackTrace();
         }
         return null;
     }
-
-
-
 }
