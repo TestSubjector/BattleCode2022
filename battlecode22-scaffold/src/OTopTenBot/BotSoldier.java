@@ -164,8 +164,8 @@ public class BotSoldier extends CombatUtil{
 
     private static boolean tryMoveToAttackProductionUnit(RobotInfo closestHostile) throws GameActionException {
         if(closestHostile == null) return false;
-		// if (closestHostile.type.canAttack()) 
-        //     return false;
+		if (closestHostile.type.canAttack()) 
+            return false;
 	    if (BFS.move(closestHostile.location)) 
             return true;
 		return false;
@@ -200,7 +200,7 @@ public class BotSoldier extends CombatUtil{
     private static boolean retreatIfOutnumbered(RobotInfo[] visibleHostiles) throws GameActionException {
 		RobotInfo closestHostileThatAttacksUs = null;
 		int closestDistSq = Integer.MAX_VALUE;
-		double numHostilesThatAttackUs = 0;
+		int numHostilesThatAttackUs = 0;
 		for (RobotInfo hostile : visibleHostiles) {
 			if (hostile.type.canAttack()) {
 				int distSq = hostile.location.distanceSquaredTo(rc.getLocation());
@@ -209,7 +209,7 @@ public class BotSoldier extends CombatUtil{
 						closestDistSq = distSq;
 						closestHostileThatAttacksUs = hostile;
 					}
-					numHostilesThatAttackUs += 1.0/(10.0+rc.senseRubble(hostile.location));
+					numHostilesThatAttackUs += 1;
 				}
 			}
 		}
@@ -218,9 +218,9 @@ public class BotSoldier extends CombatUtil{
 			return false;
 		}
 		
-		double numAlliesAttackingClosestHostile = 0;
+		int numAlliesAttackingClosestHostile = 0;
 		if (rc.getLocation().distanceSquaredTo(closestHostileThatAttacksUs.location) <= SOLDIER_ACTION_RADIUS) {
-			numAlliesAttackingClosestHostile += 1.0/(10.0+rc.senseRubble(rc.getLocation()));
+			numAlliesAttackingClosestHostile += 1;
 		}
 
         // TODO: Vision, action or 13?
@@ -229,7 +229,7 @@ public class BotSoldier extends CombatUtil{
 			if (ally.type.canAttack()) {
 				if (ally.location.distanceSquaredTo(closestHostileThatAttacksUs.location)
 						<= ally.type.actionRadiusSquared) {
-				numAlliesAttackingClosestHostile += 1.0/(10.0+rc.senseRubble(ally.location));
+					numAlliesAttackingClosestHostile += 1;
 				}
 			}
 		}
@@ -239,8 +239,7 @@ public class BotSoldier extends CombatUtil{
 		} 
 		if (numAlliesAttackingClosestHostile == numHostilesThatAttackUs) {
 			if (numHostilesThatAttackUs == 1) {
-				if (rc.getHealth() >= closestHostileThatAttacksUs.health || 
-                    rc.senseRubble(rc.getLocation()) <= rc.senseRubble(closestHostileThatAttacksUs.location)) {
+				if (rc.getHealth() >= closestHostileThatAttacksUs.health) {
 					return false;
 				}
 			} else {
@@ -263,27 +262,27 @@ public class BotSoldier extends CombatUtil{
     public static boolean tryHardMoveInDirection(Direction dir) throws GameActionException {
         // TODO: Pick minimum rubble one?
         int curRubble = rc.senseRubble(rc.getLocation());
-		if (rc.canMove(dir) && rc.senseRubble(rc.getLocation().add(dir)) <= curRubble) {
+		if (rc.canMove(dir) && rc.senseRubble(rc.getLocation().add(dir)) < curRubble) {
 			rc.move(dir);
 			return true;
 		}
 		Direction left = dir.rotateLeft();
-		if (rc.canMove(left) && rc.senseRubble(rc.getLocation().add(left)) <= curRubble) {
+		if (rc.canMove(left) && rc.senseRubble(rc.getLocation().add(left)) < curRubble) {
 			rc.move(left);
 			return true;
 		}
 		Direction right = dir.rotateRight();
-		if (rc.canMove(right) && rc.senseRubble(rc.getLocation().add(right)) <= curRubble) {
+		if (rc.canMove(right) && rc.senseRubble(rc.getLocation().add(right)) < curRubble) {
 			rc.move(right);
 			return true;
 		}
 		Direction leftLeft = left.rotateLeft();
-		if (rc.canMove(leftLeft) && rc.senseRubble(rc.getLocation().add(leftLeft)) <= curRubble) {
+		if (rc.canMove(leftLeft) && rc.senseRubble(rc.getLocation().add(leftLeft)) < curRubble) {
 			rc.move(leftLeft);
 			return true;
 		}
 		Direction rightRight = right.rotateRight();
-		if (rc.canMove(rightRight) && rc.senseRubble(rc.getLocation().add(rightRight)) <= curRubble) {
+		if (rc.canMove(rightRight) && rc.senseRubble(rc.getLocation().add(rightRight)) < curRubble) {
 			rc.move(rightRight);
 			return true;
 		}
@@ -380,15 +379,15 @@ public class BotSoldier extends CombatUtil{
 		return true;
 	}
 
-    private static boolean checkIfEnemyArchonInVision() throws GameActionException{
-        for (RobotInfo bot : visibleEnemies){
-            if (bot.type == RobotType.ARCHON){
-                Comms.writeCommMessageOverrwriteLesserPriorityMessageUsingQueue(Comms.commType.COMBAT, bot.getLocation(), Comms.SHAFlag.CONFIRMED_ENEMY_ARCHON_LOCATION);
-                return true;
-            }
-        }
-        return false;
-    }
+    // private static boolean checkIfEnemyArchonInVision() throws GameActionException{
+    //     for (RobotInfo bot : visibleEnemies){
+    //         if (bot.type == RobotType.ARCHON){
+    //             Comms.writeCommMessageOverrwriteLesserPriorityMessageUsingQueue(Comms.commType.COMBAT, bot.getLocation(), Comms.SHAFlag.CONFIRMED_ENEMY_ARCHON_LOCATION);
+    //             return true;
+    //         }
+    //     }
+    //     return false;
+    // }
 
 
     /**
@@ -399,7 +398,7 @@ public class BotSoldier extends CombatUtil{
         soldierComms(); // 300 Bytecodes
         // TODO: Combat simulator for soldiers, sense all rubble in vision for 1v1 or 1vMany combat
         updateVision();
-        checkIfEnemyArchonInVision();
+        // checkIfEnemyArchonInVision();
         // simpleAttack();
         manageHealingState();
         // detectIfAttackTargetIsGone();
