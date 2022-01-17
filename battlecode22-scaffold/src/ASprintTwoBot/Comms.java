@@ -657,7 +657,10 @@ public class Comms extends Util{
 
     public static void archonUnderCombat() throws GameActionException{
         int channel = getArchonUtilChannel();
+        if (underAttack)
         rc.writeSharedArray(channel, (rc.readSharedArray(channel) | 0x2));
+        else
+        rc.writeSharedArray(channel, (rc.readSharedArray(channel) & 0xFFFD));
     }
 
 

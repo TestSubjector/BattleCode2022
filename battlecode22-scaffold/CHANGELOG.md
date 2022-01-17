@@ -33,3 +33,7 @@ than max rubble.
 ## SprintTwoBot
 
 * Create bot for final Sprint 2 tournament submission
+* Make soldiers more aggressive in 1vs1 situations
+* Better retreat decision score evaluation
+* Soldier will also now send enemyArchon location to comms
+  
