@@ -1,4 +1,4 @@
-package AFoolsGoldNewBot;
+package AGrindstoneBot;
 
 import battlecode.common.MapLocation;
 
