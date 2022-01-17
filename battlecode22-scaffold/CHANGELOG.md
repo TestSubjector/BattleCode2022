@@ -36,4 +36,9 @@ than max rubble.
 * Make soldiers more aggressive in 1vs1 situations
 * Better retreat decision score evaluation
 * Soldier will also now send enemyArchon location to comms
+
+
+## SuccessSprintTwoBot:
+
+* Added number of turns in move limitation to Archon Repostioning System for small maps.
   

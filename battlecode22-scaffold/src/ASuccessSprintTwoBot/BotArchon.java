@@ -36,8 +36,9 @@ public class BotArchon extends Util{
     private static MapLocation fleeLocation;
     private static MapLocation transformAndMoveTarget;
     private static MapLocation transformAndMoveOrigin;
-    private static int transformAndMoveSteps;
-    private static final int LEAD_RESERVE_UPPER_BOUND = 150;
+    private static int transformAndMoveTurns;
+    private static final int TRANSFORM_AND_MOVE_TURNS_LIMIT = 35;
+    private static final int LEAD_RESERVE_UPPER_BOUND = 120;
     // private static final
     private static boolean transformAndMove;
     private static boolean atTargetLocationForTransform;
@@ -275,7 +276,7 @@ public class BotArchon extends Util{
 
 
     public static boolean shouldBuildSage(){
-        return false;
+        return (rc.getTeamGoldAmount(MY_TEAM) >= 20);
     }
 
 
@@ -448,6 +449,7 @@ public class BotArchon extends Util{
             atTargetLocationForTransform = false;
             transformAndMoveOrigin = null;
             goodPlace = false;
+            transformAndMoveTurns = 0;
             Comms.writeArchonMode(rc.getMode());
             Comms.updateArchonTransformAndMoveTurn();
             Comms.updateWaitTimeForArchonTransformAndMove(rc.getRoundNum() + TRANSFORM_AND_MOVE_WAIT_TIME);
@@ -459,6 +461,7 @@ public class BotArchon extends Util{
         atTargetLocationForTransform = false;
         transformAndMoveOrigin = null;
         goodPlace = false;
+        transformAndMoveTurns = 0;
         Comms.writeArchonMode(rc.getMode());
         Comms.updateArchonTransformAndMoveTurn();
         Comms.updateWaitTimeForArchonTransformAndMove(rc.getRoundNum() + TRANSFORM_AND_MOVE_WAIT_TIME);
@@ -498,7 +501,7 @@ public class BotArchon extends Util{
         // int alliedCombatUnits = CombatUtil.militaryCount(inRangeAllies);
         RobotInfo[] soldiersNearby = rc.senseNearbyRobots(SOLDIER_ACTION_RADIUS);
         int alliedCombatUnits = CombatUtil.militaryCount(soldiersNearby);
-        if (enemyCombatUnits != 0 && alliedCombatUnits > enemyCombatUnits){
+        if (((transformAndMoveTurns < TRANSFORM_AND_MOVE_TURNS_LIMIT && SMALL_MAP) || enemyCombatUnits != 0) && alliedCombatUnits > enemyCombatUnits){
             if (rc.getMode() == RobotMode.PORTABLE && rc.getLocation().distanceSquaredTo(transformAndMoveOrigin) > ARCHON_ACTION_RADIUS){
                 goodPlace = true;
                 loc = goodLocationToSettle();
@@ -513,6 +516,7 @@ public class BotArchon extends Util{
 
     public static void transformAndMove() throws GameActionException{
         if (!transformAndMove) return;
+        transformAndMoveTurns++;
         // if (atTargetLocationForTransform && transformAndUpdate()) return;
         if (atTargetLocationForTransform){
             transformAndUpdate();
