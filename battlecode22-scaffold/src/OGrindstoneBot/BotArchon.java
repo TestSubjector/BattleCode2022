@@ -456,9 +456,9 @@ public class BotArchon extends Util{
                     atTargetLocationForTransform = true;
                     transformAndUpdate();
                 }
-                else{
-                    System.out.println("You know the message. This shouldn't happen");
-                }
+                // else{
+                //     System.out.println("You know the message. This shouldn't happen");
+                // }
             }
             else{
                 BFS.move(transformAndMoveTarget);

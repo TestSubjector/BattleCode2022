@@ -639,14 +639,14 @@ public class Comms extends Util{
             case PORTABLE: val = 1; break;
             default : System.out.println("This shouldn't ever happen"); break;
         }
-        curVal = ((curVal & 0x0) | val);
+        curVal = (curVal | val);
         rc.writeSharedArray(channel, curVal);
     }
 
 
     public static RobotMode readArchonMode(int commID) throws GameActionException{
         int channel = getArchonUtilChannel(commID);
-        int val = (rc.readSharedArray(channel) | 0x0);
+        int val = (rc.readSharedArray(channel) & 0x1);
         switch(val){
             case 0: return RobotMode.TURRET;
             case 1: return RobotMode.PORTABLE;
@@ -696,5 +696,12 @@ public class Comms extends Util{
 
     public static void updateWaitTimeForArchonTransformAndMove(int waitTime) throws GameActionException{
         rc.writeSharedArray(CHANNEL_ARCHON_UTIL, ((waitTime << 2) | getArchonTransformAndMoveTurn()));
+    }
+
+
+    public static void wipeChannels(commType type) throws GameActionException{
+        if (rc.getRoundNum() % 20 != 0) return;
+        for (int i = type.commChannelStart; i < type.commChannelStop; ++i)
+            wipeChannel(i);
     }
 }
