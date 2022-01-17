@@ -1,4 +1,4 @@
-package ASuccessSprintTwoBot;
+package OSuccessSprintTwoBot;
 
 import java.util.Random;
 

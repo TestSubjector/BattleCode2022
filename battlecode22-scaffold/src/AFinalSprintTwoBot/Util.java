@@ -1,4 +1,4 @@
-package ASuccessSprintTwoBot;
+package AFinalSprintTwoBot;
 
 import battlecode.common.MapLocation;
 import battlecode.common.Clock;
