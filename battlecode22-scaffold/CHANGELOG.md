@@ -9,3 +9,6 @@
 
 # FoolsGoldNewBot:
 * Added reset miningLocation and inPlaceToMine when fleeing from enemy robot.
+
+# GrindstoneBot:
+* Added offensive Archon repositioning code.

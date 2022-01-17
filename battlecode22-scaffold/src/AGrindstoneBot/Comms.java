@@ -44,7 +44,8 @@ public class Comms extends Util{
     public static final int CHANNEL_RUBBLE_START = 0;
     public static final int CHANNEL_RUBBLE_STOP = 0;
     public static final int CHANNEL_TRANSMITTER_COUNT = CHANNEL_RUBBLE_STOP;
-    public static final int CHANNEL_MINER_COUNT = CHANNEL_TRANSMITTER_COUNT + 1;
+    public static final int CHANNEL_ARCHON_UTIL = CHANNEL_TRANSMITTER_COUNT + 1;
+    public static final int CHANNEL_MINER_COUNT = CHANNEL_ARCHON_UTIL + 1;
     public static final int CHANNEL_SOLDIER_COUNT = CHANNEL_MINER_COUNT + 1;
     public static final int CHANNEL_BUILDER_COUNT = CHANNEL_SOLDIER_COUNT + 1;
     public static final int CHANNEL_WATCHTOWER_COUNT = CHANNEL_BUILDER_COUNT + 1;
@@ -556,6 +557,37 @@ public class Comms extends Util{
     }
 
 
+    public static int incrementHead(commType type, int channel){
+        channel++;
+        return Math.max(type.commChannelStart, channel % type.commChannelStop);
+    }
+
+
+    public static boolean checkIfMessageOfThisTypeThereUsingQueue(commType type, SHAFlag flag) throws GameActionException{
+        int channel = type.commChannelHead;
+        int message = rc.readSharedArray(channel);
+        if (readSHAFlagFromMessage(message) == flag) return true;
+        incrementHead(type, channel);
+        while(channel != type.commChannelHead){
+            message = rc.readSharedArray(channel);
+            if (readSHAFlagFromMessage(message) == flag) return true;
+            incrementHead(type, channel);
+        }
+        return false;
+    }
+
+
+    public static boolean checkIfMessageOfThisTypeThere(commType type, SHAFlag flag) throws GameActionException{
+        int message;
+        for (int i = type.commChannelStart; i < type.commChannelStop; ++i){
+            message = rc.readSharedArray(i);
+            if (readSHAFlagFromMessage(message) == flag) return true;
+        }
+        return false;
+    }
+
+
+
     public static int createRubbleMessage(int locationValue, int rubbleValue, int turnFlag){
         return ( (turnFlag << 15) | locationValue << 3 | rubbleValue);
     }
@@ -585,5 +617,84 @@ public class Comms extends Util{
                 count++;
             }
         }
+    }
+
+
+    public static int getArchonUtilChannel(){
+        return (CHANNEL_ARCHON_START + BotArchon.commID * 4 + 2);
+    }
+
+
+    public static int getArchonUtilChannel(int commID){
+        return (CHANNEL_ARCHON_START + commID * 4 + 2);
+    }
+
+
+    public static void writeArchonMode(RobotMode mode) throws GameActionException{
+        int channel = getArchonUtilChannel();
+        int curVal = rc.readSharedArray(channel);
+        int val = 0;
+        switch(mode){
+            case TURRET: val = 0; break;
+            case PORTABLE: val = 1; break;
+            default : System.out.println("This shouldn't ever happen"); break;
+        }
+        curVal = ((curVal & 0x0) | val);
+        rc.writeSharedArray(channel, curVal);
+    }
+
+
+    public static RobotMode readArchonMode(int commID) throws GameActionException{
+        int channel = getArchonUtilChannel(commID);
+        int val = (rc.readSharedArray(channel) | 0x0);
+        switch(val){
+            case 0: return RobotMode.TURRET;
+            case 1: return RobotMode.PORTABLE;
+        }
+        return null;
+    }
+
+
+    public static void archonUnderCombat() throws GameActionException{
+        int channel = getArchonUtilChannel();
+        rc.writeSharedArray(channel, (rc.readSharedArray(channel) | 0x2));
+    }
+
+
+    public static boolean isArchonUnderAttack(int commID) throws GameActionException{
+        int channel = getArchonUtilChannel(commID);
+        switch(rc.readSharedArray(channel) & 0x2){
+            case 2: return true;
+            case 0: return false;
+        }
+        return false;
+    }
+
+
+    public static int getArchonTransformAndMoveTurn() throws GameActionException{
+        return (rc.readSharedArray(CHANNEL_ARCHON_UTIL) & 0x3);
+    }
+
+
+    public static void writeArchonTransformAndMoveTurn(int val) throws GameActionException{
+        rc.writeSharedArray(CHANNEL_ARCHON_UTIL, (rc.readSharedArray(CHANNEL_ARCHON_UTIL) | val));
+    }
+
+
+    public static void updateArchonTransformAndMoveTurn() throws GameActionException{
+        int curVal = getArchonTransformAndMoveTurn();
+        curVal++;
+        curVal = curVal % archonCount;
+        writeArchonTransformAndMoveTurn(curVal);
+    }
+
+
+    public static int getArchonWaitTimeForArchonTransformAndMove() throws GameActionException{
+        return ((rc.readSharedArray(CHANNEL_ARCHON_UTIL) & 0x1FFC) >> 2);
+    }
+
+
+    public static void updateWaitTimeForArchonTransformAndMove(int waitTime) throws GameActionException{
+        rc.writeSharedArray(CHANNEL_ARCHON_UTIL, ((waitTime << 2) | getArchonTransformAndMoveTurn()));
     }
 }

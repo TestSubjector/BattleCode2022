@@ -347,7 +347,7 @@ public class BotSoldier extends CombatUtil{
         if (rc.getHealth() < rc.getType().getMaxHealth(rc.getLevel()) / 3.0) {
             inHealingState = true;
         }
-        else if (rc.getHealth() == rc.getType().getMaxHealth(rc.getLevel())) {
+        else if (rc.getHealth() > ((2.0/3.0) * (double)(rc.getType().getMaxHealth(rc.getLevel())))) {
             inHealingState = false;
         }
     }
