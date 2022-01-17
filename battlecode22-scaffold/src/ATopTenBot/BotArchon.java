@@ -39,7 +39,6 @@ public class BotArchon extends Util{
     private static int transformAndMoveSteps;
     private static final int LEAD_RESERVE_UPPER_BOUND = 150;
     // private static final
-    public static final boolean SMALL_MAP = ((MAP_HEIGHT*MAP_WIDTH) < 1300);
     private static boolean transformAndMove;
     private static boolean atTargetLocationForTransform;
     private static boolean isFleeing = false;
@@ -415,7 +414,7 @@ public class BotArchon extends Util{
 
     public static MapLocation goodLocationToSettle() throws GameActionException{
         MapLocation[] adjacentLocations = rc.getAllLocationsWithinRadiusSquared(rc.getLocation(), 2);
-        int optVal = MAX_RUBBLE + 1;
+        int optVal = rc.senseRubble(rc.getLocation());
         MapLocation optLoc = null;
         int dist = 5;
         for(MapLocation loc : adjacentLocations){
@@ -475,6 +474,7 @@ public class BotArchon extends Util{
         Direction dir = rc.getLocation().directionTo(transformAndMoveTarget);
         if (rc.canMove(dir)){
             rc.move(dir);
+            updateVision();
             atTargetLocationForTransform = true;
             return transformAndUpdate();
         }
@@ -541,6 +541,7 @@ public class BotArchon extends Util{
                 Direction dir = rc.getLocation().directionTo(transformAndMoveTarget);
                 if(rc.canMove(dir)){
                     rc.move(dir);
+                    updateVision();
                     atTargetLocationForTransform = true;
                     transformAndUpdate();
                     return;

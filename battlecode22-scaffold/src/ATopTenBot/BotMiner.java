@@ -432,8 +432,10 @@ public class BotMiner extends Explore{
                 case SOLDIER:
                 case WATCHTOWER:
                 case SAGE:
-                    if (enemy.type.actionRadiusSquared >= loc.distanceSquaredTo(enemy.location))
-                    return false;
+                    if(SMALL_MAP && enemy.type.actionRadiusSquared == loc.distanceSquaredTo(enemy.location))
+                        return false;
+                    if (enemy.type.actionRadiusSquared > loc.distanceSquaredTo(enemy.location))
+                        return false;
 
                 default:
                     return true;
