@@ -79,7 +79,7 @@ public class BotSoldier extends CombatUtil{
     // TODO: Add check for Rubble
     public static boolean tryToBackUpToMaintainMaxRange(RobotInfo[] visibleHostiles) throws GameActionException {
 		int closestHostileDistSq = Integer.MAX_VALUE;
-        MapLocation lCR = currentLocation;
+        MapLocation lCR = rc.getLocation();
         for (RobotInfo hostile : visibleHostiles) {
 			if (!hostile.type.canAttack()) continue;
 			int distSq = lCR.distanceSquaredTo(hostile.location);
@@ -92,7 +92,7 @@ public class BotSoldier extends CombatUtil{
 		
 		Direction bestRetreatDir = null;
 		int bestDistSq = closestHostileDistSq;
-        int bestRubble = rc.senseRubble(currentLocation);
+        int bestRubble = rc.senseRubble(rc.getLocation());
 
 		for (Direction dir : directions) {
 			if (!rc.canMove(dir)) continue;
@@ -327,7 +327,7 @@ public class BotSoldier extends CombatUtil{
 
     // If our current destination has no enemies left, move to the nearest new location with combat
     public static boolean findNewCombatLocation() throws GameActionException{
-        if (visibleEnemies.length == 0 && currentLocation.distanceSquaredTo(currentDestination) <= SOLDIER_VISION_RADIUS){
+        if (visibleEnemies.length == 0 && rc.getLocation().distanceSquaredTo(currentDestination) <= SOLDIER_VISION_RADIUS){
             MapLocation combatLocation = Comms.findNearestLocationOfThisTypeOutOfVision(rc.getLocation(), Comms.commType.COMBAT, Comms.SHAFlag.COMBAT_LOCATION);
             if (combatLocation != null){
                 currentDestination = combatLocation;

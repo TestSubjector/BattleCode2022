@@ -14,12 +14,11 @@ public class BugNav extends Util {
             return null;
         }
 
-        MapLocation currentLocation = rc.getLocation();
-        if (currentLocation.equals(target)) {
+        if (rc.getLocation().equals(target)) {
             return null;
         }
 
-        Direction d = currentLocation.directionTo(target);
+        Direction d = rc.getLocation().directionTo(target);
         Direction result = null;
         if (rc.canMove(d) && !isObstacle(rc, d)) {
             rc.move(d);

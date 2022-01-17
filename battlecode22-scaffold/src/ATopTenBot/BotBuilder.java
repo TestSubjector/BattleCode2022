@@ -22,21 +22,21 @@ public class BotBuilder extends Util{
 
     private static boolean moveToLocationForBuilding(MapLocation dest) throws GameActionException{
         // TODO: Write helper function to see if moving to optimum destAdjacent location is better than building from right here
-        if (currentLocation.distanceSquaredTo(dest) == 1){
+        if (rc.getLocation().distanceSquaredTo(dest) == 1){
             destAdjacent = currentLocation;
             return true;
         }
          // TODO: Reorganise to sprint
         if (destAdjacent == null && rc.canSenseLocation(dest)) destAdjacent = PathFinder.findOptimumAdjacentLocation(dest);
         if (destAdjacent == null){
-            if(!currentLocation.equals(dest)){
+            if(!rc.getLocation().equals(dest)){
                 Movement.moveToDest(dest);
-                return currentLocation.equals(dest);
+                return rc.getLocation().equals(dest);
             }
         }
-        else if(!currentLocation.equals(destAdjacent)){
+        else if(!rc.getLocation().equals(destAdjacent)){
             Movement.moveToDest(destAdjacent);
-            return currentLocation.equals(destAdjacent);
+            return rc.getLocation().equals(destAdjacent);
         }
         return false;
     }

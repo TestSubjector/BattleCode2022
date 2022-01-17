@@ -7,7 +7,7 @@ public class Movement extends Util{
     public static boolean tryMoveInDirection(MapLocation dest) throws GameActionException {
         try{
             if(!rc.isMovementReady()) return false;
-            MapLocation lCR = currentLocation;
+            MapLocation lCR = rc.getLocation();
             if (lCR.equals(dest)) return false;
             Direction forward = lCR.directionTo(dest);
             MapLocation dirLoc = null;
@@ -48,7 +48,7 @@ public class Movement extends Util{
     // Takes around 400 bytecodes to run 
     public static boolean goToDirect(MapLocation dest) throws GameActionException {
         try{
-            MapLocation lCR = currentLocation;
+            MapLocation lCR = rc.getLocation();
             if(!rc.isMovementReady()) return false;
             if (lCR.equals(dest)) return false;
             Direction forward = lCR.directionTo(dest);
@@ -102,9 +102,9 @@ public class Movement extends Util{
     }
     
     public static boolean preferLeft(MapLocation dest) {
-        Direction toDest = currentLocation.directionTo(dest);
-        MapLocation leftLoc = currentLocation.add(toDest.rotateLeft());
-        MapLocation rightLoc = currentLocation.add(toDest.rotateRight());
+        Direction toDest = rc.getLocation().directionTo(dest);
+        MapLocation leftLoc = rc.getLocation().add(toDest.rotateLeft());
+        MapLocation rightLoc = rc.getLocation().add(toDest.rotateRight());
         if (dest.distanceSquaredTo(leftLoc) == dest.distanceSquaredTo(rightLoc)) return closerToCenter(leftLoc, rightLoc);
         return (dest.distanceSquaredTo(leftLoc) < dest.distanceSquaredTo(rightLoc)); // Team preference
     }
@@ -121,7 +121,7 @@ public class Movement extends Util{
     
     public static MapLocation moveToLattice(int minLatticeDist, int weights){
         try { 
-            MapLocation lCurrentLocation = currentLocation;
+            MapLocation lCurrentLocation = rc.getLocation();
             MapLocation lArchonLocation = Util.getClosestArchonLocation();
             MapLocation bestLoc = null;
             MapLocation myLoc = rc.getLocation();
@@ -170,7 +170,7 @@ public class Movement extends Util{
         
         boolean mustRetreat = false;
         int bestClosestDistSq = Integer.MAX_VALUE;
-        MapLocation lCR = currentLocation;
+        MapLocation lCR = rc.getLocation();
         for (RobotInfo hostile : visibleHostiles) {         
             //Sage killing one miner is worth for sage action cooldown
             if (hostile.type.canAttack() && hostile.type != RobotType.SAGE) {

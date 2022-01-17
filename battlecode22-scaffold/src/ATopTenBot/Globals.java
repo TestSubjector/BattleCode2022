@@ -287,7 +287,7 @@ public class Globals {
     }
 
     public static void getParentArchonLocation() throws GameActionException{
-        if (UNIT_TYPE == RobotType.ARCHON) parentArchonLocation = currentLocation;
+        if (UNIT_TYPE == RobotType.ARCHON) parentArchonLocation = rc.getLocation();
         else {
             Comms.updateArchonLocations();
             parentArchonLocation = Util.getClosestArchonLocation();

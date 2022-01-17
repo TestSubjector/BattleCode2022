@@ -111,7 +111,7 @@ public class BotArchon extends Util{
         boolean[] dirs = new boolean[8];
         for (Direction dir: directions) dirs[dir.ordinal()] = false;  
         for (Direction dir : directions){
-            MapLocation loc = currentLocation.add(dir);
+            MapLocation loc = rc.getLocation().add(dir);
             if (!rc.onTheMap(loc)) continue;
             if (rc.senseLead(loc) > 0){ 
                 dirs[dir.ordinal()] = true;
@@ -119,11 +119,11 @@ public class BotArchon extends Util{
                 dirs[dir.rotateRight().ordinal()] = true;
             }
         }
-        Direction biasDir = currentLocation.directionTo(CENTER_OF_THE_MAP), bestSpawnDir = null;
+        Direction biasDir = rc.getLocation().directionTo(CENTER_OF_THE_MAP), bestSpawnDir = null;
         int val = Integer.MAX_VALUE;
         Direction[] biasedDirections = new Direction[] {biasDir, biasDir.rotateLeft(), biasDir.rotateRight(), biasDir.rotateLeft().rotateLeft(), biasDir.rotateRight().rotateRight(), biasDir.rotateLeft().rotateLeft().rotateLeft(), biasDir.rotateRight().rotateRight().rotateRight(), biasDir.opposite()};
         for (Direction dir : biasedDirections){
-            MapLocation loc = currentLocation.add(dir);
+            MapLocation loc = rc.getLocation().add(dir);
             if (!dirs[dir.ordinal()] || !rc.onTheMap(loc) || rc.canSenseRobotAtLocation(loc)) continue;
             int rubbleVal = rc.senseRubble(loc);
             if (rubbleVal < val){
@@ -326,7 +326,7 @@ public class BotArchon extends Util{
 
     // Sadly, self heal does not look possible.
     private static void selfHeal() throws GameActionException{
-        if (rc.isActionReady() && rc.senseRubble(currentLocation) < 10) {
+        if (rc.isActionReady() && rc.senseRubble(rc.getLocation()) < 10) {
             RobotInfo unit = null;
             double robotHealth = 1000;
             for(int i = inRangeAllies.length; --i >=0;){

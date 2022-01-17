@@ -30,7 +30,7 @@ public class CombatUtil extends Util{
 		int minDistSq = Integer.MAX_VALUE;
         int minCombatDistSq = Integer.MAX_VALUE;
         int distSq = 0;
-        MapLocation lCR = currentLocation;
+        MapLocation lCR = rc.getLocation();
 		for (int i = units.length; --i >= 0; ) {
 			distSq = lCR.distanceSquaredTo(units[i].location);
 			if (distSq < minDistSq) {
