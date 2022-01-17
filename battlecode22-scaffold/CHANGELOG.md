@@ -22,3 +22,5 @@
 ## TopTenBot
 
 * Change all currentLocation mentions to rc.getLocation() as only 1 bytecode cost
+* Improved offensive Archon Repositioning system by adding limiters (don't move when excessive lead reserve, increased turns waiting to move)
+* Removed bug that didn't allow the update of our archon's locations in the relevant comms channels. This decreased performance somehow. Absolutely no idea why.

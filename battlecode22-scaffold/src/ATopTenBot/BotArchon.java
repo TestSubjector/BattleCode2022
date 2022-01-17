@@ -298,8 +298,8 @@ public class BotArchon extends Util{
         else commID = transmitterCount; 
         rc.writeSharedArray(Comms.CHANNEL_TRANSMITTER_COUNT, commID+1); // Clears Transmitter Count by First Archon
 
-        if (turnCount < 3 || hasMoved)
-            Comms.writeSHAFlagMessage(currentLocation, Comms.SHAFlag.ARCHON_LOCATION, Comms.CHANNEL_ARCHON_START + commID*4);        
+        // if (turnCount < 3 || hasMoved)
+        Comms.writeSHAFlagMessage(rc.getLocation(), Comms.SHAFlag.ARCHON_LOCATION, Comms.CHANNEL_ARCHON_START + commID*4);        
         
         getCommCounts();
 
@@ -486,7 +486,9 @@ public class BotArchon extends Util{
         if (goodPlace) return;
         MapLocation loc = null;
         int enemyCombatUnits = CombatUtil.militaryCount(visibleEnemies);
-        int alliedCombatUnits = CombatUtil.militaryCount(inRangeAllies);
+        // int alliedCombatUnits = CombatUtil.militaryCount(inRangeAllies);
+        RobotInfo[] soldiersNearby = rc.senseNearbyRobots(SOLDIER_ACTION_RADIUS);
+        int alliedCombatUnits = CombatUtil.militaryCount(soldiersNearby);
         if (enemyCombatUnits != 0 && alliedCombatUnits > enemyCombatUnits){
             if (rc.getMode() == RobotMode.PORTABLE && rc.getLocation().distanceSquaredTo(transformAndMoveOrigin) > ARCHON_ACTION_RADIUS){
                 goodPlace = true;
