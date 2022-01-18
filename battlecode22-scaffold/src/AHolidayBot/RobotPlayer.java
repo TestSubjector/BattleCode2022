@@ -1,4 +1,4 @@
-package AFinalSprintTwoBot;
+package AHolidayBot;
 
 import battlecode.common.*;
 
@@ -17,6 +17,7 @@ public strictfp class RobotPlayer {
             case ARCHON:     BotArchon.initBotArchon();         break;
             case WATCHTOWER: BotWatchTower.initBotWatchTower(); break;
             case LABORATORY: BotLaboratory.initBotLaboratory(); break;
+            case SAGE:       BotSage.initBotSage();             break;
         }
         // if (rc.getType() == RobotType.MINER) 
             // System.out.println(" Byte code C: " + Clock.getBytecodesLeft());
@@ -31,7 +32,7 @@ public strictfp class RobotPlayer {
                     case LABORATORY: BotLaboratory.runLaboratory(rc); break;
                     case WATCHTOWER: BotWatchTower.runWatchTower(rc); break;
                     case BUILDER:    BotBuilder.runBuilder(rc);       break;
-                    case SAGE:       break;
+                    case SAGE:       BotSage.runSage(rc);             break;
                 }
                 // Bytecode Testing Area
                 // Util.byteCodeTest();

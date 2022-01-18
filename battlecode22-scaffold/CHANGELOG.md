@@ -37,8 +37,18 @@ than max rubble.
 * Better retreat decision score evaluation
 * Soldier will also now send enemyArchon location to comms
 
-
 ## SuccessSprintTwoBot:
 
 * Added number of turns in move limitation to Archon Repostioning System for small maps.
+
+## FinalSprintTwoBot
+
+* Some bugfixes for archon
+* Combat comms will only transmit enemy combat units
+* Sages base code created
+
+## Holiday Bot
+
+* For the break between Sprint and spec change
+
   

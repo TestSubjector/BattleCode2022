@@ -1,4 +1,4 @@
-package AFinalSprintTwoBot;
+package AHolidayBot;
 
 import battlecode.common.*;
 
@@ -333,6 +333,7 @@ public class BotSoldier extends CombatUtil{
         if (visibleHostiles.length != 0 && Clock.getBytecodesLeft() > 600){
             // RobotInfo closestHostile = getClosestMilitaryUnit(visibleHostiles), closestUnit = getClosestUnitWithCombatPriority(visibleHostiles);
 			RobotInfo closestHostile = getClosestMilitaryUnit(visibleHostiles);
+            if (closestHostile == null) return false;
 			currentDestination = closestHostile.location;
             if (closestHostile != null)
 				Comms.writeCommMessageOverrwriteLesserPriorityMessageUsingQueue(Comms.commType.COMBAT, closestHostile.getLocation(), Comms.SHAFlag.COMBAT_LOCATION);

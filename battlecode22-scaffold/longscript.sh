@@ -1,6 +1,6 @@
 #!/bin/bash
 
-team1=ASuccessSprintTwoBot
+team1=AFinalSprintTwoBot
 count1=0
 for team2 in OGrindstoneBot OFoolsGoldNewBot 
 # OPageOneBot OGoldenBot OPaladinBot ODepleteBot OProductionBot OEcoBot OFleeingBot OEfficientBot OMicroBot OActualCombatBot OCombatBot

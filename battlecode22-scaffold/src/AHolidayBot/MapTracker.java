@@ -1,4 +1,4 @@
-package AFinalSprintTwoBot;
+package AHolidayBot;
 
 import battlecode.common.MapLocation;
 

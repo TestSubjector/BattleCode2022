@@ -1,4 +1,4 @@
-package AFinalSprintTwoBot;
+package OFinalSprintTwoBot;
 
 import java.util.Random;
 
