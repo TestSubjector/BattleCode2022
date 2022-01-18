@@ -620,6 +620,23 @@ public class Comms extends Util{
         }
     }
 
+    public static MapLocation getClosestEnemyArchonLocation() throws GameActionException{
+        MapLocation closestEnemyArchonLocation = null;
+        MapLocation enemyArchonLocation = null;
+        int smallestDist = Integer.MAX_VALUE;
+        for(int i = CHANNEL_ARCHON_START + 1; i < channelArchonStop; i+=4){
+            int message = rc.readSharedArray(i);
+            if (readSHAFlagFromMessage(message) == SHAFlag.CONFIRMED_ENEMY_ARCHON_LOCATION){
+                enemyArchonLocation = readLocationFromMessage(message);
+                if(rc.getLocation().distanceSquaredTo(enemyArchonLocation) < smallestDist){
+                    smallestDist = rc.getLocation().distanceSquaredTo(enemyArchonLocation);
+                    closestEnemyArchonLocation = enemyArchonLocation;
+                }
+            }
+        }
+        return closestEnemyArchonLocation;
+    }
+
 
     public static int getArchonUtilChannel(){
         return (CHANNEL_ARCHON_START + BotArchon.commID * 4 + 2);

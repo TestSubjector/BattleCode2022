@@ -73,7 +73,6 @@ public class BotArchon extends Util{
         atTargetLocationForTransform = false;
         transformAndMoveOrigin = null;
         goodPlace = false;
-        selectedEnemyDestination = setEnemyDestination(); // This is for building of soldiers closer to enemy archon guess
     }
     
     
@@ -419,6 +418,7 @@ public class BotArchon extends Util{
     public static void updateArchon() throws GameActionException{
         archonComms();
         updateVision();
+        selectedEnemyDestination = setEnemyDestination(); // This is for building of soldiers closer to enemy archon guess
         Comms.writeArchonMode(rc.getMode());
         if (commID == 0) Comms.wipeChannels(Comms.commType.COMBAT);
         shouldTransformAndMove();

@@ -16,7 +16,7 @@ public class BotSoldier extends CombatUtil{
         // if (rc.getRoundNum() > 500){
         //     findNewCombatLocation();
         // }
-        currentDestination = Comms.findNearestLocationOfThisTypeOutOfVision(rc.getLocation(), Comms.commType.COMBAT, Comms.SHAFlag.CONFIRMED_ENEMY_ARCHON_LOCATION);
+        currentDestination = Comms.getClosestEnemyArchonLocation();
         if (currentDestination == null){
             for (int i = 0; i < 4; i++){
                 if (rememberedEnemyArchonLocations[i] != null && CombatUtil.enemyArchonLocationGuessIsFalse(rememberedEnemyArchonLocations[i]))
@@ -102,7 +102,7 @@ public class BotSoldier extends CombatUtil{
 		int closestHostileDistSq = Integer.MAX_VALUE;
         MapLocation lCR = rc.getLocation();
         for (RobotInfo hostile : visibleHostiles) {
-			if (!hostile.type.canAttack()) continue;
+			if (!hostile.type.canAttack() && hostile.type != RobotType.ARCHON ) continue;
 			int distSq = lCR.distanceSquaredTo(hostile.location);
 			if (distSq < closestHostileDistSq) {
 				closestHostileDistSq = distSq;
@@ -162,7 +162,7 @@ public class BotSoldier extends CombatUtil{
 			}
 		}
 		if (allyIsFighting) 
-			if (BFS.move(closestHostileLocation)) 
+			if (Movement.tryMoveInDirection(closestHostileLocation)) 
 				return true;
 
 		return false;
@@ -300,15 +300,6 @@ public class BotSoldier extends CombatUtil{
             return false;
         }
 
-        // if (inHealingState){
-        //     if(rc.isActionReady() && inRangeEnemies.length > 0){
-        //         chooseTargetAndAttack(inRangeEnemies);
-        //         return true;
-        //     }
-        //     // TODO: Improve fleeing?
-        //     return false;
-        // }
-
         if (rc.isMovementReady()){
             if(retreatIfOutnumbered(visibleEnemies)) return true;
             // if(retreatFromEnemyWatchTowerRange()) return true;
@@ -328,9 +319,9 @@ public class BotSoldier extends CombatUtil{
             // Most important function
             if (inRangeEnemies.length > 0 && tryToBackUpToMaintainMaxRange(visibleEnemies)) return true; // Cant attack, try to move out
             RobotInfo closestHostile = getClosestUnitWithCombatPriority(visibleEnemies);
-            if (tryMoveToHelpAlly(closestHostile)) return true; // Maybe add how many turns of attack cooldown here and how much damage being taken?
-            if (tryMoveToEngageOutnumberedEnemy(visibleEnemies, closestHostile)) return true;
-            if (tryMoveToAttackProductionUnit(closestHostile)) return true;
+            if (!inHealingState && tryMoveToHelpAlly(closestHostile)) return true; // Maybe add how many turns of attack cooldown here and how much damage being taken?
+            if (!inHealingState && tryMoveToEngageOutnumberedEnemy(visibleEnemies, closestHostile)) return true;
+            if (!inHealingState && tryMoveToAttackProductionUnit(closestHostile)) return true;
         }
         return false;
     }

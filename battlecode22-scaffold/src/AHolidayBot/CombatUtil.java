@@ -65,7 +65,7 @@ public class CombatUtil extends Util{
 
     public static boolean enemyArchonLocationGuessIsFalse(MapLocation enemyArchon) throws GameActionException{
         for (int j = 0; j < archonCount; j++){
-            if (enemyArchon.equals(archonLocations[j])) return true;
+            if (archonLocations[j] != null && enemyArchon.equals(archonLocations[j])) return true;
         }
         return false;
     }

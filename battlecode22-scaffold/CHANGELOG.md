@@ -53,4 +53,7 @@ than max rubble.
 * Finally have a better enemy archon guessing strategy
 * Implement same guessing strategy for soldiers
 * Soldiers now have opportunisticCombatDestination, to move to active combat locations
+* Comm function for getting confirmed enemy archon location from Archon channels
+* Healing states prevent moving deeper into combat
+* Support ally using simpler tryToMove
   

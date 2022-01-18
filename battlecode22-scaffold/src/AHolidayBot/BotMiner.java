@@ -95,7 +95,6 @@ public class BotMiner extends Explore{
         for (RobotInfo bot : visibleEnemies){
             if (bot.type == RobotType.ARCHON){
                 Comms.writeCommMessageOverrwriteLesserPriorityMessageUsingQueue(Comms.commType.COMBAT, bot.getLocation(), Comms.SHAFlag.CONFIRMED_ENEMY_ARCHON_LOCATION);
-                // Comms.writeCommMessageUsingQueueWithoutRedundancy(Comms.commType.COMBAT, bot.getLocation(), Comms.SHAFlag.CONFIRMED_ENEMY_ARCHON_LOCATION);
                 return true;
             }
         }
