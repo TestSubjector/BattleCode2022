@@ -1,4 +1,4 @@
-package AHolidayBot;
+package AHolidayTwoBot;
 
 import battlecode.common.MapLocation;
 

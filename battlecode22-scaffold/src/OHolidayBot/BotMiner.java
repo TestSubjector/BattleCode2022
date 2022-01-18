@@ -1,4 +1,4 @@
-package AHolidayBot;
+package OHolidayBot;
 
 import battlecode.common.*;
 
