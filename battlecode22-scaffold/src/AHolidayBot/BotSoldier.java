@@ -18,14 +18,20 @@ public class BotSoldier extends CombatUtil{
         // }
         currentDestination = Comms.findNearestLocationOfThisTypeOutOfVision(rc.getLocation(), Comms.commType.COMBAT, Comms.SHAFlag.CONFIRMED_ENEMY_ARCHON_LOCATION);
         if (currentDestination == null){
-            if(BIRTH_ROUND % 3 == 0) {
-                currentDestination = ratioPointBetweenTwoMapLocations(parentArchonLocation, rememberedEnemyArchonLocations[0], 0.15);
-            } 
-            else if (BIRTH_ROUND % 3 == 1){
-                currentDestination = ratioPointBetweenTwoMapLocations(parentArchonLocation, rememberedEnemyArchonLocations[1], 0.15);
+            for (int i = 0; i < 4; i++){
+                if (rememberedEnemyArchonLocations[i] != null && CombatUtil.enemyArchonLocationGuessIsFalse(rememberedEnemyArchonLocations[i]))
+                    rememberedEnemyArchonLocations[i] = null;
             }
+            int token = BIRTH_ROUND % 3;
+            if (rememberedEnemyArchonLocations[(token+1)%3] != null)  
+                currentDestination = rememberedEnemyArchonLocations[(token+1)%3];
+            else if (rememberedEnemyArchonLocations[(token+2)%3] != null) 
+                currentDestination = rememberedEnemyArchonLocations[(token+2)%3];
+            else if (rememberedEnemyArchonLocations[(token)%3] != null) 
+                currentDestination = rememberedEnemyArchonLocations[(token)%3];
             else{
-                currentDestination = ratioPointBetweenTwoMapLocations(parentArchonLocation, rememberedEnemyArchonLocations[2], 0.15);
+                System.out.println("ERROR: No enemy archon locations");
+                currentDestination = CENTER_OF_THE_MAP;
             }
         }
     }
@@ -337,15 +343,6 @@ public class BotSoldier extends CombatUtil{
 			currentDestination = closestHostile.location;
             if (closestHostile != null)
 				Comms.writeCommMessageOverrwriteLesserPriorityMessageUsingQueue(Comms.commType.COMBAT, closestHostile.getLocation(), Comms.SHAFlag.COMBAT_LOCATION);
-            // currentDestination = closestUnit.location;
-            // if (closestUnit != null && !closestUnit.type.equals(RobotType.MINER))
-			// 	Comms.writeCommMessageOverrwriteLesserPriorityMessageUsingQueue(Comms.commType.COMBAT, closestUnit.getLocation(), Comms.SHAFlag.COMBAT_LOCATION);
-			// else if (closestUnit != null){
-			// 	Comms.writeCommMessageOverrwriteLesserPriorityMessageUsingQueue(Comms.commType.COMBAT, closestUnit.getLocation(), Comms.SHAFlag.ENEMY_MINER_LOCATION);
-			// 	if (closestHostile != null)
-			// 	Comms.writeCommMessageOverrwriteLesserPriorityMessageUsingQueue(Comms.commType.COMBAT, closestHostile.getLocation(), Comms.SHAFlag.ENEMY_MINER_LOCATION);
-			// }
-			
             return true;
         }
         return false;
@@ -353,7 +350,7 @@ public class BotSoldier extends CombatUtil{
 
     // If our current destination has no enemies left, move to the nearest new location with combat
     public static boolean findNewCombatLocation() throws GameActionException{
-        if (visibleEnemies.length == 0 && rc.getLocation().distanceSquaredTo(currentDestination) <= SOLDIER_VISION_RADIUS){
+        if (currentDestination == null || (visibleEnemies.length == 0 && rc.getLocation().distanceSquaredTo(currentDestination) <= SOLDIER_VISION_RADIUS)){
             MapLocation combatLocation = Comms.findNearestLocationOfThisTypeOutOfVision(rc.getLocation(), Comms.commType.COMBAT, Comms.SHAFlag.COMBAT_LOCATION);
 			// if (combatLocation == null) Comms.findNearestLocationOfThisTypeOutOfVision(rc.getLocation(), Comms.commType.COMBAT, Comms.SHAFlag.ENEMY_MINER_LOCATION);
             if (combatLocation != null){
@@ -401,6 +398,18 @@ public class BotSoldier extends CombatUtil{
     //     return false;
     // }
 
+    /**
+    * This will try to update the destination of the soldier so as to not make it go away from fights to a predetermined location.
+    */
+    private static void opportunisticCombatDestination() throws GameActionException{
+        MapLocation nearestCombatLocation = Comms.findNearestLocationOfThisTypeOutOfVision(rc.getLocation(), Comms.commType.COMBAT, Comms.SHAFlag.COMBAT_LOCATION);
+        if (nearestCombatLocation != null){ 
+            if (currentDestination == null) currentDestination = nearestCombatLocation;
+            else if (!rc.canSenseLocation(currentDestination) && rc.getLocation().distanceSquaredTo(currentDestination) > rc.getLocation().distanceSquaredTo(nearestCombatLocation)){
+                currentDestination = nearestCombatLocation;
+            }
+        }
+    }
 
     /**
     * Run a single turn for a Soldier.
@@ -410,6 +419,8 @@ public class BotSoldier extends CombatUtil{
         soldierComms(); // 300 Bytecodes
         // TODO: Combat simulator for soldiers, sense all rubble in vision for 1v1 or 1vMany combat
         updateVision();
+        opportunisticCombatDestination();
+
         // checkIfEnemyArchonInVision();
         // simpleAttack();
         manageHealingState();

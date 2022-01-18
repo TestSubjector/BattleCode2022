@@ -312,12 +312,6 @@ public class Globals {
         archonCount = rc.getArchonCount();
 	}
 
-    // Heavy bytecode method
-    // public static void updateSurroundings() {
-        // visibleEnemies = rc.senseNearbyRobots(-1, ENEMY_TEAM); // 100 bytecodes
-        // visibleAllies = rc.senseNearbyRobots(-1, MY_TEAM); // 100 bytecodes
-    // }
-
     // This function can error when we suicide Archon after creating a unit
     public static void updateEnemyArchonLocation() throws NullPointerException {
         // To anyone seeing this, this should actually have a -1, example is MAP_WIDTH - p.x - 1.

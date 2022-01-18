@@ -50,5 +50,7 @@ than max rubble.
 ## Holiday Bot
 
 * For the break between Sprint and spec change
-
+* Finally have a better enemy archon guessing strategy
+* Implement same guessing strategy for soldiers
+* Soldiers now have opportunisticCombatDestination, to move to active combat locations
   

@@ -39,12 +39,25 @@ public class BotArchon extends Util{
     private static int transformAndMoveTurns;
     private static final int TRANSFORM_AND_MOVE_TURNS_LIMIT = 35;
     private static final int LEAD_RESERVE_UPPER_BOUND = 120;
-    // private static final
     private static boolean transformAndMove;
     private static boolean atTargetLocationForTransform;
     private static boolean isFleeing = false;
     private static boolean goodPlace;
+    private static MapLocation selectedEnemyDestination;
 
+    public static MapLocation setEnemyDestination() throws GameActionException{
+        for (int i = 0; i < 4; i++){
+            if (rememberedEnemyArchonLocations[i] != null && CombatUtil.enemyArchonLocationGuessIsFalse(rememberedEnemyArchonLocations[i]))
+                rememberedEnemyArchonLocations[i] = null;
+        }
+        if (rememberedEnemyArchonLocations[1] != null)  return rememberedEnemyArchonLocations[1];
+        else if (rememberedEnemyArchonLocations[2] != null) return rememberedEnemyArchonLocations[2];
+        else if (rememberedEnemyArchonLocations[0] != null) return rememberedEnemyArchonLocations[0];
+        else{
+            System.out.println("ERROR: No enemy archon locations");
+            return CENTER_OF_THE_MAP;
+        }
+    }
 
     // This will give each Archon which number it is in the queue
     public static void initBotArchon() throws GameActionException {
@@ -60,15 +73,7 @@ public class BotArchon extends Util{
         atTargetLocationForTransform = false;
         transformAndMoveOrigin = null;
         goodPlace = false;
-        // if(BIRTH_ROUND % 3 == 0) {
-            // currentDestination = ratioPointBetweenTwoMapLocations(parentArchonLocation, rememberedEnemyArchonLocations[0], 0.15);
-        // } 
-        // else if (BIRTH_ROUND % 3 == 1){
-        currentDestination = ratioPointBetweenTwoMapLocations(parentArchonLocation, rememberedEnemyArchonLocations[1], 0.15);
-        // }
-        // else{
-            // currentDestination = ratioPointBetweenTwoMapLocations(parentArchonLocation, rememberedEnemyArchonLocations[2], 0.15);
-        // }
+        selectedEnemyDestination = setEnemyDestination(); // This is for building of soldiers closer to enemy archon guess
     }
     
     
@@ -92,7 +97,7 @@ public class BotArchon extends Util{
 
 
     private static void updateVision() throws GameActionException {
-        visibleEnemies = rc.senseNearbyRobots(ARCHON_VISION_RADIUS, ENEMY_TEAM); // TODO - Is apparently better?
+        visibleEnemies = rc.senseNearbyRobots(ARCHON_VISION_RADIUS, ENEMY_TEAM);
         inRangeEnemies = rc.senseNearbyRobots(ARCHON_ACTION_RADIUS, ENEMY_TEAM);
         visibleAllies = rc.senseNearbyRobots(ARCHON_VISION_RADIUS, MY_TEAM); 
         inRangeAllies = rc.senseNearbyRobots(ARCHON_ACTION_RADIUS, MY_TEAM);
@@ -168,7 +173,7 @@ public class BotArchon extends Util{
         for (Direction dir : directions) {
             if (!rc.canBuildRobot(unitType, dir)) continue;
 
-            SpawnValue = getValue(lCR, currentDestination, dir); // TODO: Change destination
+            SpawnValue = getValue(lCR, selectedEnemyDestination, dir); // TODO: Change destination
             if (bestSpawnDir == null || SpawnValue < bestSpawnValue) {
                 bestSpawnDir = dir;
                 bestSpawnValue = SpawnValue;
