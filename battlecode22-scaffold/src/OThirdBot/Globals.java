@@ -167,7 +167,9 @@ public class Globals {
     /** Constants for alchemists converting lead to gold. */
     public static final double ALCHEMIST_LONELINESS_A = GameConstants.ALCHEMIST_LONELINESS_A;
     public static final double ALCHEMIST_LONELINESS_B = GameConstants.ALCHEMIST_LONELINESS_B;
-    public static final double ALCHEMIST_LONELINESS_K = GameConstants.ALCHEMIST_LONELINESS_K;
+    public static final double ALCHEMIST_LONELINESS_K_L1 = GameConstants.ALCHEMIST_LONELINESS_K_L1;
+    public static final double ALCHEMIST_LONELINESS_K_L2 = GameConstants.ALCHEMIST_LONELINESS_K_L2;
+    public static final double ALCHEMIST_LONELINESS_K_L3 = GameConstants.ALCHEMIST_LONELINESS_K_L3;
 
     public static final Direction NORTH = Direction.NORTH;
     public static final Direction NORTHEAST = Direction.NORTHEAST;

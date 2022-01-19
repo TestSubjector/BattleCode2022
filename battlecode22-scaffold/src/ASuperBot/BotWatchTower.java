@@ -66,7 +66,7 @@ public class BotWatchTower extends Util{
 	}
 
     private static void turretTower() throws GameActionException{
-        if (inRangeEnemies.length > 0) {
+        if (inRangeEnemies.length > 0 && rc.isActionReady()) {
             chooseTargetAndAttack(inRangeEnemies);
         }
     }
