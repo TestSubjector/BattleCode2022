@@ -56,4 +56,6 @@ than max rubble.
 * Comm function for getting confirmed enemy archon location from Archon channels
 * Healing states prevent moving deeper into combat
 * Support ally using simpler tryToMove
+* Bytecode optimisations for soldier
   
+## SewerBot

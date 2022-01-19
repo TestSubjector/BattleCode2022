@@ -1,4 +1,4 @@
-package AHolidayTwoBot;
+package ASewerBot;
 
 import battlecode.common.*;
 
