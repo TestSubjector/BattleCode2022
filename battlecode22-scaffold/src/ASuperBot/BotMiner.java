@@ -61,7 +61,8 @@ public class BotMiner extends Explore{
 
     public static boolean isLocationBeingMined(MapLocation loc) throws GameActionException{
         MapLocation[] locAdjacentLocations = rc.getAllLocationsWithinRadiusSquared(loc, MINER_ACTION_RADIUS);
-        for (MapLocation curLoc : locAdjacentLocations){
+        for (int i = locAdjacentLocations.length; i-->0;){
+            MapLocation curLoc = locAdjacentLocations[i];
             if (!rc.canSenseLocation(curLoc)) continue;
             RobotInfo bot = rc.senseRobotAtLocation(curLoc);
             if (bot != null && bot.team == MY_TEAM && bot.type == RobotType.MINER) return true;
@@ -92,7 +93,8 @@ public class BotMiner extends Explore{
 
 
     private static boolean checkIfEnemyArchonInVision() throws GameActionException{
-        for (RobotInfo bot : visibleEnemies){
+        for (int i = visibleEnemies.length; i-->0;){
+            RobotInfo bot = visibleEnemies[i];
             if (bot.type == RobotType.ARCHON){
                 Comms.writeCommMessageOverrwriteLesserPriorityMessageUsingQueue(Comms.commType.COMBAT, bot.getLocation(), Comms.SHAFlag.CONFIRMED_ENEMY_ARCHON_LOCATION);
                 return true;
@@ -136,7 +138,8 @@ public class BotMiner extends Explore{
     public static void mine() throws GameActionException{
         if (!rc.isActionReady()) return;
         MapLocation[] adjacentLocations = rc.getAllLocationsWithinRadiusSquared(rc.getLocation(), 2);
-        for (MapLocation loc : adjacentLocations){
+        for (int i = adjacentLocations.length; i-->0;){
+            MapLocation loc = adjacentLocations[i];
             if (!rc.isActionReady()) return;
             while(rc.canMineGold(loc)){
                 isMinedThisTurn = true;
@@ -170,7 +173,8 @@ public class BotMiner extends Explore{
         if (locations.length == 1) return locations[0];
         MapLocation opt = null;
         double value = 0;
-        for (MapLocation loc : locations){
+        for (int i = locations.length; i-->0;){
+            MapLocation loc = locations[i];
             double curValue;
             if (searchByDistance) curValue = -rc.getLocation().distanceSquaredTo(loc);
             else curValue = ((double)rc.senseGold(loc)) / ((double)rc.senseRubble(loc));
@@ -187,7 +191,8 @@ public class BotMiner extends Explore{
         if (locations.length == 1) return locations[0];
         MapLocation opt = null;
         double value = 0;
-        for (MapLocation loc : locations){
+        for (int i = locations.length; i-->0;){
+            MapLocation loc = locations[i];
             double curValue;
             if (searchByDistance) curValue = -rc.getLocation().distanceSquaredTo(loc);
             else curValue = ((double)rc.senseLead(loc) + 1) / ((double)rc.senseRubble(loc) + 1);;
@@ -203,8 +208,8 @@ public class BotMiner extends Explore{
     public static int countOfMinersInVicinity() throws GameActionException{
         RobotInfo[] visibleAllies = rc.senseNearbyRobots(MINER_VISION_RADIUS, MY_TEAM);
         int count = 0;
-        for (RobotInfo bot : visibleAllies){
-            if (bot.type == RobotType.MINER) count++;
+        for (int i = visibleAllies.length; i-->0;){
+            if (visibleAllies[i].type == RobotType.MINER) count++;
         }
         return count;
     }
@@ -224,7 +229,7 @@ public class BotMiner extends Explore{
         MapLocation[] potentialMiningLocations = rc.senseNearbyLocationsWithGold();
         if (potentialMiningLocations.length > 0) return findOptimalLocationForMiningGold(potentialMiningLocations);
         if (!depleteMine) 
-        potentialMiningLocations = rc.senseNearbyLocationsWithLead(MINER_VISION_RADIUS, 5);
+            potentialMiningLocations = rc.senseNearbyLocationsWithLead(MINER_VISION_RADIUS, 5);
         else potentialMiningLocations = rc.senseNearbyLocationsWithLead();
         if (potentialMiningLocations.length > 0) return findOptimalLocationForMiningLead(potentialMiningLocations);
         return null;
@@ -256,7 +261,6 @@ public class BotMiner extends Explore{
         // miningLocation is inside vision range and is occupied now:
         miningLocation = null;
         inPlaceForMining = false;
-        if (Clock.getBytecodesLeft() < 3000) return;
         getMiningLocation();
         if (!rc.isMovementReady()) return;
         
@@ -413,20 +417,21 @@ public class BotMiner extends Explore{
     }
 
 
-    public static void surveyForOpenMiningLocationsNearby() throws GameActionException{
-        MapLocation[] potentialMiningLocations = rc.senseNearbyLocationsWithLead(UNIT_TYPE.visionRadiusSquared);
-        for (MapLocation loc : potentialMiningLocations){  // Team bias
-            if (Clock.getBytecodesLeft() < 1200)
-                break;
-            if (rc.getLocation().distanceSquaredTo(loc) > 2 && goodMiningSpot(loc)){
-                Comms.writeCommMessageOverrwriteLesserPriorityMessageUsingQueue(Comms.commType.LEAD, loc, Comms.SHAFlag.LEAD_LOCATION);
-            }
-        }
-    }
+    // public static void surveyForOpenMiningLocationsNearby() throws GameActionException{
+    //     MapLocation[] potentialMiningLocations = rc.senseNearbyLocationsWithLead(UNIT_TYPE.visionRadiusSquared);
+    //     for (MapLocation loc : potentialMiningLocations){  // Team bias
+    //         if (Clock.getBytecodesLeft() < 1200)
+    //             break;
+    //         if (rc.getLocation().distanceSquaredTo(loc) > 2 && goodMiningSpot(loc)){
+    //             Comms.writeCommMessageOverrwriteLesserPriorityMessageUsingQueue(Comms.commType.LEAD, loc, Comms.SHAFlag.LEAD_LOCATION);
+    //         }
+    //     }
+    // }
     
 
     public static boolean isSafeToMine(MapLocation loc){
-        for (RobotInfo enemy : visibleEnemies) {
+        for (int i = visibleEnemies.length; --i >= 0;) {
+            RobotInfo enemy = visibleEnemies[i];
             switch (enemy.type) {
                 case SOLDIER:
                 case WATCHTOWER:
@@ -444,45 +449,45 @@ public class BotMiner extends Explore{
     }
 
 
-    public static void runAway() throws GameActionException{
-        moveOut = false;
-        RobotInfo nearestEnemy = null;
-        int smallestDistSq = 999999;
-        for (RobotInfo enemy : visibleEnemies) {
+    // public static void runAway() throws GameActionException{
+    //     moveOut = false;
+    //     RobotInfo nearestEnemy = null;
+    //     int smallestDistSq = 999999;
+    //     for (RobotInfo enemy : visibleEnemies) {
 
-            if (enemy.type.canAttack()
-            //  || enemy.type == RobotType.LAUNCHER // Currently not needed, might be needed after buffing of watchtowers
-             ) {
-                int distSq = rc.getLocation().distanceSquaredTo(enemy.location);
-                if (distSq < smallestDistSq) {
-                    smallestDistSq = distSq;
-                    nearestEnemy = enemy;
-                }
-            }
-        }
-        if (nearestEnemy == null) return;
+    //         if (enemy.type.canAttack()
+    //         //  || enemy.type == RobotType.LAUNCHER // Currently not needed, might be needed after buffing of watchtowers
+    //          ) {
+    //             int distSq = rc.getLocation().distanceSquaredTo(enemy.location);
+    //             if (distSq < smallestDistSq) {
+    //                 smallestDistSq = distSq;
+    //                 nearestEnemy = enemy;
+    //             }
+    //         }
+    //     }
+    //     if (nearestEnemy == null) return;
 
-        Direction away = nearestEnemy.location.directionTo(rc.getLocation());
-        Direction[] dirs = new Direction[] { away, away.rotateLeft(), away.rotateRight(), away.rotateLeft().rotateLeft(), away.rotateRight().rotateRight() };
-        double bestCost = Double.MAX_VALUE;
-        Direction bestDir = null;
-        for (Direction dir : dirs) {
-            if (rc.canMove(dir)) {
-                MapLocation loc = rc.getLocation().add(dir);
-                int rubbleValue = rc.senseRubble(loc);
+    //     Direction away = nearestEnemy.location.directionTo(rc.getLocation());
+    //     Direction[] dirs = new Direction[] { away, away.rotateLeft(), away.rotateRight(), away.rotateLeft().rotateLeft(), away.rotateRight().rotateRight() };
+    //     double bestCost = Double.MAX_VALUE;
+    //     Direction bestDir = null;
+    //     for (Direction dir : dirs) {
+    //         if (rc.canMove(dir)) {
+    //             MapLocation loc = rc.getLocation().add(dir);
+    //             int rubbleValue = rc.senseRubble(loc);
                 
-                if (bestCost >  rc.senseRubble(loc)){
-                    bestCost = rubbleValue;
-                    bestDir = dir;
-                }
-            }
-        }
-        if (bestDir != null) {
-            rc.move(bestDir);
-            exploreDir = bestDir;
-            assignExplore3Dir(exploreDir);
-        }
-    }
+    //             if (bestCost >  rc.senseRubble(loc)){
+    //                 bestCost = rubbleValue;
+    //                 bestDir = dir;
+    //             }
+    //         }
+    //     }
+    //     if (bestDir != null) {
+    //         rc.move(bestDir);
+    //         exploreDir = bestDir;
+    //         assignExplore3Dir(exploreDir);
+    //     }
+    // }
 
 
     public static void opportunisticMining() throws GameActionException{
@@ -510,7 +515,8 @@ public class BotMiner extends Explore{
         int homeRubbleVal = rc.senseRubble(rc.getLocation());
         MapLocation selectedLoc = null;
         MapLocation[] mineAdjacentLocations = rc.getAllLocationsWithinRadiusSquared(miningLocation, MINER_ACTION_RADIUS);
-        for(MapLocation loc : mineAdjacentLocations){
+        for (int i = mineAdjacentLocations.length; i-- > 0;){
+            MapLocation loc = mineAdjacentLocations[i];
             int curRubbleVal = rc.senseRubble(loc);
             if (homeRubbleVal > curRubbleVal && rubbleVal >= curRubbleVal){
                 // if (rubbleVal == curRubbleVal){
@@ -617,13 +623,9 @@ public class BotMiner extends Explore{
         // toDieOrNotToDie();
 
         doMining();
-        // if (Clock.getBytecodesLeft() < 1000) return;
         if (moveOut) goMoveOut();
         mine();
-        // if (Clock.getBytecodesLeft() < 2000) return;
         BotSoldier.sendCombatLocation(visibleEnemies);
-        // if (Clock.getBytecodesLeft() < 2000) return;
         // surveyForOpenMiningLocationsNearby();
-        
     }
 }
