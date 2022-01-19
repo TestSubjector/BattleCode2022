@@ -16,6 +16,15 @@ public class CombatUtil extends Util{
         }
     }
 
+	public static boolean isMaxHealth(RobotInfo bot){
+		return (bot.getHealth() == bot.type.getMaxHealth(bot.level));
+	}
+
+	public static boolean isBotInjured(RobotInfo bot){
+		double frac = 2.0d/3.0d;
+		return ((double)bot.health < frac * ((double)bot.type.getMaxHealth(bot.level)));
+	}
+
     public static int militaryCount(RobotInfo[] visibleRobots){
         int count = 0;
         for (int i = visibleRobots.length; --i >= 0;) {
