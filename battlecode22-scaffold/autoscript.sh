@@ -1,7 +1,7 @@
 #!/bin/bash
 
 team1=AWatchTowerBot
-team2=OSuperBot
+team2=OWatchTowerBot
 # team2=OTempBot
 
 mkdir -p logs

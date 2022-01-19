@@ -21,8 +21,6 @@ public class BotMiner extends Explore{
     private static boolean tooCrowded;
     private static final int CROWD_LIMIT = 3;
     private static boolean depleteMine;
-    private static int DEPLETE_MINE_RADIUS_LIMIT;
-    private static final boolean DEPLETE_FROM_ENEMY_LOCATIONS = true;
     private static final int LOW_HEALTH_STRAT_TRIGGER = (int)((MAX_HEALTH*3.0d)/10.0d);
     private static final int LOW_HEALTH_STRAT_RELEASER = (int)((MAX_HEALTH*8.0d)/10.0d);
     public static boolean lowHealthStratInPlay = false;
@@ -39,23 +37,11 @@ public class BotMiner extends Explore{
     }
 
 
-    public static void setDepleteMineRadius(){
-        // TODO: Tune this fraction
-        DEPLETE_MINE_RADIUS_LIMIT = (int)((double)Math.min(MAP_WIDTH, MAP_HEIGHT) * 0.22d);
-        DEPLETE_MINE_RADIUS_LIMIT *= DEPLETE_MINE_RADIUS_LIMIT;
-    }
-
-
     public static void initBotMiner() throws GameActionException{
         prolificMiningLocationsAtBirth = areMiningLocationsAbundant();
         resetVariables();
-        setDepleteMineRadius();
         lowHealthStratInPlay = false;
         lowHealthStratArchon = null;
-        // System.out.println("Low Health Strategy Trigger value: " + LOW_HEALTH_STRAT_TRIGGER);
-        // System.out.println("Low Health Strategy Trigger releaser: " + LOW_HEALTH_STRAT_RELEASER);
-        // adjacentLocations = rc.getAllLocationsWithinRadiusSquared(rc.getLocation(), MINER_VISION_RADIUS);
-        // explore();
     }
 
 
@@ -105,22 +91,19 @@ public class BotMiner extends Explore{
 
 
     public static boolean checkIfToDepleteMine() throws GameActionException{
-        for (int i = Comms.CHANNEL_ARCHON_START; i < Comms.channelArchonStop; i += 4){
-            MapLocation alliedLoc = Comms.readLocationFromMessage(rc.readSharedArray(i));
-            for (int j = Comms.CHANNEL_ARCHON_START + 1; j < Comms.channelArchonStop; j += 4){
-                MapLocation enemyLoc = Comms.readLocationFromMessage(rc.readSharedArray(j));
+        boolean checkedOnce = false;
+        for (int j = Comms.CHANNEL_ARCHON_START + 1; j < Comms.channelArchonStop; j += 4){
+            int message = rc.readSharedArray(j);
+            MapLocation enemyLoc = Comms.readLocationFromMessage(message);
+            if (Comms.readSHAFlagFromMessage(message) != Comms.SHAFlag.CONFIRMED_ENEMY_ARCHON_LOCATION) continue;
+            checkedOnce = true;
+            for (int i = Comms.CHANNEL_ARCHON_START; i < Comms.channelArchonStop; i += 4){
+                MapLocation alliedLoc = Comms.readLocationFromMessage(rc.readSharedArray(i));
                 if ((rc.getLocation().distanceSquaredTo(enemyLoc)) >= (int)(((double)rc.getLocation().distanceSquaredTo(alliedLoc)) / 1.30d)) return false;
             }
         }
-        return true;
-        // int add;
-        // if (DEPLETE_FROM_ENEMY_LOCATIONS) add = 1;
-        // else add = 0;
-        // for (int i = Comms.CHANNEL_ARCHON_START + add; i < Comms.channelArchonStop; i += 4){
-        //     MapLocation loc = Comms.readLocationFromMessage(rc.readSharedArray(i));
-        //     if (loc.distanceSquaredTo(rc.getLocation()) <= DEPLETE_MINE_RADIUS_LIMIT) return DEPLETE_FROM_ENEMY_LOCATIONS;
-        // }
-        // return !DEPLETE_FROM_ENEMY_LOCATIONS;
+        if (checkedOnce) return true;
+        else return false;
     }
 
 

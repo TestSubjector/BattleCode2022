@@ -66,3 +66,5 @@ than max rubble.
 
 ## Watchtower Bot
 
+* Fixed mine depletion code.
+
