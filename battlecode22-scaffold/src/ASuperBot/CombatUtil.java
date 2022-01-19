@@ -72,9 +72,16 @@ public class CombatUtil extends Util{
         return closestCombatUnit;
 	}
 
-    public static boolean enemyArchonLocationGuessIsFalse(MapLocation enemyArchon) throws GameActionException{
+    public static boolean enemyArchonLocationGuessIsFalse(MapLocation enemyArchonGuess) throws GameActionException{
         for (int j = 0; j < archonCount; j++){
-            if (archonLocations[j] != null && enemyArchon.equals(archonLocations[j])) return true;
+            if (archonLocations[j] != null && enemyArchonGuess.equals(archonLocations[j])) return true;
+        }
+        return false;
+    }
+
+    public static boolean enemyArchonLocationAreaIsFalse(MapLocation enemyArchonGuess) throws GameActionException{
+        for (int j = 0; j < archonCount; j++){
+            if (archonLocations[j] != null && enemyArchonGuess.distanceSquaredTo(archonLocations[j]) <= ARCHON_VISION_RADIUS) return true;
         }
         return false;
     }

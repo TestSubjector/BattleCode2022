@@ -59,3 +59,6 @@ than max rubble.
 * Bytecode optimisations for soldier
   
 ## SuperBot
+
+* Improve soldier guessing more
+* Fix a small bug in the healing change code

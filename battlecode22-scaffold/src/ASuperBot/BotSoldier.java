@@ -16,7 +16,7 @@ public class BotSoldier extends CombatUtil{
         currentDestination = Comms.getClosestEnemyArchonLocation();
         if (currentDestination == null){
             for (int i = 0; i < 4; i++){
-                if (rememberedEnemyArchonLocations[i] != null && CombatUtil.enemyArchonLocationGuessIsFalse(rememberedEnemyArchonLocations[i]))
+                if (rememberedEnemyArchonLocations[i] != null && CombatUtil.enemyArchonLocationAreaIsFalse(rememberedEnemyArchonLocations[i]))
                     rememberedEnemyArchonLocations[i] = null;
             }
             int token = BIRTH_ROUND % 3;
@@ -343,7 +343,9 @@ public class BotSoldier extends CombatUtil{
 		
 		MapLocation closestArchon = getClosestArchonLocation();
 		
-		if (closestArchon == null || rc.getLocation().distanceSquaredTo(closestArchon) <= ARCHON_ACTION_RADIUS) 
+		if (closestArchon == null)
+            return false;
+        else if (rc.getLocation().distanceSquaredTo(closestArchon) <= ARCHON_ACTION_RADIUS) 
             Movement.tryMoveInDirection(closestArchon);
 		else
             BFS.move(closestArchon); // TODO: Avoid enemies
