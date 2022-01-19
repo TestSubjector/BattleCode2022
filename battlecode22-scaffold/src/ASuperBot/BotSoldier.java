@@ -312,7 +312,7 @@ public class BotSoldier extends CombatUtil{
     // }
 
     // If our current destination has no enemies left, move to the nearest new location with combat
-    public static boolean findNewCombatLocation() throws GameActionException{
+    private static boolean findNewCombatLocation() throws GameActionException{
         if (currentDestination == null || (visibleEnemies.length == 0 && rc.getLocation().distanceSquaredTo(currentDestination) <= SOLDIER_VISION_RADIUS)){
             MapLocation combatLocation = Comms.findNearestLocationOfThisTypeOutOfVision(rc.getLocation(), Comms.commType.COMBAT, Comms.SHAFlag.COMBAT_LOCATION);
             if (combatLocation != null) currentDestination = combatLocation;

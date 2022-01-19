@@ -8,9 +8,12 @@ public class BotWatchTower extends Util{
 
     private static RobotInfo[] visibleEnemies;
     private static RobotInfo[] inRangeEnemies;
+    private static RobotInfo[] visibleAllies;
+    private static final int PACK_DELAY = 20;
+	private static int packCountdown;
 
     public static void initBotWatchTower(){
-        
+        packCountdown = PACK_DELAY;
     }
 
     public static void watchTowerComms() throws GameActionException {
@@ -23,6 +26,7 @@ public class BotWatchTower extends Util{
     private static void updateVision() throws GameActionException {
         visibleEnemies = rc.senseNearbyRobots(WATCHTOWER_VISION_RADIUS, ENEMY_TEAM);
         inRangeEnemies = rc.senseNearbyRobots(WATCHTOWER_ACTION_RADIUS, ENEMY_TEAM);
+        visibleAllies = rc.senseNearbyRobots(WATCHTOWER_VISION_RADIUS, MY_TEAM);
     }
 
     // TODO: Different priority for watchTower using the todo in next line? 
@@ -48,12 +52,12 @@ public class BotWatchTower extends Util{
 		}
     }
 
-    // Copy of BotSoldier.chooseTargetAndAttack()
-    private static void chooseTargetAndAttack(RobotInfo[] targets) throws GameActionException {
+    private static boolean chooseTargetAndAttack(RobotInfo[] targets) throws GameActionException {
 		RobotInfo bestTarget = null;
 		double bestValue = -1;
         double value = 0;
-		for (RobotInfo target : targets) {
+		for (int i = targets.length; --i >= 0;) {
+            RobotInfo target = targets[i];
 			value = getEnemyScore(target);
 			if (value > bestValue) {
 				bestValue = value;
@@ -62,18 +66,65 @@ public class BotWatchTower extends Util{
 		}
 		if (bestTarget != null) {
 			rc.attack(bestTarget.location);
+            return true;
 		}
+        return false;
 	}
 
     private static void turretTower() throws GameActionException{
-        if (inRangeEnemies.length > 0 && rc.isActionReady()) {
-            chooseTargetAndAttack(inRangeEnemies);
-        }
+        if (inRangeEnemies.length > 0 && rc.isActionReady() && chooseTargetAndAttack(inRangeEnemies)) {
+            packCountdown = PACK_DELAY;
+			return;
+		}
+
+		if (inRangeEnemies.length == 0) {
+			--packCountdown;
+			if (packCountdown == 0 && rc.canTransform()) {
+				rc.transform();
+				return;
+			}
+		}		
     }
 
     private static void portableTower() throws GameActionException{
+        // TODO: Visible enemies and low rubble
+		if (inRangeEnemies.length > 0 && rc.canTransform()) {
+			rc.transform();
+            currentDestination = null;
+			packCountdown = PACK_DELAY;
+			return;
+		}
 
+		moveToCombatLocation();
     }
+
+    public static boolean findNewCombatLocation() throws GameActionException{
+        if (currentDestination == null || (visibleEnemies.length == 0 && rc.getLocation().distanceSquaredTo(currentDestination) <= WATCHTOWER_VISION_RADIUS)){
+            MapLocation combatLocation = Comms.findNearestLocationOfThisTypeOutOfVision(rc.getLocation(), Comms.commType.COMBAT, Comms.SHAFlag.COMBAT_LOCATION);
+            if (combatLocation != null) currentDestination = combatLocation;
+            // else combatLocation = Comms.findNearestLocationOfThisTypeOutOfVision(rc.getLocation(), Comms.commType.COMBAT, Comms.SHAFlag.ENEMY_MINER_LOCATION);
+            // if (combatLocation != null) currentDestination = combatLocation;
+            return true;
+        }
+        return false;
+    }
+
+    private static void moveToCombatLocation() throws GameActionException {
+		if (!rc.isMovementReady()) return;
+
+        if (currentDestination == null) {
+            findNewCombatLocation();
+        }
+
+		if (currentDestination != null && rc.isMovementReady()) {
+			BFS.move(currentDestination);
+		}
+		
+		// if (tryGoToCenterOfMass()) {
+		// 	return;
+		// }
+		
+	}
 
     static void runWatchTower(RobotController rc) throws GameActionException {
         watchTowerComms();
