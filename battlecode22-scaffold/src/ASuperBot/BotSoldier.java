@@ -256,7 +256,6 @@ public class BotSoldier extends CombatUtil{
             if(retreatIfOutnumbered(visibleEnemies)) return true;
             // if(retreatFromEnemyWatchTowerRange()) return true;
         }
-        if (rc.getRoundNum() > 530 && rc.getRoundNum() < 534) System.out.println("Pre action micro " + Clock.getBytecodesLeft());
 
         if (rc.isActionReady()){
             if (inRangeEnemies.length > 0) {

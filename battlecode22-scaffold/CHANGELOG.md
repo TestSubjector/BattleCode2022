@@ -58,4 +58,4 @@ than max rubble.
 * Support ally using simpler tryToMove
 * Bytecode optimisations for soldier
   
-## SewerBot
+## SuperBot
