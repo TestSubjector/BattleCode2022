@@ -1,15 +1,15 @@
-package AWatchTowerBot;
+package OWatchTowerBot;
 
 import java.util.Random;
 
-import org.apache.commons.lang3.ObjectUtils.Null;
+// import org.apache.commons.lang3.ObjectUtils.Null;
 
 import battlecode.common.*;
 
 public class Globals {
 
     public static RobotController rc;
-    public static final Random rng = new Random(6147);
+    public static Random rng;
     public static int turnCount;
     public static int BIRTH_ROUND;
 
@@ -239,6 +239,7 @@ public class Globals {
 
     public static void initGlobals(RobotController rc1) throws GameActionException{
         rc = rc1;
+        rng = new Random(rc.getID());
         BIRTH_ROUND = rc.getRoundNum();
         turnCount = BIRTH_ROUND;
         UNIT_TYPE = rc.getType();

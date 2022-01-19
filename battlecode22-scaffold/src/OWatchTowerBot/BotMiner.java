@@ -1,4 +1,4 @@
-package AWatchTowerBot;
+package OWatchTowerBot;
 
 import battlecode.common.*;
 
@@ -25,6 +25,7 @@ public class BotMiner extends Explore{
     private static final int LOW_HEALTH_STRAT_RELEASER = (int)((MAX_HEALTH*8.0d)/10.0d);
     public static boolean lowHealthStratInPlay = false;
     public static MapLocation lowHealthStratArchon;
+    public static int fleeCount;
     
 
     public static boolean areMiningLocationsAbundant(){
@@ -42,6 +43,7 @@ public class BotMiner extends Explore{
         resetVariables();
         lowHealthStratInPlay = false;
         lowHealthStratArchon = null;
+        fleeCount = 0;
     }
 
 
@@ -60,8 +62,10 @@ public class BotMiner extends Explore{
     public static void updateMiner() throws GameActionException{
         isMinedThisTurn = false;
         moveOut = true;
-        tooCrowded = false; 
-        isFleeing = false;
+        tooCrowded = false;
+        fleeCount = Math.max(0, fleeCount - 1);
+        if (fleeCount == 0) isFleeing = false;
+        else isFleeing = true;
         minerComms();
         updateVision();
         if (BotArchon.SMALL_MAP)
@@ -74,6 +78,7 @@ public class BotMiner extends Explore{
             miningLocation = null;
             inPlaceForMining = false;
             isFleeing = CombatUtil.tryToBackUpToMaintainMaxRangeMiner(visibleEnemies);
+            fleeCount = 5;
         }
     }
 
@@ -344,8 +349,8 @@ public class BotMiner extends Explore{
         MapLocation closestArchon = getClosestArchonLocation();
         if (rc.canSenseLocation(closestArchon)) 
             assignExplore3Dir(closestArchon.directionTo(rc.getLocation()));
-        // else assignExplore3Dir(directions[(int)(Math.random()*8)]);
-        else assignExplore3Dir(directions[Globals.rng.nextInt(8)]);
+        else
+            assignExplore3Dir(directions[Globals.rng.nextInt(8)]);
         // else{
         //     System.out.println("Biased random direction being used");
         //     assignExplore3Dir(biasedRandomDirectionGenerator(findBiasDirection()));

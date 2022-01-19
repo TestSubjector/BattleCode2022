@@ -1,4 +1,4 @@
-package AWatchTowerBot;
+package OWatchTowerBot;
 
 import battlecode.common.*;
 
@@ -131,33 +131,33 @@ public class BotArchon extends Util{
     }
 
 
-    public static Direction getBestSpawnDirectionForMiners() throws GameActionException{
-        boolean[] dirs = new boolean[8];
-        for (Direction dir: directions) dirs[dir.ordinal()] = false;  
-        for (Direction dir : directions){
-            MapLocation loc = rc.getLocation().add(dir);
-            if (!rc.onTheMap(loc)) continue;
-            if (rc.senseLead(loc) > 0){ 
-                dirs[dir.ordinal()] = true;
-                dirs[dir.rotateLeft().ordinal()] = true;
-                dirs[dir.rotateRight().ordinal()] = true;
-            }
-        }
-        Direction biasDir = rc.getLocation().directionTo(CENTER_OF_THE_MAP), bestSpawnDir = null;
-        int val = Integer.MAX_VALUE;
-        Direction[] biasedDirections = new Direction[] {biasDir, biasDir.rotateLeft(), biasDir.rotateRight(), biasDir.rotateLeft().rotateLeft(), biasDir.rotateRight().rotateRight(), biasDir.rotateLeft().rotateLeft().rotateLeft(), biasDir.rotateRight().rotateRight().rotateRight(), biasDir.opposite()};
-        for (Direction dir : biasedDirections){
-            MapLocation loc = rc.getLocation().add(dir);
-            if (!dirs[dir.ordinal()] || !rc.onTheMap(loc) || rc.canSenseRobotAtLocation(loc)) continue;
-            int rubbleVal = rc.senseRubble(loc);
-            if (rubbleVal < val){
-                bestSpawnDir = dir;
-                val = rubbleVal;
-            }
-        }
-        rc.setIndicatorString("Mine spawn dir: " + bestSpawnDir);
-        return bestSpawnDir;
-    }
+    // public static Direction getBestSpawnDirectionForMiners() throws GameActionException{
+    //     boolean[] dirs = new boolean[8];
+    //     for (Direction dir: directions) dirs[dir.ordinal()] = false;  
+    //     for (Direction dir : directions){
+    //         MapLocation loc = rc.getLocation().add(dir);
+    //         if (!rc.onTheMap(loc)) continue;
+    //         if (rc.senseLead(loc) > 0){ 
+    //             dirs[dir.ordinal()] = true;
+    //             dirs[dir.rotateLeft().ordinal()] = true;
+    //             dirs[dir.rotateRight().ordinal()] = true;
+    //         }
+    //     }
+    //     Direction biasDir = rc.getLocation().directionTo(CENTER_OF_THE_MAP), bestSpawnDir = null;
+    //     int val = Integer.MAX_VALUE;
+    //     Direction[] biasedDirections = new Direction[] {biasDir, biasDir.rotateLeft(), biasDir.rotateRight(), biasDir.rotateLeft().rotateLeft(), biasDir.rotateRight().rotateRight(), biasDir.rotateLeft().rotateLeft().rotateLeft(), biasDir.rotateRight().rotateRight().rotateRight(), biasDir.opposite()};
+    //     for (Direction dir : biasedDirections){
+    //         MapLocation loc = rc.getLocation().add(dir);
+    //         if (!dirs[dir.ordinal()] || !rc.onTheMap(loc) || rc.canSenseRobotAtLocation(loc)) continue;
+    //         int rubbleVal = rc.senseRubble(loc);
+    //         if (rubbleVal < val){
+    //             bestSpawnDir = dir;
+    //             val = rubbleVal;
+    //         }
+    //     }
+    //     rc.setIndicatorString("Mine spawn dir: " + bestSpawnDir);
+    //     return bestSpawnDir;
+    // }
 
 
     public static Direction getBestSpawnDirection(RobotType unitType) throws GameActionException{
@@ -165,20 +165,42 @@ public class BotArchon extends Util{
         double bestSpawnValue = 0;
         double SpawnValue = 0;
         MapLocation lCR = currentLocation;
-        // if (unitType.equals(RobotType.MINER)){
-        //     bestSpawnDir = getBestSpawnDirectionForMiners();
-        //     if (bestSpawnDir != null) return bestSpawnDir;
-        // }
-        for (Direction dir : directions) {
-            if (!rc.canBuildRobot(unitType, dir)) continue;
 
-            SpawnValue = getValue(lCR, selectedEnemyDestination, dir); // TODO: Change destination
-            if (bestSpawnDir == null || SpawnValue < bestSpawnValue) {
-                bestSpawnDir = dir;
-                bestSpawnValue = SpawnValue;
+        if (unitType == RobotType.SOLDIER || unitType == RobotType.SAGE){
+            for (Direction dir : directions) {
+                if (!rc.canBuildRobot(unitType, dir)) continue;
+                SpawnValue = getValue(lCR, selectedEnemyDestination, dir); 
+                if (bestSpawnDir == null || SpawnValue < bestSpawnValue) {
+                    bestSpawnDir = dir;
+                    bestSpawnValue = SpawnValue;
+                }
+            }
+            return bestSpawnDir;
+        }
+
+
+        Direction goodAdjDirections[] = new Direction[8];
+        int goodAdjCount = 0;
+        int bestRubble = Integer.MAX_VALUE;
+        for (Direction dir : directions){
+            MapLocation loc = lCR.add(dir);
+            if (!rc.canBuildRobot(unitType, dir)) continue;
+            // if (!rc.canSenseLocation(loc) || rc.canSenseRobotAtLocation(loc)) continue;
+            bestRubble = Math.min(bestRubble, rc.senseRubble(loc));
+        }
+
+        for (Direction dir : directions){
+            MapLocation loc = lCR.add(dir);
+            if (!rc.canBuildRobot(unitType, dir)) continue;
+            if (rc.senseRubble(loc) == bestRubble){
+                goodAdjDirections[goodAdjCount] = dir;
+                goodAdjCount++;
             }
         }
-        return bestSpawnDir;
+        if (goodAdjCount == 0) return null;
+
+        return goodAdjDirections[rng.nextInt(goodAdjCount)];
+
     }
 
 
@@ -194,6 +216,7 @@ public class BotArchon extends Util{
 
     public static void buildUnit() throws GameActionException{
         try {
+            if(!rc.isActionReady()) return;
             ArchonBuildUnits unitToBuild = standardOrder();
             if (unitToBuild == null || waitQuota()) {
                 turnsWaitingToBuild++;

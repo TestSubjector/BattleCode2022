@@ -1,4 +1,4 @@
-package AWatchTowerBot;
+package OWatchTowerBot;
 
 import battlecode.common.MapLocation;
 import battlecode.common.Clock;

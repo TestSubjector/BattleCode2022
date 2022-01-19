@@ -1,4 +1,4 @@
-package AWatchTowerBot;
+package ALabBot;
 
 import battlecode.common.*;
 
@@ -85,6 +85,9 @@ public class BotWatchTower extends Util{
 				return;
 			}
 		}		
+        else if (visibleEnemies.length != 0) {
+			packCountdown = Math.min(10, packCountdown + 1);
+		}	
     }
 
     private static MapLocation goodLocationToSettle() throws GameActionException{
@@ -101,20 +104,19 @@ public class BotWatchTower extends Util{
                 optLoc = loc;
             }
         }
-
         return optLoc;
     }
 
     private static void layRoots() throws GameActionException{
+        if (visibleEnemies.length > 0 && currentDestination != null && rc.getLocation().distanceSquaredTo(currentDestination) <= 2) {
+            currentDestination = goodLocationToSettle();
+        }
         if (inRangeEnemies.length > 0){
             if(rc.canTransform()) {
 			    rc.transform();
                 currentDestination = null;
 			    packCountdown = PACK_DELAY;
 			    return;
-            }
-            else{
-                currentDestination = goodLocationToSettle();
             }
 		}
     }
@@ -137,11 +139,9 @@ public class BotWatchTower extends Util{
     private static void moveToCombatLocation() throws GameActionException {
         findNewCombatLocation();
 		if (currentDestination != null && rc.isMovementReady()) BFS.move(currentDestination);
-		
 		// if (tryGoToCenterOfMass()) {
 		// 	return;
 		// }
-		
 	}
 
     static void runWatchTower(RobotController rc) throws GameActionException {

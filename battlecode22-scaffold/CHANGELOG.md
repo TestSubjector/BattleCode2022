@@ -67,4 +67,10 @@ than max rubble.
 ## Watchtower Bot
 
 * Fixed mine depletion code.
+* Improve watchtower movement
+* Randomised production location for archon
+* Better fleeing for miners
+
+## LabBot
+
 
