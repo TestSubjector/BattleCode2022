@@ -37,3 +37,4 @@ run
 backup
 *.sh
 src/OTempBot
+temp.java

@@ -27,23 +27,25 @@ public class BotWatchTower extends Util{
 
     // TODO: Different priority for watchTower using the todo in next line? 
     // TODO Sense rubble at their location and factor that in to find more dangerous unit
-    private static double getEnemyScore(RobotType type, int health) {
-        switch(type) {
+    private static double getEnemyScore(RobotInfo enemyUnit) throws GameActionException{
+        RobotType enemyType = enemyUnit.type;
+        int enemyHealth = enemyUnit.getHealth();
+        int rubbleAtLocation = rc.senseRubble(enemyUnit.getLocation());
+        switch(enemyType) {
         case ARCHON:
-            return 0.0001;
-        case LABORATORY:
-            return 0.00001;
-        case MINER:
-            return 0.1/(health); // Low priority
-        case WATCHTOWER:
-            return 0.5 * RobotType.WATCHTOWER.damage / (health); // RobotType.WATCHTOWER attack cooldown;
-        case SOLDIER:
-            return RobotType.SOLDIER.damage / (health); //  SOLDIER attack cooldown;
-        case SAGE:
-            return 10 / (health * 1);
-        default:
-            return (type.damage+0.00001) / (health); // Cooldown due to rubble ;
-        }
+			return 0.00001;
+		case LABORATORY:
+			return 0.000001;
+        case BUILDER:
+		case MINER:
+			return 0.22 /(enemyHealth * (10.0+rubbleAtLocation)); // Max= 0.22, Min = 0.005 Low priority
+		case WATCHTOWER:
+		case SOLDIER:
+		case SAGE:
+			return 220.0 * enemyType.getDamage(enemyUnit.getLevel()) / (enemyHealth * (10.0+rubbleAtLocation));
+		default:
+			return 0.0001;
+		}
     }
 
     // Copy of BotSoldier.chooseTargetAndAttack()
@@ -52,7 +54,7 @@ public class BotWatchTower extends Util{
 		double bestValue = -1;
         double value = 0;
 		for (RobotInfo target : targets) {
-			value = getEnemyScore(target.getType(), target.getHealth());
+			value = getEnemyScore(target);
 			if (value > bestValue) {
 				bestValue = value;
 				bestTarget = target;
@@ -63,13 +65,22 @@ public class BotWatchTower extends Util{
 		}
 	}
 
+    private static void turretTower() throws GameActionException{
+        if (inRangeEnemies.length > 0) {
+            chooseTargetAndAttack(inRangeEnemies);
+        }
+    }
+
+    private static void portableTower() throws GameActionException{
+
+    }
+
     static void runWatchTower(RobotController rc) throws GameActionException {
         watchTowerComms();
         updateVision();
-        if (rc.isActionReady()){
-            if (inRangeEnemies.length > 0) {
-            chooseTargetAndAttack(inRangeEnemies);
-            }
-        }
+        // if (!rc.isActionReady() && (!rc.isMovementReady() || !rc.canTransform())) return;
+        if (rc.getMode() == RobotMode.PROTOTYPE) return;
+        else if (rc.getMode() == RobotMode.TURRET) turretTower();
+        else if (rc.getMode() == RobotMode.PORTABLE) portableTower();
     }
 }

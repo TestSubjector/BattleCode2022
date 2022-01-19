@@ -81,17 +81,17 @@ public class BotArchon extends Util{
     public static void updateArchonBuildUnits(){
         double lTC = turnCount;
         watchTowerWeight = watchTowerCount;
-        // if (SMALL_MAP){
-        //     aBUWeights[ArchonBuildUnits.BUILDER.ordinal()] = Math.min(1.0d, 0.15d + lTC/400.0d);
-        //     aBUWeights[ArchonBuildUnits.MINER.ordinal()] = Math.max(1.0d, 5.0d - ((double)minerCount)/15.0d - (lTC/1000.0d));
-        //     aBUWeights[ArchonBuildUnits.SAGE.ordinal()] = Math.max(2.50d, 4.5d - lTC/100.0d);
-        //     aBUWeights[ArchonBuildUnits.SOLDIER.ordinal()] = Math.min(4.0d, 2.0d - ((double)soldierCount)/100.0d + lTC/50.0d);
-        //     return;
-        // }
+        if (SMALL_MAP){
+            aBUWeights[ArchonBuildUnits.BUILDER.ordinal()] = Math.min(1.0d, 0.15d + lTC/400.0d);
+            aBUWeights[ArchonBuildUnits.MINER.ordinal()] = Math.max(1.3d, 2.5d - lTC/100.0d);
+            aBUWeights[ArchonBuildUnits.SAGE.ordinal()] = Math.max(2.50d, 4.5d - lTC/100.0d);
+            aBUWeights[ArchonBuildUnits.SOLDIER.ordinal()] = Math.min(4.50d, 2.0d + lTC/100.0d - (double)soldierCount/60.0d);
+            return;
+        }
         aBUWeights[ArchonBuildUnits.BUILDER.ordinal()] = Math.min(1.0d, 0.15d + lTC/400.0d);
-        aBUWeights[ArchonBuildUnits.MINER.ordinal()] = Math.max(1.0d, 4.5d - (lTC/100.0d) - ((double)minerCount)/30.0d);
+        aBUWeights[ArchonBuildUnits.MINER.ordinal()] = Math.max(1.3d, 4.5d - (lTC/100.0d) - ((double)minerCount)/30.0d);
         aBUWeights[ArchonBuildUnits.SAGE.ordinal()] = Math.max(2.50d, 4.5d - lTC/100.0d);
-        aBUWeights[ArchonBuildUnits.SOLDIER.ordinal()] = Math.min(4.50d, 2.0d + lTC/20.0d - ((double)soldierCount)/70.0d);
+        aBUWeights[ArchonBuildUnits.SOLDIER.ordinal()] = Math.min(4.50d, 2.0d + lTC/20.0d - (double)soldierCount/70.0d);
     }
 
 
