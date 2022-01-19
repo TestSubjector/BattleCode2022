@@ -35,3 +35,4 @@ battlecode-scaffold.iws
 *.log
 run
 backup
+*.sh
