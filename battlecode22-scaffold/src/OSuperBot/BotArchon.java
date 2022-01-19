@@ -1,4 +1,4 @@
-package ASuperBot;
+package OSuperBot;
 
 import battlecode.common.*;
 
@@ -257,13 +257,13 @@ public class BotArchon extends Util{
                 builderCount != 0 && 
                 currentLeadReserves < giveUnitType(unitToBuild).buildCostLead + RobotType.WATCHTOWER.buildCostLead && 
                 turnsWaitingToBuild < 100 && 
-                (BotMiner.areMiningLocationsAbundant() || currentLeadReserves > 500);
+                (BotMiner.areMiningLocationsAbundant() || currentLeadReserves > 150);
     }
 
 
     public static boolean shouldBuildBuilder(){
         if (turnCount < 30) return false;
-        if (builderCount > archonCount || currentLeadReserves < 200) return false;
+        if (builderCount > archonCount || currentLeadReserves < 120) return false;
         return true;
     }
 

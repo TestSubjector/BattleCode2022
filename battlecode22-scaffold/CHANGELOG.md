@@ -62,3 +62,7 @@ than max rubble.
 
 * Improve soldier guessing more
 * Fix a small bug in the healing change code
+* Watchtower movement implemented
+
+## Watchtower Bot
+

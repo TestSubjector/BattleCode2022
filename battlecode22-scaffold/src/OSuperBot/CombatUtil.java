@@ -1,4 +1,4 @@
-package ASuperBot;
+package OSuperBot;
 
 import battlecode.common.*;
 

@@ -1,4 +1,4 @@
-package ASuperBot;
+package AWatchTowerBot;
 
 import battlecode.common.*;
 
