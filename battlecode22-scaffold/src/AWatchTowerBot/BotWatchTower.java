@@ -9,7 +9,7 @@ public class BotWatchTower extends Util{
     private static RobotInfo[] visibleEnemies;
     private static RobotInfo[] inRangeEnemies;
     private static RobotInfo[] visibleAllies;
-    private static final int PACK_DELAY = 20;
+    private static final int PACK_DELAY = 10;
 	private static int packCountdown;
 
     public static void initBotWatchTower(){

@@ -256,14 +256,14 @@ public class BotArchon extends Util{
                 watchTowerWeight < minWeight && 
                 builderCount != 0 && 
                 currentLeadReserves < giveUnitType(unitToBuild).buildCostLead + RobotType.WATCHTOWER.buildCostLead && 
-                turnsWaitingToBuild < 100 && 
-                (BotMiner.areMiningLocationsAbundant() || currentLeadReserves > 150);
+                turnsWaitingToBuild < 60 && 
+                (BotMiner.areMiningLocationsAbundant() || currentLeadReserves > 100);
     }
 
 
     public static boolean shouldBuildBuilder(){
         if (turnCount < 30) return false;
-        if (builderCount > archonCount || currentLeadReserves < 120) return false;
+        if (builderCount > archonCount || currentLeadReserves < 90) return false;
         return true;
     }
 
