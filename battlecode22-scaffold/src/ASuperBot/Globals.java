@@ -1,4 +1,4 @@
-package ASewerBot;
+package ASuperBot;
 
 import java.util.Random;
 

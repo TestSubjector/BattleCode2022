@@ -1,4 +1,4 @@
-package ASewerBot;
+package ASuperBot;
 
 import battlecode.common.*;
 
