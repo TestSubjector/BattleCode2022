@@ -431,7 +431,7 @@ public class BotArchon extends Util{
     }
 
 
-    public static MapLocation goodLocationToSettle() throws GameActionException{
+    private static MapLocation goodLocationToSettle() throws GameActionException{
         MapLocation[] adjacentLocations = rc.getAllLocationsWithinRadiusSquared(rc.getLocation(), 2);
         
         int optVal = rc.senseRubble(rc.getLocation());

@@ -73,6 +73,7 @@ public class BotWatchTower extends Util{
 
     private static void turretTower() throws GameActionException{
         if (inRangeEnemies.length > 0 && rc.isActionReady() && chooseTargetAndAttack(inRangeEnemies)) {
+            BotSoldier.sendCombatLocation(visibleEnemies);
             packCountdown = PACK_DELAY;
 			return;
 		}
@@ -86,39 +87,56 @@ public class BotWatchTower extends Util{
 		}		
     }
 
-    private static void portableTower() throws GameActionException{
-        // TODO: Visible enemies and low rubble
-		if (inRangeEnemies.length > 0 && rc.canTransform()) {
-			rc.transform();
-            currentDestination = null;
-			packCountdown = PACK_DELAY;
-			return;
-		}
+    private static MapLocation goodLocationToSettle() throws GameActionException{
+        MapLocation[] adjacentLocations = rc.getAllLocationsWithinRadiusSquared(rc.getLocation(), 2);
+        
+        int optVal = rc.senseRubble(rc.getLocation());
+        MapLocation optLoc = rc.getLocation();
+        for(int i = adjacentLocations.length; --i >= 0;){
+            MapLocation loc = adjacentLocations[i];
+            if (!rc.canSenseLocation(loc) || rc.canSenseRobotAtLocation(loc)) continue;
+            int rubble = rc.senseRubble(loc);
+            if (rubble < optVal){
+                optVal = rubble;
+                optLoc = loc;
+            }
+        }
 
-		moveToCombatLocation();
+        return optLoc;
     }
 
-    public static boolean findNewCombatLocation() throws GameActionException{
+    private static void layRoots() throws GameActionException{
+        if (inRangeEnemies.length > 0){
+            if(rc.canTransform()) {
+			    rc.transform();
+                currentDestination = null;
+			    packCountdown = PACK_DELAY;
+			    return;
+            }
+            else{
+                currentDestination = goodLocationToSettle();
+            }
+		}
+    }
+
+    private static void portableTower() throws GameActionException{
+        layRoots();
+        moveToCombatLocation();
+        layRoots();
+    }
+
+    private static boolean findNewCombatLocation() throws GameActionException{
         if (currentDestination == null || (visibleEnemies.length == 0 && rc.getLocation().distanceSquaredTo(currentDestination) <= WATCHTOWER_VISION_RADIUS)){
             MapLocation combatLocation = Comms.findNearestLocationOfThisTypeOutOfVision(rc.getLocation(), Comms.commType.COMBAT, Comms.SHAFlag.COMBAT_LOCATION);
             if (combatLocation != null) currentDestination = combatLocation;
-            // else combatLocation = Comms.findNearestLocationOfThisTypeOutOfVision(rc.getLocation(), Comms.commType.COMBAT, Comms.SHAFlag.ENEMY_MINER_LOCATION);
-            // if (combatLocation != null) currentDestination = combatLocation;
             return true;
         }
         return false;
     }
 
     private static void moveToCombatLocation() throws GameActionException {
-		if (!rc.isMovementReady()) return;
-
-        if (currentDestination == null) {
-            findNewCombatLocation();
-        }
-
-		if (currentDestination != null && rc.isMovementReady()) {
-			BFS.move(currentDestination);
-		}
+        findNewCombatLocation();
+		if (currentDestination != null && rc.isMovementReady()) BFS.move(currentDestination);
 		
 		// if (tryGoToCenterOfMass()) {
 		// 	return;

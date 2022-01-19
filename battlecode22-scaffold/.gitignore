@@ -38,3 +38,4 @@ backup
 *.sh
 src/OTempBot
 temp.java
+.vscode/*
