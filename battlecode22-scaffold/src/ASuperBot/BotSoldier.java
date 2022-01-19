@@ -343,8 +343,10 @@ public class BotSoldier extends CombatUtil{
 		
 		MapLocation closestArchon = getClosestArchonLocation();
 		
-		if (closestArchon == null || rc.getLocation().distanceSquaredTo(closestArchon) < ARCHON_ACTION_RADIUS) return false;
-		BFS.move(closestArchon); // TODO: Avoid enemies
+		if (closestArchon == null || rc.getLocation().distanceSquaredTo(closestArchon) <= ARCHON_ACTION_RADIUS) 
+            Movement.tryMoveInDirection(closestArchon);
+		else
+            BFS.move(closestArchon); // TODO: Avoid enemies
 		return true;
 	}
 
