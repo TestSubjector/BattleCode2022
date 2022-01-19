@@ -70,4 +70,96 @@ public class CombatUtil extends Util{
         return false;
     }
 
+    public static boolean tryToBackUpToMaintainMaxRangeMiner(RobotInfo[] visibleHostiles) throws GameActionException {
+		int closestHostileDistSq = Integer.MAX_VALUE;
+        MapLocation lCR = rc.getLocation();
+        for (RobotInfo hostile : visibleHostiles) {
+			if (!hostile.type.canAttack()) continue;
+			int distSq = lCR.distanceSquaredTo(hostile.location);
+			if (distSq < closestHostileDistSq) {
+				closestHostileDistSq = distSq;
+			}
+		}
+		
+		Direction bestRetreatDir = null;
+		int bestDistSq = closestHostileDistSq;
+        int bestRubble = rc.senseRubble(rc.getLocation());
+
+		for (Direction dir : directions) {
+			if (!rc.canMove(dir)) continue;
+			MapLocation dirLoc = lCR.add(dir);
+            int dirLocRubble = rc.senseRubble(dirLoc);
+            if (dirLocRubble > bestRubble) continue; // Don't move to even more rubble
+
+			int smallestDistSq = Integer.MAX_VALUE;
+			for (RobotInfo hostile : visibleHostiles) {
+				if (!hostile.type.canAttack()) continue;
+				int distSq = hostile.location.distanceSquaredTo(dirLoc);
+				if (distSq < smallestDistSq) {
+					smallestDistSq = distSq;
+				}
+			}
+			if (smallestDistSq > bestDistSq) {
+				bestDistSq = smallestDistSq;
+				bestRetreatDir = dir;
+                // bestRubble = dirLocRubble;
+			}
+		}
+		if (bestRetreatDir != null) {
+			rc.move(bestRetreatDir);
+            currentLocation = rc.getLocation();
+			if (UNIT_TYPE.equals(RobotType.MINER)){ 
+				Explore.exploreDir = bestRetreatDir;
+				Explore.assignExplore3Dir(exploreDir);
+			}
+			return true;
+		}
+		return false;
+	}
+
+    public static boolean tryToBackUpToMaintainMaxRangeSoldier(RobotInfo[] visibleHostiles) throws GameActionException {
+		int closestHostileDistSq = Integer.MAX_VALUE;
+        MapLocation lCR = rc.getLocation();
+        for (RobotInfo hostile : visibleHostiles) {
+			if (!hostile.type.canAttack() && hostile.type != RobotType.ARCHON) continue;
+			int distSq = lCR.distanceSquaredTo(hostile.location);
+			if (distSq < closestHostileDistSq) {
+				closestHostileDistSq = distSq;
+			}
+		}
+		
+		if (closestHostileDistSq > SOLDIER_ACTION_RADIUS) return false; // We dont want to get out of our max range
+		
+		Direction bestRetreatDir = null;
+		int bestDistSq = closestHostileDistSq;
+        int bestRubble = rc.senseRubble(rc.getLocation());
+
+		for (Direction dir : directions) {
+			if (!rc.canMove(dir)) continue;
+			MapLocation dirLoc = lCR.add(dir);
+            int dirLocRubble = rc.senseRubble(dirLoc);
+            if (dirLocRubble > bestRubble) continue; // Don't move to even more rubble
+
+			int smallestDistSq = Integer.MAX_VALUE;
+			for (RobotInfo hostile : visibleHostiles) {
+				if (!hostile.type.canAttack()) continue;
+				int distSq = hostile.location.distanceSquaredTo(dirLoc);
+				if (distSq < smallestDistSq) {
+					smallestDistSq = distSq;
+				}
+			}
+			if (smallestDistSq > bestDistSq) {
+				bestDistSq = smallestDistSq;
+				bestRetreatDir = dir;
+                // bestRubble = dirLocRubble;
+			}
+		}
+		if (bestRetreatDir != null) {
+			rc.move(bestRetreatDir);
+            currentLocation = rc.getLocation();
+			return true;
+		}
+		return false;
+	}
+
 }

@@ -13,9 +13,6 @@ public class BotSoldier extends CombatUtil{
 
     public static void initBotSoldier() throws GameActionException{
         inHealingState = false;
-        // if (rc.getRoundNum() > 500){
-        //     findNewCombatLocation();
-        // }
         currentDestination = Comms.getClosestEnemyArchonLocation();
         if (currentDestination == null){
             for (int i = 0; i < 4; i++){
@@ -30,8 +27,8 @@ public class BotSoldier extends CombatUtil{
             else if (rememberedEnemyArchonLocations[(token)%3] != null) 
                 currentDestination = rememberedEnemyArchonLocations[(token)%3];
             else{
-                System.out.println("ERROR: No enemy archon locations");
-                currentDestination = CENTER_OF_THE_MAP;
+                findNewCombatLocation();
+                if (currentDestination == null) currentDestination = CENTER_OF_THE_MAP;
             }
         }
     }
@@ -85,11 +82,11 @@ public class BotSoldier extends CombatUtil{
 		RobotInfo bestTarget = null;
 		double bestValue = -1;
         double value = 0;
-		for (RobotInfo target : targets) {
-			value = getEnemyScore(target);
+		for (int i = targets.length; --i >= 0;) {
+			value = getEnemyScore(targets[i]);
 			if (value > bestValue) {
 				bestValue = value;
-				bestTarget = target;
+				bestTarget = targets[i];
 			}
 		}
 		if (bestTarget != null) {
@@ -97,55 +94,6 @@ public class BotSoldier extends CombatUtil{
 		}
 	}
 
-    // TODO: Add check for Rubble
-    public static boolean tryToBackUpToMaintainMaxRange(RobotInfo[] visibleHostiles) throws GameActionException {
-		int closestHostileDistSq = Integer.MAX_VALUE;
-        MapLocation lCR = rc.getLocation();
-        for (RobotInfo hostile : visibleHostiles) {
-			if (!hostile.type.canAttack() && hostile.type != RobotType.ARCHON ) continue;
-			int distSq = lCR.distanceSquaredTo(hostile.location);
-			if (distSq < closestHostileDistSq) {
-				closestHostileDistSq = distSq;
-			}
-		}
-		
-		if (UNIT_TYPE.equals(RobotType.SOLDIER) && closestHostileDistSq > SOLDIER_ACTION_RADIUS) return false; // We dont want to get out of our max range
-		
-		Direction bestRetreatDir = null;
-		int bestDistSq = closestHostileDistSq;
-        int bestRubble = rc.senseRubble(rc.getLocation());
-
-		for (Direction dir : directions) {
-			if (!rc.canMove(dir)) continue;
-			MapLocation dirLoc = lCR.add(dir);
-            int dirLocRubble = rc.senseRubble(dirLoc);
-            if (dirLocRubble > bestRubble) continue; // Don't move to even more rubble
-
-			int smallestDistSq = Integer.MAX_VALUE;
-			for (RobotInfo hostile : visibleHostiles) {
-				if (!hostile.type.canAttack()) continue;
-				int distSq = hostile.location.distanceSquaredTo(dirLoc);
-				if (distSq < smallestDistSq) {
-					smallestDistSq = distSq;
-				}
-			}
-			if (smallestDistSq > bestDistSq) {
-				bestDistSq = smallestDistSq;
-				bestRetreatDir = dir;
-                // bestRubble = dirLocRubble;
-			}
-		}
-		if (bestRetreatDir != null) {
-			rc.move(bestRetreatDir);
-            currentLocation = rc.getLocation();
-			if (UNIT_TYPE.equals(RobotType.MINER)){ 
-				Explore.exploreDir = bestRetreatDir;
-				Explore.assignExplore3Dir(exploreDir);
-			}
-			return true;
-		}
-		return false;
-	}
 
     private static boolean tryMoveToHelpAlly(RobotInfo closestHostile) throws GameActionException {
         if(closestHostile == null) return false;
@@ -153,9 +101,9 @@ public class BotSoldier extends CombatUtil{
 		
 		boolean allyIsFighting = false;
 		RobotInfo[] alliesAroundHostile = rc.senseNearbyRobots(closestHostileLocation, SOLDIER_ACTION_RADIUS, MY_TEAM);
-		for (RobotInfo ally : alliesAroundHostile) {
-			if (ally.type.canAttack()) {
-				if (ally.location.distanceSquaredTo(closestHostileLocation) <= ally.type.actionRadiusSquared) {
+		for (int i = alliesAroundHostile.length; --i >= 0;) {
+			if (alliesAroundHostile[i].type.canAttack()) {
+				if (alliesAroundHostile[i].location.distanceSquaredTo(closestHostileLocation) <= alliesAroundHostile[i].type.actionRadiusSquared) {
 					allyIsFighting = true;
 					break;
 				}
@@ -164,7 +112,6 @@ public class BotSoldier extends CombatUtil{
 		if (allyIsFighting) 
 			if (Movement.tryMoveInDirection(closestHostileLocation)) 
 				return true;
-
 		return false;
 	}
 
@@ -172,7 +119,9 @@ public class BotSoldier extends CombatUtil{
         if(closestHostile == null) return false;
 		if (closestHostile.type.canAttack()) 
             return false;
-	    if (BFS.move(closestHostile.location)) 
+	    if (Clock.getBytecodesLeft() > 3500 && BFS.move(closestHostile.location)) 
+            return true;
+        else if (Movement.tryMoveInDirection(closestHostile.location)) 
             return true;
 		return false;
 	}
@@ -181,9 +130,9 @@ public class BotSoldier extends CombatUtil{
         if(closestHostile == null) return false;
 		MapLocation closestHostileLocation = closestHostile.location;
         int numNearbyHostiles = 0;
-		for (RobotInfo hostile : visibleHostiles) {
-			if (hostile.type.canAttack()) {
-				if (hostile.location.distanceSquaredTo(closestHostileLocation) <= SOLDIER_ACTION_RADIUS) {
+		for (int i = visibleHostiles.length; --i >= 0;) {
+			if (visibleHostiles[i].type.canAttack()) {
+				if (visibleHostiles[i].location.distanceSquaredTo(closestHostileLocation) <= SOLDIER_ACTION_RADIUS) {
 					numNearbyHostiles += 1;
 				}
 			}
@@ -191,8 +140,8 @@ public class BotSoldier extends CombatUtil{
 		
 		int numNearbyAllies = 1; // Counts ourself
 		RobotInfo[] nearbyAllies = rc.senseNearbyRobots(closestHostileLocation, SOLDIER_ACTION_RADIUS, MY_TEAM);
-		for (RobotInfo ally : nearbyAllies) {
-			if (ally.type.canAttack() && ally.health >= ally.type.getMaxHealth(ally.getLevel())/2.0) {
+		for (int i = nearbyAllies.length; --i >= 0;) {
+			if (nearbyAllies[i].type.canAttack() && nearbyAllies[i].health >= nearbyAllies[i].type.getMaxHealth(nearbyAllies[i].getLevel())/2.0) {
 				numNearbyAllies += 1;
 			}
 		}
@@ -207,7 +156,8 @@ public class BotSoldier extends CombatUtil{
 		RobotInfo closestHostileThatAttacksUs = null;
 		int closestDistSq = Integer.MAX_VALUE;
 		int numHostilesThatAttackUs = 0;
-		for (RobotInfo hostile : visibleHostiles) {
+		for (int i = visibleHostiles.length; --i >= 0;) {
+            RobotInfo hostile = visibleHostiles[i];
 			if (hostile.type.canAttack()) {
 				int distSq = hostile.location.distanceSquaredTo(rc.getLocation());
 				if (distSq <= hostile.type.actionRadiusSquared) {
@@ -231,7 +181,8 @@ public class BotSoldier extends CombatUtil{
 
         // TODO: Vision, action or 13?
 		RobotInfo[] nearbyAllies = rc.senseNearbyRobots(closestHostileThatAttacksUs.location, SOLDIER_VISION_RADIUS, MY_TEAM);
-		for (RobotInfo ally : nearbyAllies) {
+		for (int i = nearbyAllies.length; --i >= 0;) {
+            RobotInfo ally = nearbyAllies[i];
 			if (ally.type.canAttack()) {
 				if (ally.location.distanceSquaredTo(closestHostileThatAttacksUs.location)
 						<= ally.type.actionRadiusSquared) {
@@ -254,7 +205,8 @@ public class BotSoldier extends CombatUtil{
 		}
 		
 		MapLocation retreatTarget = rc.getLocation();
-		for (RobotInfo hostile : visibleHostiles) {
+		for (int i = visibleHostiles.length; --i >= 0;) {
+            RobotInfo hostile = visibleHostiles[i];
 			if (!hostile.type.canAttack()) continue;			
 			retreatTarget = retreatTarget.add(hostile.location.directionTo(rc.getLocation()));
 		}
@@ -304,6 +256,7 @@ public class BotSoldier extends CombatUtil{
             if(retreatIfOutnumbered(visibleEnemies)) return true;
             // if(retreatFromEnemyWatchTowerRange()) return true;
         }
+        if (rc.getRoundNum() > 530 && rc.getRoundNum() < 534) System.out.println("Pre action micro " + Clock.getBytecodesLeft());
 
         if (rc.isActionReady()){
             if (inRangeEnemies.length > 0) {
@@ -317,7 +270,7 @@ public class BotSoldier extends CombatUtil{
         }
         if (rc.isMovementReady()){
             // Most important function
-            if (inRangeEnemies.length > 0 && tryToBackUpToMaintainMaxRange(visibleEnemies)) return true; // Cant attack, try to move out
+            if (inRangeEnemies.length > 0 && CombatUtil.tryToBackUpToMaintainMaxRangeSoldier(visibleEnemies)) return true; // Cant attack, try to move out
             RobotInfo closestHostile = getClosestUnitWithCombatPriority(visibleEnemies);
             if (!inHealingState && tryMoveToHelpAlly(closestHostile)) return true; // Maybe add how many turns of attack cooldown here and how much damage being taken?
             if (!inHealingState && tryMoveToEngageOutnumberedEnemy(visibleEnemies, closestHostile)) return true;
@@ -328,7 +281,6 @@ public class BotSoldier extends CombatUtil{
 
     public static boolean sendCombatLocation(RobotInfo[] visibleHostiles) throws GameActionException{
         if (visibleHostiles.length != 0 && Clock.getBytecodesLeft() > 600){
-            // RobotInfo closestHostile = getClosestMilitaryUnit(visibleHostiles), closestUnit = getClosestUnitWithCombatPriority(visibleHostiles);
 			RobotInfo closestHostile = getClosestMilitaryUnit(visibleHostiles);
             if (closestHostile == null) return false;
 			currentDestination = closestHostile.location;
@@ -343,10 +295,7 @@ public class BotSoldier extends CombatUtil{
     public static boolean findNewCombatLocation() throws GameActionException{
         if (currentDestination == null || (visibleEnemies.length == 0 && rc.getLocation().distanceSquaredTo(currentDestination) <= SOLDIER_VISION_RADIUS)){
             MapLocation combatLocation = Comms.findNearestLocationOfThisTypeOutOfVision(rc.getLocation(), Comms.commType.COMBAT, Comms.SHAFlag.COMBAT_LOCATION);
-			// if (combatLocation == null) Comms.findNearestLocationOfThisTypeOutOfVision(rc.getLocation(), Comms.commType.COMBAT, Comms.SHAFlag.ENEMY_MINER_LOCATION);
-            if (combatLocation != null){
-                currentDestination = combatLocation;
-            }
+            if (combatLocation != null) currentDestination = combatLocation;
             return true;
         }
         return false;
@@ -362,7 +311,7 @@ public class BotSoldier extends CombatUtil{
         if (rc.getHealth() < rc.getType().getMaxHealth(rc.getLevel()) / 3.0) {
             inHealingState = true;
         }
-        else if (rc.getHealth() > ((2.0/3.0) * (double)(rc.getType().getMaxHealth(rc.getLevel())))) {
+        else if (rc.getHealth() > 2.0/3.0 * rc.getType().getMaxHealth(rc.getLevel())) {
             inHealingState = false;
         }
     }
@@ -372,9 +321,7 @@ public class BotSoldier extends CombatUtil{
 		
 		MapLocation closestArchon = getClosestArchonLocation();
 		
-		if (closestArchon == null || rc.getLocation().distanceSquaredTo(closestArchon) < ARCHON_ACTION_RADIUS) {
-			return false;
-		}
+		if (closestArchon == null || rc.getLocation().distanceSquaredTo(closestArchon) < ARCHON_ACTION_RADIUS) return false;
 		BFS.move(closestArchon); // TODO: Avoid enemies
 		return true;
 	}
@@ -408,7 +355,6 @@ public class BotSoldier extends CombatUtil{
     */
     static void runSoldier(RobotController rc) throws GameActionException {
         soldierComms(); // 300 Bytecodes
-        // TODO: Combat simulator for soldiers, sense all rubble in vision for 1v1 or 1vMany combat
         updateVision();
         opportunisticCombatDestination();
 
@@ -424,7 +370,6 @@ public class BotSoldier extends CombatUtil{
             return;
         } 
         if (visibleEnemies.length == 0) {
-            // Do normal pathfinding only when no enemy units around
             BFS.move(currentDestination); // 2700 Bytecodes
         }
         updateVision();
@@ -438,7 +383,5 @@ public class BotSoldier extends CombatUtil{
                 chooseTargetAndAttack(inRangeEnemies);
             }
         }
-		// BFS.move(BotMiner.explore());
-        // BotMiner.surveyForOpenMiningLocationsNearby(); // TODO: Reorganise to sprint
     }
 }

@@ -86,7 +86,7 @@ public class BotMiner extends Explore{
             isFleeing = true;
             miningLocation = null;
             inPlaceForMining = false;
-            isFleeing = BotSoldier.tryToBackUpToMaintainMaxRange(visibleEnemies);
+            isFleeing = CombatUtil.tryToBackUpToMaintainMaxRangeMiner(visibleEnemies);
         }
     }
 
