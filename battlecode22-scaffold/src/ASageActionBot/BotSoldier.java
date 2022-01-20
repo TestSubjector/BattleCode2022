@@ -213,37 +213,7 @@ public class BotSoldier extends CombatUtil{
 		}
 		if (!rc.getLocation().equals(retreatTarget)) {
 			Direction retreatDir = rc.getLocation().directionTo(retreatTarget);
-			return tryHardMoveInDirection(retreatDir);
-		}
-		return false;
-	}
-    
-    public static boolean tryHardMoveInDirection(Direction dir) throws GameActionException {
-        // TODO: Pick minimum rubble one?
-        int curRubble = rc.senseRubble(rc.getLocation());
-		if (rc.canMove(dir) && rc.senseRubble(rc.getLocation().add(dir)) < curRubble) {
-			rc.move(dir);
-			return true;
-		}
-		Direction left = dir.rotateLeft();
-		if (rc.canMove(left) && rc.senseRubble(rc.getLocation().add(left)) < curRubble) {
-			rc.move(left);
-			return true;
-		}
-		Direction right = dir.rotateRight();
-		if (rc.canMove(right) && rc.senseRubble(rc.getLocation().add(right)) < curRubble) {
-			rc.move(right);
-			return true;
-		}
-		Direction leftLeft = left.rotateLeft();
-		if (rc.canMove(leftLeft) && rc.senseRubble(rc.getLocation().add(leftLeft)) < curRubble) {
-			rc.move(leftLeft);
-			return true;
-		}
-		Direction rightRight = right.rotateRight();
-		if (rc.canMove(rightRight) && rc.senseRubble(rc.getLocation().add(rightRight)) < curRubble) {
-			rc.move(rightRight);
-			return true;
+			return CombatUtil.tryHardMoveInDirection(retreatDir);
 		}
 		return false;
 	}
@@ -381,7 +351,7 @@ public class BotSoldier extends CombatUtil{
         if (inHealingState && tryToHealAtArchon()){
             return;
         } 
-        if (visibleEnemies.length == 0) {
+        if (visibleEnemies.length == 0 && rc.isMovementReady()) {
             BFS.move(currentDestination); // 2700 Bytecodes
         }
         updateVision();

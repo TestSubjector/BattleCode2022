@@ -90,19 +90,121 @@ public class BotSage extends Util{
 		}
 	}
 
+    public static Direction mostEnemyDroidsAdjacentLocation(RobotInfo[] visibleHostiles) throws GameActionException {
+        Direction mostCrowdedDirection = null;
+        int maxCrowd = 0;
+        for (Direction dir : directions){
+            int crowd = 0;
+            MapLocation adjLoc = rc.getLocation().add(dir);
+            if (!rc.canMove(dir)) continue;
+            for (RobotInfo hostile : visibleHostiles){
+                if (adjLoc.distanceSquaredTo(hostile.location) <= RobotType.SAGE.actionRadiusSquared){
+                    crowd++;
+                }
+            }
+            if (crowd > maxCrowd){
+                maxCrowd = crowd;
+                mostCrowdedDirection = dir;
+            }
+        }
+        if (maxCrowd > 3){
+            return mostCrowdedDirection;
+        }
+        else
+            return null;
+    }
+
+    private static boolean retreatIfOutnumbered(RobotInfo[] visibleHostiles) throws GameActionException {
+		RobotInfo closestHostileThatAttacksUs = null;
+		int closestDistSq = Integer.MAX_VALUE;
+		int numHostilesThatAttackUs = 0;
+		for (int i = visibleHostiles.length; --i >= 0;) {
+            RobotInfo hostile = visibleHostiles[i];
+			if (hostile.type.canAttack()) {
+				int distSq = hostile.location.distanceSquaredTo(rc.getLocation());
+				if (distSq <= hostile.type.actionRadiusSquared) {
+					if (distSq < closestDistSq) {
+						closestDistSq = distSq;
+						closestHostileThatAttacksUs = hostile;
+					}
+					numHostilesThatAttackUs += 1;
+				}
+			}
+		}
+		
+		if (numHostilesThatAttackUs == 0) {
+			return false;
+		}
+		
+		int numAlliesAttackingClosestHostile = 0;
+		if (rc.getLocation().distanceSquaredTo(closestHostileThatAttacksUs.location) <= SAGE_ACTION_RADIUS) {
+			numAlliesAttackingClosestHostile += 1;
+		}
+
+		RobotInfo[] nearbyAllies = rc.senseNearbyRobots(closestHostileThatAttacksUs.location, SAGE_ACTION_RADIUS, MY_TEAM);
+		for (int i = nearbyAllies.length; --i >= 0;) {
+            RobotInfo ally = nearbyAllies[i];
+			if (ally.type.canAttack()) {
+				if (ally.location.distanceSquaredTo(closestHostileThatAttacksUs.location)
+						<= ally.type.actionRadiusSquared) {
+					numAlliesAttackingClosestHostile += 1;
+				}
+			}
+		}
+		
+		if (numAlliesAttackingClosestHostile > numHostilesThatAttackUs) {
+			return false;
+		} 
+		if (numAlliesAttackingClosestHostile == numHostilesThatAttackUs) {
+			if (numHostilesThatAttackUs == 1) {
+				if (rc.getHealth() >= closestHostileThatAttacksUs.health) {
+					return false;
+				}
+			} else {
+				return false;
+			}
+		}
+		
+		MapLocation retreatTarget = rc.getLocation();
+		for (int i = visibleHostiles.length; --i >= 0;) {
+            RobotInfo hostile = visibleHostiles[i];
+			if (!hostile.type.canAttack()) continue;			
+			retreatTarget = retreatTarget.add(hostile.location.directionTo(rc.getLocation()));
+		}
+		if (!rc.getLocation().equals(retreatTarget)) {
+			Direction retreatDir = rc.getLocation().directionTo(retreatTarget);
+			return CombatUtil.tryHardMoveInDirection(retreatDir);
+		}
+		return false;
+	}
+
+
     static void runSage(RobotController rc) throws GameActionException {
         sageComms();
         updateVision();
+        BotSoldier.sendCombatLocation(visibleEnemies);
         if (rc.isActionReady()){
+            if (rc.isMovementReady() && visibleEnemies.length >=4 && inRangeEnemies.length < 4){
+                Direction crowdedDirection = mostEnemyDroidsAdjacentLocation(visibleEnemies);
+                if (crowdedDirection != null) {
+                    rc.move(crowdedDirection);
+                    updateVision();
+                }
+            }
             if (inRangeEnemies.length > 0) {
-                
-                chooseTargetAndAttack(inRangeEnemies);
+                if (rc.canEnvision(AnomalyType.CHARGE) && inRangeEnemies.length >= 4){
+                    System.out.println("Envisioning");
+                    rc.envision(AnomalyType.CHARGE);
+                }
+                else{
+                    chooseTargetAndAttack(inRangeEnemies);
+                }
             }
         }
-        if (!rc.isActionReady()){
+        if (!rc.isActionReady() && rc.isMovementReady()){
             MapLocation closestArchon = getClosestArchonLocation();
-            if (inRangeEnemies.length> 0 && closestArchon != null){
-                BFS.move(closestArchon);
+            if (CombatUtil.militaryCount(inRangeEnemies) > 1 && closestArchon != null){
+                retreatIfOutnumbered(inRangeEnemies);
                 updateVision();
             }
         }
@@ -112,7 +214,7 @@ public class BotSage extends Util{
             currentDestination = Comms.findNearestLocationOfThisTypeOutOfVision(rc.getLocation(), Comms.commType.COMBAT, Comms.SHAFlag.COMBAT_LOCATION);
         }
 
-        if (visibleEnemies.length == 0) {
+        if (visibleEnemies.length == 0 && rc.isMovementReady()) {
             BFS.move(currentDestination); 
             updateVision();
         }
