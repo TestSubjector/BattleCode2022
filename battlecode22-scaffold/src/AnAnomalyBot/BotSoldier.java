@@ -290,34 +290,12 @@ public class BotSoldier extends CombatUtil{
         return false;
     }
 
-    // public static boolean sendCombatLocation(RobotInfo[] visibleHostiles) throws GameActionException{
-    //     if (visibleHostiles.length != 0 && Clock.getBytecodesLeft() > 600){
-	// 		RobotInfo closestHostile = getClosestUnitWithCombatPriority(visibleHostiles), closestSoldier = getClosestMilitaryUnit(visibleHostiles);
-	// 		if (closestSoldier != null)
-    //         currentDestination = closestSoldier.location;
-    //         else
-    //         currentDestination = closestHostile.location;
-    //         if (closestHostile != null){
-	// 			if (isMilitaryUnit(closestHostile.type))
-    //             Comms.writeCommMessageOverrwriteLesserPriorityMessageUsingQueue(Comms.commType.COMBAT, closestHostile.getLocation(), Comms.SHAFlag.COMBAT_LOCATION);
-    //             else{
-    //                 Comms.writeCommMessageOverrwriteLesserPriorityMessageUsingQueue(Comms.commType.COMBAT, closestHostile.getLocation(), Comms.SHAFlag.ENEMY_MINER_LOCATION);
-    //                 if (closestSoldier != null)
-    //                 Comms.writeCommMessageOverrwriteLesserPriorityMessageUsingQueue(Comms.commType.COMBAT, closestSoldier.getLocation(), Comms.SHAFlag.COMBAT_LOCATION);
-    //             }
-    //         }
-    //         return true;
-    //     }
-    //     return false;
-    // }
-
     // If our current destination has no enemies left, move to the nearest new location with combat
     private static boolean findNewCombatLocation() throws GameActionException{
         if (currentDestination == null || (visibleEnemies.length == 0 && rc.getLocation().distanceSquaredTo(currentDestination) <= SOLDIER_VISION_RADIUS)){
             MapLocation combatLocation = Comms.findNearestLocationOfThisTypeOutOfVision(rc.getLocation(), Comms.commType.COMBAT, Comms.SHAFlag.COMBAT_LOCATION);
             if (combatLocation != null) currentDestination = combatLocation;
-            // else combatLocation = Comms.findNearestLocationOfThisTypeOutOfVision(rc.getLocation(), Comms.commType.COMBAT, Comms.SHAFlag.ENEMY_MINER_LOCATION);
-            // if (combatLocation != null) currentDestination = combatLocation;
+
             return true;
         }
         return false;

@@ -1,8 +1,8 @@
 #!/bin/bash
 
-team1=ALabBot
+team1=AnAnomalyBot
 # team2=OSuperBot
-team2=OWatchTowerBot
+team2=OLabBot
 
 mkdir -p logs
 if test -f "logs/results.log"; then
