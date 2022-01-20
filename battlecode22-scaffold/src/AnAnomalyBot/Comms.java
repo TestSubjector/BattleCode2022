@@ -759,4 +759,26 @@ public class Comms extends Util{
         System.out.println("Why does this happen?");
         return -1;
     }
+
+
+    public static void updateHealingUnitNearby(int count){
+        try{
+            int channel = CHANNEL_ARCHON_START + BotArchon.commID * 4 + 3;
+            int val = rc.readSharedArray(channel);
+            val = ((val & 0xFFF0) | count);
+            rc.writeSharedArray(channel, val);
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
+
+    public static int readHealingUnitsNearby(int commID){
+        try{
+            return (rc.readSharedArray(CHANNEL_ARCHON_START + commID * 4 + 3) & 0xF);
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+        return -1;
+    }
 }

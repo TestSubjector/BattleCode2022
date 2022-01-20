@@ -77,3 +77,7 @@ than max rubble.
 * Prioritise healing least damaged unit first
 * Create Labs
 * Transmute gold
+
+## AnomalyBot
+
+* Added comm functions for healing units count near archons.
