@@ -1,4 +1,4 @@
-package ALabBot;
+package OLabBot;
 
 import battlecode.common.*;
 

@@ -1,4 +1,4 @@
-package ALabBot;
+package AnAnomalyBot;
 
 import battlecode.common.*;
 

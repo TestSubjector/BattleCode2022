@@ -1,4 +1,4 @@
-package ALabBot;
+package AnAnomalyBot;
 
 import java.util.Random;
 
