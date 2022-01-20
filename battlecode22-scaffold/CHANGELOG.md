@@ -81,4 +81,5 @@ than max rubble.
 ## AnomalyBot
 
 * Added comm functions for healing units count near archons.
-* Miner disintegrate near archons when low health
+* Miner disintegrate near archons when low health.
+* Sage will not quickly run to archon now when action on cooldown, will wait for enemies in range.
