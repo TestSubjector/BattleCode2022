@@ -24,6 +24,7 @@ public class BotArchon extends Util{
     public static int soldierCount;
     public static int sageCount;
     public static int watchTowerCount;
+    public static int laboratoryCount;
     public static int watchTowerWeight;
     public static int turnsWaitingToBuild;
     private static int enemyArchonQueueHead;
@@ -34,15 +35,7 @@ public class BotArchon extends Util{
     private static RobotInfo[] inRangeAllies;
     private static int fleeIndex;
     private static MapLocation fleeLocation;
-    private static MapLocation transformAndMoveTarget;
-    private static MapLocation transformAndMoveOrigin;
-    private static int transformAndMoveTurns;
-    private static final int TRANSFORM_AND_MOVE_TURNS_LIMIT = 35;
-    private static final int LEAD_RESERVE_UPPER_BOUND = 120;
-    private static boolean transformAndMove;
-    private static boolean atTargetLocationForTransform;
     private static boolean isFleeing = false;
-    private static boolean goodPlace;
     private static MapLocation selectedEnemyDestination;
 
     public static MapLocation setEnemyDestination() throws GameActionException{
@@ -68,11 +61,6 @@ public class BotArchon extends Util{
         fleeIndex = 0;
         fleeLocation = null;
         enemyArchonQueueHead = 0;
-        transformAndMove = false;
-        transformAndMoveTarget = null;
-        atTargetLocationForTransform = false;
-        transformAndMoveOrigin = null;
-        goodPlace = false;
     }
     
     
@@ -312,7 +300,9 @@ public class BotArchon extends Util{
         minerCount = rc.readSharedArray(Comms.CHANNEL_MINER_COUNT); 
         builderCount = rc.readSharedArray(Comms.CHANNEL_BUILDER_COUNT); 
         soldierCount = rc.readSharedArray(Comms.CHANNEL_SOLDIER_COUNT); 
+        sageCount = rc.readSharedArray(Comms.CHANNEL_SAGE_COUNT);
         watchTowerCount = rc.readSharedArray(Comms.CHANNEL_WATCHTOWER_COUNT); 
+        laboratoryCount = rc.readSharedArray(Comms.CHANNEL_LABORATORY_COUNT);
     }
 
 
@@ -320,8 +310,10 @@ public class BotArchon extends Util{
         rc.writeSharedArray(Comms.CHANNEL_MINER_COUNT, 0);
         rc.writeSharedArray(Comms.CHANNEL_BUILDER_COUNT, 0);
         rc.writeSharedArray(Comms.CHANNEL_SOLDIER_COUNT, 0);
-        // rc.writeSharedArray(Comms._, 0);
+        rc.writeSharedArray(Comms.CHANNEL_SAGE_COUNT, 0);
         rc.writeSharedArray(Comms.CHANNEL_WATCHTOWER_COUNT, 0);
+        Comms.writeLaboratoryCount(laboratoryCount);
+        rc.writeSharedArray(Comms.CHANNEL_LABORATORY_COUNT, 0);
     }
 
 
@@ -427,22 +419,7 @@ public class BotArchon extends Util{
     }
 
 
-    public static void shouldTransformAndMove() throws GameActionException{
-        if (archonCount == 1) return;
-        if (checkIfAnyOtherArchonIsMoving()){ 
-            transformAndMove = false;
-            return;
-        }
-        if (transformAndMove) return;
-        if (visibleEnemies.length > 0) return;
-        boolean val = Comms.checkIfMessageOfThisTypeThere(Comms.commType.COMBAT, Comms.SHAFlag.COMBAT_LOCATION);
-        transformAndMove =  (commID == Comms.getArchonTransformAndMoveTurn() && rc.getRoundNum() >= Comms.getArchonWaitTimeForArchonTransformAndMove() && val);
-        transformAndMoveOrigin = rc.getLocation();
-        goodPlace = false;
-    }
-
-
-    public static void updateArchon() throws GameActionException{
+    private static void updateArchon() throws GameActionException{
         archonComms();
         updateVision();
         selectedEnemyDestination = setEnemyDestination(); // This is for building of soldiers closer to enemy archon guess
@@ -451,240 +428,6 @@ public class BotArchon extends Util{
         // shouldTransformAndMove();
         getEnemyArchonLocations();
         updateArchonBuildUnits();
-    }
-
-
-    private static MapLocation goodLocationToSettle() throws GameActionException{
-        MapLocation[] adjacentLocations = rc.getAllLocationsWithinRadiusSquared(rc.getLocation(), 2);
-        
-        int optVal = rc.senseRubble(rc.getLocation());
-        MapLocation optLoc = rc.getLocation();
-        int dist = 0;
-        for(MapLocation loc : adjacentLocations){
-            // if (rc.getRoundNum() == 313){
-            //     System.out.println("Possible Location: " + loc);
-            // }
-            if (!rc.canSenseLocation(loc) || rc.canSenseRobotAtLocation(loc)) continue;
-            int rubble = rc.senseRubble(loc), locDist = loc.distanceSquaredTo(rc.getLocation());
-            if (rubble < optVal){
-                optVal = rubble;
-                optLoc = loc;
-                dist = loc.distanceSquaredTo(rc.getLocation());
-            }
-            else if (rubble == optVal && locDist < dist) optLoc = loc;
-        }
-
-        return optLoc;
-    }
-
-
-    public static boolean transformAndUpdate() throws GameActionException{
-        if (!rc.isTransformReady()) return false;
-        if (rc.getMode() == RobotMode.PORTABLE){
-            rc.transform();
-            transformAndMove = false;
-            transformAndMoveTarget = null;
-            atTargetLocationForTransform = false;
-            transformAndMoveOrigin = null;
-            goodPlace = false;
-            transformAndMoveTurns = 0;
-            Comms.writeArchonMode(rc.getMode());
-            Comms.updateArchonTransformAndMoveTurn();
-            Comms.updateWaitTimeForArchonTransformAndMove(rc.getRoundNum() + TRANSFORM_AND_MOVE_WAIT_TIME);
-            return true;
-        }
-        System.out.println("Should be unreachable piece of code");
-        transformAndMove = false;
-        transformAndMoveTarget = null;
-        atTargetLocationForTransform = false;
-        transformAndMoveOrigin = null;
-        goodPlace = false;
-        transformAndMoveTurns = 0;
-        Comms.writeArchonMode(rc.getMode());
-        Comms.updateArchonTransformAndMoveTurn();
-        Comms.updateWaitTimeForArchonTransformAndMove(rc.getRoundNum() + TRANSFORM_AND_MOVE_WAIT_TIME);
-        return true;
-    }
-
-
-    // Assuming transformAndMoveTarget != null
-    public static boolean findAGoodPlaceAndSettleDown() throws GameActionException{
-        MapLocation loc = null;
-        int dist = transformAndMoveTarget.distanceSquaredTo(rc.getLocation());
-        if (dist > 2){ 
-            System.out.println("Not needed I think?");
-            loc = goodLocationToSettle();
-            if (loc == null) return false;
-            transformAndMoveTarget = loc;
-        }
-        if (dist == 0){
-            atTargetLocationForTransform = true;
-            return transformAndUpdate();
-        }
-        Direction dir = rc.getLocation().directionTo(transformAndMoveTarget);
-        if (rc.canMove(dir)){
-            rc.move(dir);
-            updateVision();
-            atTargetLocationForTransform = true;
-            return transformAndUpdate();
-        }
-        return false;
-    }
-
-
-    public static boolean isInjuredBotPresent(RobotInfo[] bots){
-        for (RobotInfo bot : bots){
-            if (CombatUtil.isBotInjured(bot)) return true;
-        }
-        return false;
-    }
-
-
-    // public static void updateTransformAndMoveTarget(){
-    //     try{
-    //         if (goodPlace) return;
-    //         int enemyCombatUnits = CombatUtil.militaryCount(visibleEnemies), alliedCombatUnits = CombatUtil.militaryCount(inRangeAllies);
-    //         if (alliedCombatUnits > enemyCombatUnits || isInjuredBotPresent(inRangeAllies) || transformAndMoveTurns > TRANSFORM_AND_MOVE_TURNS_LIMIT){
-    //             goodPlace = true;
-    //             MapLocation loc = goodLocationToSettle();
-    //             if (loc == null){
-    //                 System.out.println("null: " + loc);
-    //                 System.out.println("currentLocation: " + currentLocation);
-    //             }
-    //             transformAndMoveTarget = loc;
-    //             return;
-    //         }
-    //         if (transformAndMoveTarget == null){
-    //             transformAndMoveTarget = Comms.findNearestLocationOfThisTypeOutOfVision(rc.getLocation(), Comms.commType.COMBAT, Comms.SHAFlag.COMBAT_LOCATION);
-    //         }
-    //         return;
-
-    //     } catch(Exception e){
-    //         e.printStackTrace();
-    //     }
-    // }
-
-
-    public static void updateTransformAndMoveTarget() throws GameActionException{
-        if (goodPlace) return;
-        MapLocation loc = null;
-        int enemyCombatUnits = CombatUtil.militaryCount(visibleEnemies);
-        // int alliedCombatUnits = CombatUtil.militaryCount(inRangeAllies);
-        RobotInfo[] soldiersNearby = rc.senseNearbyRobots(SOLDIER_ACTION_RADIUS);
-        int alliedCombatUnits = CombatUtil.militaryCount(soldiersNearby);
-        if (((transformAndMoveTurns < TRANSFORM_AND_MOVE_TURNS_LIMIT && SMALL_MAP) || enemyCombatUnits != 0) && alliedCombatUnits > enemyCombatUnits){
-            if (rc.getMode() == RobotMode.PORTABLE && rc.getLocation().distanceSquaredTo(transformAndMoveOrigin) > ARCHON_ACTION_RADIUS){
-                goodPlace = true;
-                loc = goodLocationToSettle();
-                // findAGoodPlaceAndSettleDown();
-            }
-        }
-        else if (rc.getTeamLeadAmount(MY_TEAM) < LEAD_RESERVE_UPPER_BOUND)
-            loc = Comms.findNearestLocationOfThisTypeOutOfVision(rc.getLocation(), Comms.commType.COMBAT, Comms.SHAFlag.COMBAT_LOCATION);
-        if (loc != null){
-            if (transformAndMoveTarget == null){
-                transformAndMoveTarget = loc;
-                return;
-            }
-            if (Math.abs(rc.getLocation().distanceSquaredTo(loc) - rc.getLocation().distanceSquaredTo(transformAndMoveTarget)) > 8){
-                transformAndMoveTarget = loc;
-                return;
-            }
-        }
-    }
-
-
-    // public static void transformAndMove(){
-    //     try{
-    //         if (!transformAndMove) return;
-    //         if (checkIfAnyOtherArchonIsMoving()) return;
-    //         updateTransformAndMoveTarget();
-    //         if (transformAndMoveTarget == null){
-    //             if (!isFleeing && rc.getMode().equals(RobotMode.PORTABLE)){
-    //                 System.out.println("NOT. HAPPENING!");
-    //                 if (rc.isTransformReady()) rc.transform();
-    //             }
-    //             return;
-    //         }
-    //         if (rc.getMode().equals(RobotMode.TURRET)){
-    //             if (rc.isTransformReady()) rc.transform();
-    //             return;
-    //         }
-    //         if (rc.getLocation().equals(transformAndMoveTarget)){
-    //             // System.out.println("Reached!!");
-    //             transformAndUpdate();
-    //             return;
-    //         }
-    //         BFS.move(transformAndMoveTarget);
-            
-    //     } catch (Exception e){
-    //         e.printStackTrace();
-    //     }
-    // }
-
-
-    public static void transformAndMove() throws GameActionException{
-        if (!transformAndMove) return;
-        transformAndMoveTurns++;
-        // if (atTargetLocationForTransform && transformAndUpdate()) return;
-        if (atTargetLocationForTransform){
-            transformAndUpdate();
-            return;
-        }
-        if (transformAndMoveOrigin == null) System.out.println("Why God Why????!!!!");
-        updateTransformAndMoveTarget();
-        if (goodPlace){
-            findAGoodPlaceAndSettleDown();
-            return;
-        }
-        
-        // if (!rc.isMovementReady()) return;
-        if (transformAndMoveTarget == null) {
-            if (rc.getMode() == RobotMode.PORTABLE){
-                System.out.println("We have a problem. This should happen ... never!");
-            }
-            return;
-        }
-        if (rc.getMode() == RobotMode.PORTABLE){
-            int dist = rc.getLocation().distanceSquaredTo(transformAndMoveTarget);
-            if (dist == 0){
-                System.out.println("Another piece of unreachable code");
-                atTargetLocationForTransform = true;
-                transformAndUpdate();
-                return;
-            }
-            if (dist <= 2){
-                if (rc.canSenseRobotAtLocation(transformAndMoveTarget)){
-                    goodPlace = true;
-                    findAGoodPlaceAndSettleDown();
-                    return;
-                }
-                if (!rc.isMovementReady()) return;
-                Direction dir = rc.getLocation().directionTo(transformAndMoveTarget);
-                if(rc.canMove(dir)){
-                    rc.move(dir);
-                    updateVision();
-                    atTargetLocationForTransform = true;
-                    transformAndUpdate();
-                    return;
-                }
-                else{
-                    System.out.println("Direction: " + dir);
-                    System.out.println("location: " + rc.getLocation().add(dir));
-                    System.out.println("You know the message. This shouldn't happen");
-                }
-            }
-            else{
-                BFS.move(transformAndMoveTarget);
-            }
-        }
-        else{
-            if (rc.canTransform()){
-                rc.transform();
-                if (transformAndMoveOrigin == null) transformAndMoveOrigin = rc.getLocation();
-                Comms.writeArchonMode(rc.getMode());
-            }
-        }
     }
 
 

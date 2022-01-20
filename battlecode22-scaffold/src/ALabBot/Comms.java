@@ -692,37 +692,71 @@ public class Comms extends Util{
     }
 
 
-    public static int getArchonTransformAndMoveTurn() throws GameActionException{
-        return (rc.readSharedArray(CHANNEL_ARCHON_UTIL) & 0x3);
-    }
+    // Defunct Function
+    // Uses first two bits of CHANNEL_ARCHON_UTIL to store which archon should move:
+    // Note: these bits have been reassigned to some other purpose now since Archons don't move anymore.
+    // public static int getArchonTransformAndMoveTurn() throws GameActionException{
+    //     return (rc.readSharedArray(CHANNEL_ARCHON_UTIL) & 0x3);
+    // }
 
 
-    public static void writeArchonTransformAndMoveTurn(int val) throws GameActionException{
-        rc.writeSharedArray(CHANNEL_ARCHON_UTIL, (rc.readSharedArray(CHANNEL_ARCHON_UTIL) | val));
-    }
+    // Defunct Function
+    // Uses first two bits of CHANNEL_ARCHON_UTIL to store which archon should move:
+    // Note: these bits have been reassigned to some other purpose now since Archons don't move anymore.
+    // public static void writeArchonTransformAndMoveTurn(int val) throws GameActionException{
+    //     rc.writeSharedArray(CHANNEL_ARCHON_UTIL, (rc.readSharedArray(CHANNEL_ARCHON_UTIL) | val));
+    // }
 
 
-    public static void updateArchonTransformAndMoveTurn() throws GameActionException{
-        int curVal = getArchonTransformAndMoveTurn();
-        curVal++;
-        curVal = curVal % archonCount;
-        writeArchonTransformAndMoveTurn(curVal);
-    }
+    // Defunct Function
+    // public static void updateArchonTransformAndMoveTurn() throws GameActionException{
+    //     int curVal = getArchonTransformAndMoveTurn();
+    //     curVal++;
+    //     curVal = curVal % archonCount;
+    //     writeArchonTransformAndMoveTurn(curVal);
+    // }
 
 
-    public static int getArchonWaitTimeForArchonTransformAndMove() throws GameActionException{
-        return ((rc.readSharedArray(CHANNEL_ARCHON_UTIL) & 0x1FFC) >> 2);
-    }
+    // Defunct Function
+    // Uses bits 3-14 of CHANNEL_ARCHON_UTIL to store which archon should move:
+    // Note: these bits have been reassigned to some other purpose now since Archons don't move anymore.
+    // public static int getArchonWaitTimeForArchonTransformAndMove() throws GameActionException{
+    //     return ((rc.readSharedArray(CHANNEL_ARCHON_UTIL) & 0x1FFC) >> 2);
+    // }
 
 
-    public static void updateWaitTimeForArchonTransformAndMove(int waitTime) throws GameActionException{
-        rc.writeSharedArray(CHANNEL_ARCHON_UTIL, ((waitTime << 2) | getArchonTransformAndMoveTurn()));
-    }
+    // Defunct Function
+    // Uses bits 3-14 of CHANNEL_ARCHON_UTIL to store which archon should move:
+    // Note: these bits have been reassigned to some other purpose now since Archons don't move anymore.
+    // public static void updateWaitTimeForArchonTransformAndMove(int waitTime) throws GameActionException{
+    //     rc.writeSharedArray(CHANNEL_ARCHON_UTIL, ((waitTime << 2) | getArchonTransformAndMoveTurn()));
+    // }
 
 
     public static void wipeChannels(commType type) throws GameActionException{
         if (rc.getRoundNum() % 20 != 0) return;
         for (int i = type.commChannelStart; i < type.commChannelStop; ++i)
             wipeChannel(i);
+    }
+
+
+    // Uses first two bits of archon_util to store laboratory count
+    public static void writeLaboratoryCount(int count){
+        try{
+            rc.writeSharedArray(CHANNEL_ARCHON_UTIL, count);
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
+
+    public static int getLaboratoryCount(){
+        try{
+            return (rc.readSharedArray(CHANNEL_ARCHON_UTIL) & 0x3);
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+        System.out.println("Why does this happen?");
+        return -1;
     }
 }
