@@ -133,14 +133,14 @@ public class Comms extends Util{
         commType.WATCHTOWER.commChannelStart = channelArchonStop;
         commType.WATCHTOWER.commChannelQueueHead = CHANNEL_SAGE_COUNT + 1;
         // commType.WATCHTOWER.commChannelHead = Math.max(rc.readSharedArray(commType.WATCHTOWER.commChannelQueueHead), commType.WATCHTOWER.commChannelStart);
-        commType.WATCHTOWER.commChannelStop = 39;
+        commType.WATCHTOWER.commChannelStop = 32;
         initChannelHead(commType.WATCHTOWER);
         // commType.MINER.commChannelStart = channelArchonStop;
         commType.MINER.commChannelStart = commType.WATCHTOWER.commChannelStop;
         commType.MINER.commChannelQueueHead = CHANNEL_SAGE_COUNT + 2;
         // commType.MINER.commChannelHead = Math.max(rc.readSharedArray(commType.MINER.commChannelQueueHead), commType.MINER.commChannelStart);
         // commType.LEAD.commChannelStop = (64 + 3 * commType.LEAD.commChannelStart) / 4;
-        commType.MINER.commChannelStop = 48;
+        commType.MINER.commChannelStop = 38;
         initChannelHead(commType.MINER);
         commType.COMBAT.commChannelStart = commType.MINER.commChannelStop;
         commType.COMBAT.commChannelQueueHead = CHANNEL_SAGE_COUNT + 3;
