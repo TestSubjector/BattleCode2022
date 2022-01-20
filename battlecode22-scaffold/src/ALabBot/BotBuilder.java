@@ -24,7 +24,7 @@ public class BotBuilder extends Util{
     }
 
 
-    public static void updateBuilder(){
+    private static void updateBuilder(){
         try{
             builderComms();
             repairMode = false;
@@ -36,71 +36,8 @@ public class BotBuilder extends Util{
         }
     }
 
-
-    private static boolean moveToLocationForBuilding(MapLocation dest) throws GameActionException{
-        // TODO: Write helper function to see if moving to optimum destAdjacent location is better than building from right here
-        if (rc.getLocation().distanceSquaredTo(dest) == 1){
-            destAdjacent = currentLocation;
-            return true;
-        }
-         // TODO: Reorganise to sprint
-        if (destAdjacent == null && rc.canSenseLocation(dest)) destAdjacent = PathFinder.findOptimumAdjacentLocation(dest);
-        if (destAdjacent == null){
-            if(!rc.getLocation().equals(dest)){
-                Movement.moveToDest(dest);
-                return rc.getLocation().equals(dest);
-            }
-        }
-        else if(!rc.getLocation().equals(destAdjacent)){
-            Movement.moveToDest(destAdjacent);
-            return rc.getLocation().equals(destAdjacent);
-        }
-        return false;
-    }
-
-
-    public static boolean buildRobot(RobotType type, Direction dir) throws GameActionException{
-        if (rc.canBuildRobot(type, dir)){
-            rc.buildRobot(type, dir);
-            desperationIndex = 0;
-            // healMode = true;
-            healLocation = currentLocation.add(dir);
-            return true;
-        }
-        return false;
-    }
-
-
-    // public static boolean createBuildingInRandomDirection(RobotType type) throws GameActionException{
-    //     for (Direction dir : directions) {
-    //         if (buildRobot(type, dir))
-    //             return true;
-    //     }
-    //     return false;
-    // }
-
-
-    private static boolean makeBuilding(MapLocation dest, RobotType type) throws GameActionException{
-        Direction dir = currentLocation.directionTo(dest);
-        destAdjacent = null;
-        return buildRobot(type, dir);
-        // if (!buildRobot(type, dir))
-        //     return createBuildingInRandomDirection(type);
-        // return true;
-    }
-
-
-    public static MapLocation mutableBuildingNearby(){
-        try{
-            
-        } catch (Exception e){
-            e.printStackTrace();
-        }
-        return null;
-    }
-
     
-    public static void builderComms(){
+    private static void builderComms(){
         try{
             Comms.updateArchonLocations();
             Comms.updateChannelValueBy1(Comms.CHANNEL_BUILDER_COUNT);
@@ -112,26 +49,13 @@ public class BotBuilder extends Util{
     }
 
 
-    public static void repair(MapLocation loc) throws GameActionException{
+    private static void repair(MapLocation loc) throws GameActionException{
         if (rc.canRepair(loc))
             rc.repair(loc);
     }
 
 
-    public static void healBuilding() throws GameActionException{
-        // TODO: Add code for actual healing of injured buildings; Currently it only repairs prototypes
-        RobotInfo target = rc.senseRobotAtLocation(healLocation);
-        if (target != null && target.getMode() == RobotMode.PROTOTYPE){
-            repair(healLocation);
-        }
-        else{
-            healLocation = null;
-            // healMode = false;
-        }
-    }
-
-
-    public static MapLocation findNearestBuildingThatCanBeRepaired(){
+    private static MapLocation findNearestBuildingThatCanBeRepaired(){
         try{
             RobotInfo bot;
             for (int i = visibleAllies.length; --i >= 0;){
@@ -139,58 +63,6 @@ public class BotBuilder extends Util{
                 if (bot == null || bot.team == ENEMY_TEAM || !bot.type.isBuilding() || !CombatUtil.isBotInjured(bot)) continue;
                 return bot.location;
             }
-
-            // int ct = CombatUtil.militaryCount(visibleAllies);
-            // if (ct == 0) return null;
-            // if (ct < 10){
-            //     MapLocation loc;
-            //     MapLocation optLoc = null;
-            //     int optDist = Integer.MAX_VALUE;
-            //     for (int i = visibleLocations.length; --i >= 0;){
-            //         loc = visibleLocations[i];
-            //         RobotInfo bot = rc.senseRobotAtLocation(loc);
-            //         if (bot == null) continue;
-            //         if (bot.team == ENEMY_TEAM) continue;
-            //         if (!bot.type.isBuilding()) continue;
-            //         if (!CombatUtil.isBotInjured(bot)) continue;
-            //         int dist = rc.getLocation().distanceSquaredTo(loc);
-            //         if (dist < optDist){
-            //             optLoc = loc;
-            //             optDist = dist;
-            //         }
-            //     }
-            //     return optLoc;
-            // }
-            // else{
-            //     MapLocation curLoc = rc.getLocation();
-            //     for (int i = droidVisionDirs.length - 1; --i >= 0;){
-            //         Direction dir = droidVisionDirs[i];
-            //         curLoc = curLoc.add(dir);
-            //         if (rc.getLocation().distanceSquaredTo(curLoc) > BUILDER_VISION_RADIUS) break;
-            //         if (!rc.canSenseLocation(curLoc)) continue;
-            //         RobotInfo bot = rc.senseRobotAtLocation(curLoc);
-            //         if (bot == null || bot.team == ENEMY_TEAM || !bot.type.isBuilding() || !CombatUtil.isBotInjured(bot)) continue;
-            //         return bot.location;
-            //     }
-            // }
-            
-            // MapLocation loc;
-            // MapLocation optLoc = null;
-            // int optDist = Integer.MAX_VALUE;
-            // for (int i = visibleAllies.length; --i >= 0;){
-            //     loc = visibleAllies[i];
-            //     RobotInfo bot = rc.senseRobotAtLocation(loc);
-            //     if (bot == null) continue;
-            //     if (bot.team == ENEMY_TEAM) continue;
-            //     if (!bot.type.isBuilding()) continue;
-            //     if (!CombatUtil.isBotInjured(bot)) continue;
-            //     int dist = rc.getLocation().distanceSquaredTo(loc);
-            //     if (dist < optDist){
-            //         optLoc = loc;
-            //         optDist = dist;
-            //     }
-            // }
-            // return optLoc;
         } catch (Exception e){
             e.printStackTrace();
         }
@@ -198,7 +70,7 @@ public class BotBuilder extends Util{
     }
 
 
-    public static boolean repairMode(){
+    private static boolean repairMode(){
         try{
             if (!repairMode) return false;
             MapLocation repairTarget = findNearestBuildingThatCanBeRepaired();
@@ -270,11 +142,13 @@ public class BotBuilder extends Util{
 
     private static RobotType getUnitTypeToBuild(){
         // TODO: Include labs in this.
+        int laboratoryCount = Comms.getLaboratoryCount();
+        if (laboratoryCount == 0) return RobotType.LABORATORY;
         return RobotType.WATCHTOWER;
     }
 
 
-    public static Direction findBuildDirection(RobotType buildType){
+    private static Direction findBuildDirection(RobotType buildType){
         try{
             Direction dir;
             Direction optDir = null;
@@ -332,7 +206,7 @@ public class BotBuilder extends Util{
     }
 
 
-    public static boolean prioritizeAdjacentPrototypeRepair(){
+    private static boolean prioritizeAdjacentPrototypeRepair(){
         try{
             // MapLocation[] adjacentLocations = rc.getAllLocationsWithinRadiusSquared(rc.getLocation(), BUILDER_ACTION_RADIUS);
             for (MapLocation loc : inRangeLocations){
@@ -372,20 +246,15 @@ public class BotBuilder extends Util{
     }
 
 
-    static void runBuilder(RobotController rc){
+    public static void runBuilder(RobotController rc){
         try{
-            // System.out.println("A: Bytecodes left: " + Clock.getBytecodesLeft());
             updateBuilder();
-            // System.out.println("B: Bytecodes left: " + Clock.getBytecodesLeft());
             if (buildMode() || repairMode()) return;
             else{
-                // System.out.println("C: Bytecodes left: " + Clock.getBytecodesLeft());
-                // TODO: Do What?
                 if (TAG_ALONG_ENABLED) moveTowardsWatchTower();
                 else Movement.goToDirect(BotMiner.explore());
                 buildLocation = null;
             }
-            // System.out.println("D: Bytecodes left: " + Clock.getBytecodesLeft());
         } catch (Exception e){
             e.printStackTrace();
         }

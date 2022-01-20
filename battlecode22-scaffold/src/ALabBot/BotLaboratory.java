@@ -6,6 +6,7 @@ import battlecode.common.*;
 public class BotLaboratory extends Util {
     public static boolean shouldDoAlchemy;
     public static int transmutationRate;
+    
 
     public static void initBotLaboratory(){
         shouldDoAlchemy = false;
@@ -13,20 +14,33 @@ public class BotLaboratory extends Util {
     }
 
 
-    public static boolean becomeMidas(){
+    private static boolean shouldTransmute(){
         // TODO: Figure out a criteria to turn on conversion of Lead -> Gold
-        return false;
+        return true;
     }
 
 
-    public static void updateLaboratory(){
-        shouldDoAlchemy = becomeMidas();
+    private static void laboratoryComms(){
+        try{
+            Comms.updateArchonLocations();
+            Comms.updateChannelValueBy1(Comms.CHANNEL_LABORATORY_COUNT);
+            Comms.updateChannelValueBy1(Comms.CHANNEL_TRANSMITTER_COUNT);
+            Comms.updateComms();
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
+
+    private static void updateLaboratory(){
+        laboratoryComms();
+        shouldDoAlchemy = shouldTransmute();
         // TODO: Don't update transmutationRate in every turn. Update only when the laboratory moves.
         transmutationRate = rc.getTransmutationRate(); // Bytecode Cost: 20
     }
 
 
-    public static void alchemy() throws GameActionException{
+    private static void theTouchOfMidas() throws GameActionException{
         if (!shouldDoAlchemy || !rc.canTransmute()) return;
         rc.transmute();
     }
@@ -34,6 +48,6 @@ public class BotLaboratory extends Util {
 
     public static void runLaboratory(RobotController rc) throws GameActionException{
         updateLaboratory();
-        alchemy();
+        theTouchOfMidas();
     }
 }
