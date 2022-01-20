@@ -104,7 +104,7 @@ public class BotMiner extends Explore{
             checkedOnce = true;
             for (int i = Comms.CHANNEL_ARCHON_START; i < Comms.channelArchonStop; i += 4){
                 MapLocation alliedLoc = Comms.readLocationFromMessage(rc.readSharedArray(i));
-                if ((rc.getLocation().distanceSquaredTo(enemyLoc)) >= (int)(((double)rc.getLocation().distanceSquaredTo(alliedLoc)) / 1.30d)) return false;
+                if ((rc.getLocation().distanceSquaredTo(enemyLoc)) >= (int)(((double)rc.getLocation().distanceSquaredTo(alliedLoc)) / 1.20d)) return false;
             }
         }
         if (checkedOnce) return true;
@@ -217,7 +217,7 @@ public class BotMiner extends Explore{
         MapLocation[] potentialMiningLocations = rc.senseNearbyLocationsWithGold();
         if (potentialMiningLocations.length > 0) return findOptimalLocationForMiningGold(potentialMiningLocations);
         if (!depleteMine) 
-            potentialMiningLocations = rc.senseNearbyLocationsWithLead(MINER_VISION_RADIUS, 5);
+            potentialMiningLocations = rc.senseNearbyLocationsWithLead(MINER_VISION_RADIUS, 8);
         else potentialMiningLocations = rc.senseNearbyLocationsWithLead();
         if (potentialMiningLocations.length > 0) return findOptimalLocationForMiningLead(potentialMiningLocations);
         return null;
@@ -463,6 +463,7 @@ public class BotMiner extends Explore{
         MapLocation[] mineAdjacentLocations = rc.getAllLocationsWithinRadiusSquared(miningLocation, MINER_ACTION_RADIUS);
         for (int i = mineAdjacentLocations.length; i-- > 0;){
             MapLocation loc = mineAdjacentLocations[i];
+            if (!rc.canSenseLocation(loc)) continue;
             int curRubbleVal = rc.senseRubble(loc);
             if (homeRubbleVal > curRubbleVal && rubbleVal >= curRubbleVal){
                 // if (rubbleVal == curRubbleVal){
@@ -487,6 +488,10 @@ public class BotMiner extends Explore{
 
     public static void doMining() throws GameActionException{
         if (isFleeing) return;
+        if (isMinedThisTurn){
+            moveOut = false;
+            return;
+        }
         opportunisticMining();
         if (inPlaceForMining){
             // if (isSafeToMine(rc.getLocation()))
@@ -569,8 +574,8 @@ public class BotMiner extends Explore{
     * This code is wrapped inside the infinite loop in run(), so it is called once per turn.
     */
     public static void runMiner(RobotController rc) throws GameActionException{
-        mine();
         updateMiner();
+        mine();
         lowHealthStrategy();
         // toDieOrNotToDie();
 

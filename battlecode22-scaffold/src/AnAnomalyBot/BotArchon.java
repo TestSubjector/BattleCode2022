@@ -61,6 +61,7 @@ public class BotArchon extends Util{
         fleeIndex = 0;
         fleeLocation = null;
         enemyArchonQueueHead = 0;
+        if (commID == 0) Anomaly.initAnomaly();
     }
     
     

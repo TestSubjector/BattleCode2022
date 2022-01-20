@@ -83,3 +83,5 @@ than max rubble.
 * Added comm functions for healing units count near archons.
 * Miner disintegrate near archons when low health.
 * Sage will not quickly run to archon now when action on cooldown, will wait for enemies in range.
+* Created Anomaly.java
+* Modified BotMiner: increased findOptimalMiningLocation(lead) lower bound to 8; Decreased ratio (dist to allied archon/ enemy archon) of mine depletion check to 1.2
