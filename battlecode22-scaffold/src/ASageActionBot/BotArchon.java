@@ -1,4 +1,4 @@
-package ACommMiningBot;
+package ASageActionBot;
 
 import battlecode.common.*;
 
@@ -39,6 +39,9 @@ public class BotArchon extends Util{
     private static MapLocation selectedEnemyDestination;
 
     public static MapLocation setEnemyDestination() throws GameActionException{
+        // MapLocation lClosestEnemyArchon = Comms.getClosestEnemyArchonLocation();
+        // if (lClosestEnemyArchon != null)  return lClosestEnemyArchon;
+
         for (int i = 0; i < 4; i++){
             if (rememberedEnemyArchonLocations[i] != null && CombatUtil.enemyArchonLocationGuessIsFalse(rememberedEnemyArchonLocations[i]))
                 rememberedEnemyArchonLocations[i] = null;
@@ -47,7 +50,7 @@ public class BotArchon extends Util{
         else if (rememberedEnemyArchonLocations[2] != null) return rememberedEnemyArchonLocations[2];
         else if (rememberedEnemyArchonLocations[0] != null) return rememberedEnemyArchonLocations[0];
         else{
-            System.out.println("ERROR: No enemy archon locations");
+            // System.out.println("ERROR: No enemy archon locations");
             return CENTER_OF_THE_MAP;
         }
     }

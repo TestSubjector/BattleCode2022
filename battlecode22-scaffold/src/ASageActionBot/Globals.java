@@ -1,4 +1,4 @@
-package ACommMiningBot;
+package ASageActionBot;
 
 import java.util.Random;
 

@@ -1,4 +1,4 @@
-package ACommMiningBot;
+package ASageActionBot;
 
 import battlecode.common.*;
 
@@ -26,7 +26,7 @@ public class BotMiner extends Explore{
     public static boolean lowHealthStratInPlay = false;
     public static MapLocation lowHealthStratArchon;
     public static int fleeCount;
-    public static MapLocation finalDestination = null; 
+    private static MapLocation finalDestination = null; 
 
     public static boolean areMiningLocationsAbundant(){
         try{

@@ -1,4 +1,4 @@
-package ACommMiningBot;
+package OCommMiningBot;
 
 import battlecode.common.MapLocation;
 import battlecode.common.Clock;

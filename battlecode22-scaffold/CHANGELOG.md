@@ -87,7 +87,10 @@ than max rubble.
 * Modified BotMiner: increased findOptimalMiningLocation(lead) lower bound to 8; Decreased ratio (dist to allied archon/ enemy archon) of mine depletion check to 1.2
 * Laboratory now moves to adjacent lesser rubble area if present.
 
-# CommMiningBot
+## CommMiningBot
 
 * Comms: Bug Fix: commChannelStop of MINER isn't updated in updateComms() (as it's not needed since commChannelStop has been a fixed value for a long time now).
 * Added WATCHTOWER channels segment to Comms.
+* Increased combat channels
+
+## SageActionBot

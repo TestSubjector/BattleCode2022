@@ -1,4 +1,4 @@
-package ACommMiningBot;
+package ASageActionBot;
 
 import battlecode.common.MapLocation;
 
