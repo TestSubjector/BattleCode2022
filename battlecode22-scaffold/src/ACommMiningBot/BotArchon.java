@@ -25,7 +25,7 @@ public class BotArchon extends Util{
     public static int sageCount;
     public static int watchTowerCount;
     public static int laboratoryCount;
-    public static int watchTowerWeight;
+    public static double watchTowerWeight;
     public static int turnsWaitingToBuild;
     private static int enemyArchonQueueHead;
     public static final int TRANSFORM_AND_MOVE_WAIT_TIME = 70;
@@ -69,17 +69,18 @@ public class BotArchon extends Util{
     // TODO: Link currentweights with comms counter
     public static void updateArchonBuildUnits(){
         double lTC = turnCount;
-        watchTowerWeight = watchTowerCount;
-        // if (SMALL_MAP){
-        //     aBUWeights[ArchonBuildUnits.BUILDER.ordinal()] = Math.min(1.0d, 0.15d + lTC/400.0d);
-        //     aBUWeights[ArchonBuildUnits.MINER.ordinal()] = Math.max(1.3d, 2.5d - lTC/100.0d);
-        //     aBUWeights[ArchonBuildUnits.SAGE.ordinal()] = Math.max(2.50d, 4.5d - lTC/100.0d);
-        //     aBUWeights[ArchonBuildUnits.SOLDIER.ordinal()] = Math.min(4.50d, 2.0d + lTC/100.0d - (double)soldierCount/60.0d);
-        //     return;
-        // }
-        aBUWeights[ArchonBuildUnits.BUILDER.ordinal()] = Math.min(1.0d, 0.15d + lTC/400.0d);
-        aBUWeights[ArchonBuildUnits.MINER.ordinal()] = Math.max(1.3d, 4.5d - (lTC/100.0d) - ((double)minerCount)/30.0d);
-        aBUWeights[ArchonBuildUnits.SAGE.ordinal()] = Math.max(2.50d, 4.5d - lTC/100.0d);
+        if (SMALL_MAP){
+            watchTowerWeight = watchTowerCount;
+            aBUWeights[ArchonBuildUnits.BUILDER.ordinal()] = Math.min(1.0d, 0.15d + lTC/400.0d);
+            aBUWeights[ArchonBuildUnits.MINER.ordinal()] = Math.max(1.3d, 4.5d - (lTC/100.0d) - ((double)minerCount)/30.0d);
+            aBUWeights[ArchonBuildUnits.SAGE.ordinal()] = Math.max(2.50d, 4.5d - lTC/100.0d);
+            aBUWeights[ArchonBuildUnits.SOLDIER.ordinal()] = Math.min(4.50d, 2.0d + lTC/20.0d - (double)soldierCount/70.0d);
+            return;
+        }
+        watchTowerWeight = watchTowerCount/1.5;
+        aBUWeights[ArchonBuildUnits.BUILDER.ordinal()] = Math.min(1.0d, 0.35d + lTC/400.0d);
+        aBUWeights[ArchonBuildUnits.MINER.ordinal()] = Math.max(1.5d, 4.5d - (lTC/100.0d) - ((double)minerCount)/30.0d);
+        aBUWeights[ArchonBuildUnits.SAGE.ordinal()] = Math.max(3.0d, 4.5d - lTC/100.0d);
         aBUWeights[ArchonBuildUnits.SOLDIER.ordinal()] = Math.min(4.50d, 2.0d + lTC/20.0d - (double)soldierCount/70.0d);
     }
 
