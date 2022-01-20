@@ -290,7 +290,7 @@ public class BotSoldier extends CombatUtil{
     private static boolean tryToHealAtArchon() throws GameActionException {
 		if (!rc.isMovementReady()) return false;
 		
-		MapLocation closestArchon = getClosestArchonLocation();
+		MapLocation closestArchon = getLowestHealingArchonLocation();
 		
 		if (closestArchon == null)
             return false;

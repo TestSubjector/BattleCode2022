@@ -104,6 +104,24 @@ public class Util extends Globals {
         return closest;
     }
 
+    public static MapLocation getLowestHealingArchonLocation(){
+        int minHealingUnits = Integer.MAX_VALUE;
+        int unitsBeingHealedByArchon = 0;
+        MapLocation closest = null;
+        for(int i = 0; i < archonCount; i++){
+            unitsBeingHealedByArchon = Comms.readHealingUnitsNearby(i);
+            if (unitsBeingHealedByArchon < minHealingUnits){
+                minHealingUnits = unitsBeingHealedByArchon;
+                closest = archonLocations[i];
+            }
+            else if(unitsBeingHealedByArchon == minHealingUnits && 
+            rc.getLocation().distanceSquaredTo(archonLocations[i]) < rc.getLocation().distanceSquaredTo(closest)){
+                    closest = archonLocations[i];
+            }
+        }
+        return closest;
+    }
+
     public static MapLocation getClosestArchonLocation(boolean isArchon){
         int minDistance = Integer.MAX_VALUE;
         int curDistance = 0;
