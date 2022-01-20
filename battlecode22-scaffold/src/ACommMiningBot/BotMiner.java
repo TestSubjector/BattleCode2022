@@ -283,9 +283,9 @@ public class BotMiner extends Explore{
 
     public static boolean foundMiningLocationFromComms() throws GameActionException{
         if (!tooCrowded) 
-            miningLocation = Comms.findNearestLocationOfThisTypeAndWipeChannel(rc.getLocation(), Comms.commType.LEAD, Comms.SHAFlag.LEAD_LOCATION);
+            miningLocation = Comms.findNearestLocationOfThisTypeAndWipeChannel(rc.getLocation(), Comms.commType.MINER, Comms.SHAFlag.LEAD_LOCATION);
         else
-            miningLocation = Comms.findNearestLocationOfThisTypeOutOfVisionAndWipeChannel(rc.getLocation(), Comms.commType.LEAD, Comms.SHAFlag.LEAD_LOCATION);
+            miningLocation = Comms.findNearestLocationOfThisTypeOutOfVisionAndWipeChannel(rc.getLocation(), Comms.commType.MINER, Comms.SHAFlag.LEAD_LOCATION);
         if (miningLocation != null){
             // desperationIndex--;
             desperationIndex = 0;

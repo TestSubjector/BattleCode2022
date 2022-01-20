@@ -52,7 +52,7 @@ public class Comms extends Util{
     public static final int CHANNEL_LABORATORY_COUNT = CHANNEL_WATCHTOWER_COUNT + 1;
     public static final int CHANNEL_SAGE_COUNT = CHANNEL_LABORATORY_COUNT + 1;
     // All Archons will have minimum 4 channels until they die
-    public static final int CHANNEL_ARCHON_START = CHANNEL_SAGE_COUNT + 3;
+    public static final int CHANNEL_ARCHON_START = CHANNEL_SAGE_COUNT + 4;
     public static final int TOTAL_CHANNELS_COUNT = 64;
     private static int allChannels[];
     
@@ -105,8 +105,9 @@ public class Comms extends Util{
 
 
     public static enum commType{
-        LEAD, // 0x0
-        COMBAT; // 0x1
+        MINER, // 0x0
+        COMBAT, // 0x1
+        WATCHTOWER; //0x2
 
         public int commChannelStart;
         public int commChannelHead;
@@ -118,26 +119,43 @@ public class Comms extends Util{
     public static SHAFlag[] SHAFlags = SHAFlag.values();
 
 
+    private static void initChannelHead(commType type){
+        try{
+            type.commChannelHead = Math.max(rc.readSharedArray(type.commChannelQueueHead) % type.commChannelStop, type.commChannelStart);
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
+
     public static void initComms() throws GameActionException{
         channelArchonStop = CHANNEL_ARCHON_START + 4 * archonCount;
-        commType.LEAD.commChannelStart = channelArchonStop;
-        commType.LEAD.commChannelQueueHead = CHANNEL_SAGE_COUNT + 1;
-        commType.LEAD.commChannelHead = Math.max(rc.readSharedArray(commType.LEAD.commChannelQueueHead), commType.LEAD.commChannelStart);
+        commType.WATCHTOWER.commChannelStart = channelArchonStop;
+        commType.WATCHTOWER.commChannelQueueHead = CHANNEL_SAGE_COUNT + 1;
+        // commType.WATCHTOWER.commChannelHead = Math.max(rc.readSharedArray(commType.WATCHTOWER.commChannelQueueHead), commType.WATCHTOWER.commChannelStart);
+        commType.WATCHTOWER.commChannelStop = 39;
+        initChannelHead(commType.WATCHTOWER);
+        // commType.MINER.commChannelStart = channelArchonStop;
+        commType.MINER.commChannelStart = commType.WATCHTOWER.commChannelStop;
+        commType.MINER.commChannelQueueHead = CHANNEL_SAGE_COUNT + 2;
+        // commType.MINER.commChannelHead = Math.max(rc.readSharedArray(commType.MINER.commChannelQueueHead), commType.MINER.commChannelStart);
         // commType.LEAD.commChannelStop = (64 + 3 * commType.LEAD.commChannelStart) / 4;
-        commType.LEAD.commChannelStop = 35;
-        commType.COMBAT.commChannelStart = commType.LEAD.commChannelStop;
-        commType.COMBAT.commChannelQueueHead = CHANNEL_SAGE_COUNT + 2;
-        commType.COMBAT.commChannelHead = Math.max(rc.readSharedArray(commType.LEAD.commChannelQueueHead), commType.COMBAT.commChannelStart);
+        commType.MINER.commChannelStop = 48;
+        initChannelHead(commType.MINER);
+        commType.COMBAT.commChannelStart = commType.MINER.commChannelStop;
+        commType.COMBAT.commChannelQueueHead = CHANNEL_SAGE_COUNT + 3;
+        // commType.COMBAT.commChannelHead = Math.max(rc.readSharedArray(commType.COMBAT.commChannelQueueHead), commType.COMBAT.commChannelStart);
         commType.COMBAT.commChannelStop = 64;
+        initChannelHead(commType.COMBAT);
         allChannels = new int[TOTAL_CHANNELS_COUNT];
     }
 
 
     public static void updateComms() throws GameActionException{
         channelArchonStop = CHANNEL_ARCHON_START + 4 * archonCount;
-        commType.LEAD.commChannelStart = channelArchonStop;
-        commType.LEAD.commChannelStop = (64 + 3 * commType.LEAD.commChannelStart) / 4;
-        commType.COMBAT.commChannelStart = commType.LEAD.commChannelStop;
+        commType.WATCHTOWER.commChannelStart = channelArchonStop;
+        // commType.MINER.commChannelStop = (64 + 3 * commType.MINER.commChannelStart) / 4;
+        // commType.COMBAT.commChannelStart = commType.MINER.commChannelStop;
     }
 
 

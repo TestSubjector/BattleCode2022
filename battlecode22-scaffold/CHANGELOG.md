@@ -88,3 +88,6 @@ than max rubble.
 * Laboratory now moves to adjacent lesser rubble area if present.
 
 # CommMiningBot
+
+* Comms: Bug Fix: commChannelStop of MINER isn't updated in updateComms() (as it's not needed since commChannelStop has been a fixed value for a long time now).
+* Added WATCHTOWER channels segment to Comms.

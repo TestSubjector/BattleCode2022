@@ -100,6 +100,7 @@ public class BotBuilder extends Util{
             int optDist = 0;
             for (int i = visibleAllies.length; --i >= 0; ){
                 MapLocation loc = visibleLocations[i];
+                if (!rc.canSenseLocation(loc)) continue;
                 if (loc.distanceSquaredTo(closestArchon) <= BUILDER_ACTION_RADIUS) continue;
                 // if (rc.senseLead(loc) > 0 || rc.senseGold(loc) > 0) continue;
                 int rubble = rc.senseRubble(loc), dist = rc.getLocation().distanceSquaredTo(loc);
