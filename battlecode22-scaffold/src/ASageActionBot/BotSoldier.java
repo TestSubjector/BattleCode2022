@@ -46,21 +46,10 @@ public class BotSoldier extends CombatUtil{
         inRangeEnemies = rc.senseNearbyRobots(SOLDIER_ACTION_RADIUS, ENEMY_TEAM);
     }
 
-    // private static void detectIfAttackTargetIsGone() throws GameActionException {
-	// 	if (attackTarget != null) {
-	// 		if (currentLocation.distanceSquaredTo(attackTarget) <= 10) {
-	// 		    RobotInfo targetInfo = rc.senseRobotAtLocation(attackTarget);
-	// 			if (targetInfo.ID != attackTarget) {
-	// 				attackTarget = null;
-	// 			}
-	// 		}
-	// 	}
-	// }
-
-    // TODO: Sense rubble at their location and factor that in to find more dangerous unit
     private static double getEnemyScore(RobotInfo enemyUnit) throws GameActionException{
         RobotType enemyType = enemyUnit.type;
         int enemyHealth = enemyUnit.getHealth();
+        if (enemyHealth <= 3) return 100000; // Instakill
         int rubbleAtLocation = rc.senseRubble(enemyUnit.getLocation());
 		switch(enemyType) {
 		case ARCHON:
@@ -180,7 +169,6 @@ public class BotSoldier extends CombatUtil{
 			numAlliesAttackingClosestHostile += 1;
 		}
 
-        // TODO: Vision, action or 13?
 		RobotInfo[] nearbyAllies = rc.senseNearbyRobots(closestHostileThatAttacksUs.location, SOLDIER_VISION_RADIUS, MY_TEAM);
 		for (int i = nearbyAllies.length; --i >= 0;) {
             RobotInfo ally = nearbyAllies[i];

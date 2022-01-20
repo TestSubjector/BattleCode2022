@@ -8,9 +8,12 @@ public class BotSage extends Util{
 
     private static RobotInfo[] visibleEnemies;
     private static RobotInfo[] inRangeEnemies;
+    private static boolean inHealingState;
+    private static MapLocation finalDestination = null; 
 
     public static void initBotSage() throws GameActionException{
         System.out.println("Hello, this is a sage.");
+        inHealingState = false;
         currentDestination = Comms.getClosestEnemyArchonLocation();
         if (currentDestination == null){
             for (int i = 0; i < 4; i++){
@@ -178,13 +181,33 @@ public class BotSage extends Util{
 		return false;
 	}
 
+    private static void manageHealingState() {
+        if (rc.getHealth() < rc.getType().getMaxHealth(rc.getLevel()) / 8.0) {
+            inHealingState = true;
+        }
+        else if (rc.getHealth() > 2.0/3.0 * rc.getType().getMaxHealth(rc.getLevel())) {
+            inHealingState = false;
+        }
+    }
 
-    static void runSage(RobotController rc) throws GameActionException {
-        sageComms();
-        updateVision();
-        BotSoldier.sendCombatLocation(visibleEnemies);
+    private static boolean tryToHealAtArchon() throws GameActionException {
+		if (!rc.isMovementReady()) return false;
+		
+		MapLocation closestArchon = getLowestHealingArchonLocation();
+		
+		if (closestArchon == null)
+            return false;
+        else if (rc.getLocation().distanceSquaredTo(closestArchon) <= ARCHON_ACTION_RADIUS) {
+            Movement.tryMoveInDirection(closestArchon);
+        }
+		else if (finalDestination == null)
+            BFS.move(closestArchon); // TODO: Avoid enemies
+		return true;
+	}
+
+    private static void tryMicro() throws GameActionException{
         if (rc.isActionReady()){
-            if (rc.isMovementReady() && visibleEnemies.length >=4 && inRangeEnemies.length < 4){
+            if (!inHealingState && rc.isMovementReady() && visibleEnemies.length >=4 && inRangeEnemies.length < 4){
                 Direction crowdedDirection = mostEnemyDroidsAdjacentLocation(visibleEnemies);
                 if (crowdedDirection != null) {
                     rc.move(crowdedDirection);
@@ -201,6 +224,19 @@ public class BotSage extends Util{
                 }
             }
         }
+    }
+
+    static void runSage(RobotController rc) throws GameActionException {
+        sageComms();
+        updateVision();
+        BotSoldier.sendCombatLocation(visibleEnemies);
+        manageHealingState();
+        tryMicro();
+        
+        if (inHealingState && tryToHealAtArchon()){
+            // return;
+        } 
+
         if (!rc.isActionReady() && rc.isMovementReady()){
             MapLocation closestArchon = getClosestArchonLocation();
             if (CombatUtil.militaryCount(inRangeEnemies) > 1 && closestArchon != null){

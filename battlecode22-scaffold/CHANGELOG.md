@@ -97,3 +97,4 @@ than max rubble.
 
 * Sages can envision and step forward aggressively
 * Soldiers will now go to Archon with less units to heal
+* Insta-kill score for soldiers and healing for sages.
