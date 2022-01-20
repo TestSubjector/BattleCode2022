@@ -5,10 +5,10 @@ import battlecode.common.*;
 public class Anomaly extends Util{
     private static AnomalyScheduleEntry[] anomalies;
     private static int anomalyHead;
+
+    
     public static void initAnomaly(){
-        System.out.println("Init Anomaly");
         anomalies = rc.getAnomalySchedule();
-        System.out.println("length: " + anomalies.length);
         anomalyHead = 0;
     }
 
