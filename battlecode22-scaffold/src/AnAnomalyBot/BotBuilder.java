@@ -126,7 +126,7 @@ public class BotBuilder extends Util{
         try{
             if (buildLocation != null) return;
             MapLocation closestArchon = getClosestArchonLocation();
-            if (closestArchon.distanceSquaredTo(rc.getLocation()) <= BUILDER_ACTION_RADIUS){
+            if (closestArchon != null && closestArchon.distanceSquaredTo(rc.getLocation()) <= BUILDER_ACTION_RADIUS){
                 Movement.moveAwayFromLocation(closestArchon);
                 return;
             }
@@ -260,4 +260,3 @@ public class BotBuilder extends Util{
         }
     }
 }
-

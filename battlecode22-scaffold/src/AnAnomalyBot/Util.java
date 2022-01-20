@@ -2,6 +2,7 @@ package AnAnomalyBot;
 
 import battlecode.common.MapLocation;
 import battlecode.common.Clock;
+import battlecode.common.GameActionException;
 import battlecode.common.RobotInfo;
 // import utility.Globals;
 
@@ -138,6 +139,20 @@ public class Util extends Globals {
         return (firstLoc.distanceSquaredTo(CENTER_OF_THE_MAP) < secondLoc.distanceSquaredTo(CENTER_OF_THE_MAP));
     }
 
+    public static MapLocation getClosestNonLeadLocation(MapLocation givenLocation) throws GameActionException{
+        MapLocation targetLocations[] = rc.getAllLocationsWithinRadiusSquared(givenLocation, 13);
+        MapLocation selectedLocation = null;
+        int distToLoc = Integer.MAX_VALUE;
+        for (int i = targetLocations.length; i --> 0; ){
+            if (rc.canSenseLocation(targetLocations[i]) && rc.senseLead(targetLocations[i]) == 0 && !rc.canSenseRobotAtLocation(targetLocations[i]) && 
+                targetLocations[i].distanceSquaredTo(rc.getLocation()) < distToLoc){
+                selectedLocation =  targetLocations[i];
+                distToLoc = selectedLocation.distanceSquaredTo(rc.getLocation());
+            }
+        }
+        return selectedLocation;
+    }
+
     // public static int isInQuadrant(int centerX, int centerY){
     //     int dx = max(abs(px - x) - width / 2, 0);
     //     int dy = max(abs(py - y) - height / 2, 0);
@@ -169,4 +184,6 @@ public class Util extends Globals {
     // String functions
 
     // Return string of length 
+
+
 }

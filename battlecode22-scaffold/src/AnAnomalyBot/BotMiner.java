@@ -26,7 +26,7 @@ public class BotMiner extends Explore{
     public static boolean lowHealthStratInPlay = false;
     public static MapLocation lowHealthStratArchon;
     public static int fleeCount;
-    
+    public static MapLocation finalDestination = null; 
 
     public static boolean areMiningLocationsAbundant(){
         try{
@@ -436,48 +436,6 @@ public class BotMiner extends Explore{
         return true;
     }
 
-
-    // public static void runAway() throws GameActionException{
-    //     moveOut = false;
-    //     RobotInfo nearestEnemy = null;
-    //     int smallestDistSq = 999999;
-    //     for (RobotInfo enemy : visibleEnemies) {
-
-    //         if (enemy.type.canAttack()
-    //         //  || enemy.type == RobotType.LAUNCHER // Currently not needed, might be needed after buffing of watchtowers
-    //          ) {
-    //             int distSq = rc.getLocation().distanceSquaredTo(enemy.location);
-    //             if (distSq < smallestDistSq) {
-    //                 smallestDistSq = distSq;
-    //                 nearestEnemy = enemy;
-    //             }
-    //         }
-    //     }
-    //     if (nearestEnemy == null) return;
-
-    //     Direction away = nearestEnemy.location.directionTo(rc.getLocation());
-    //     Direction[] dirs = new Direction[] { away, away.rotateLeft(), away.rotateRight(), away.rotateLeft().rotateLeft(), away.rotateRight().rotateRight() };
-    //     double bestCost = Double.MAX_VALUE;
-    //     Direction bestDir = null;
-    //     for (Direction dir : dirs) {
-    //         if (rc.canMove(dir)) {
-    //             MapLocation loc = rc.getLocation().add(dir);
-    //             int rubbleValue = rc.senseRubble(loc);
-                
-    //             if (bestCost >  rc.senseRubble(loc)){
-    //                 bestCost = rubbleValue;
-    //                 bestDir = dir;
-    //             }
-    //         }
-    //     }
-    //     if (bestDir != null) {
-    //         rc.move(bestDir);
-    //         exploreDir = bestDir;
-    //         assignExplore3Dir(exploreDir);
-    //     }
-    // }
-
-
     public static void opportunisticMining() throws GameActionException{
         if (miningLocation == null || rc.canSenseLocation(miningLocation)) return;
         MapLocation[] nearbyLocations = rc.senseNearbyLocationsWithGold();
@@ -592,9 +550,15 @@ public class BotMiner extends Explore{
             System.out.println("Warning, Still happening?!!");
             return;
         }
-        if (rc.getLocation().distanceSquaredTo(lowHealthStratArchon) > ARCHON_ACTION_RADIUS){
+        if (finalDestination == null && rc.getLocation().distanceSquaredTo(lowHealthStratArchon) > ARCHON_ACTION_RADIUS){
             BFS.move(lowHealthStratArchon);
             return;
+        } 
+        else if (rc.getHealth() < 8 && visibleEnemies.length == 0) {
+            finalDestination = getClosestNonLeadLocation(lowHealthStratArchon);
+            if (finalDestination == null) rc.disintegrate();
+            if (rc.canSenseRobotAtLocation(finalDestination)) rc.disintegrate();
+            if (!BFS.move(finalDestination)) rc.disintegrate();
         }
     }
 

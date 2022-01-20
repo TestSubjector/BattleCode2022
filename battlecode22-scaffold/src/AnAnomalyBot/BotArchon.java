@@ -119,35 +119,6 @@ public class BotArchon extends Util{
     }
 
 
-    // public static Direction getBestSpawnDirectionForMiners() throws GameActionException{
-    //     boolean[] dirs = new boolean[8];
-    //     for (Direction dir: directions) dirs[dir.ordinal()] = false;  
-    //     for (Direction dir : directions){
-    //         MapLocation loc = rc.getLocation().add(dir);
-    //         if (!rc.onTheMap(loc)) continue;
-    //         if (rc.senseLead(loc) > 0){ 
-    //             dirs[dir.ordinal()] = true;
-    //             dirs[dir.rotateLeft().ordinal()] = true;
-    //             dirs[dir.rotateRight().ordinal()] = true;
-    //         }
-    //     }
-    //     Direction biasDir = rc.getLocation().directionTo(CENTER_OF_THE_MAP), bestSpawnDir = null;
-    //     int val = Integer.MAX_VALUE;
-    //     Direction[] biasedDirections = new Direction[] {biasDir, biasDir.rotateLeft(), biasDir.rotateRight(), biasDir.rotateLeft().rotateLeft(), biasDir.rotateRight().rotateRight(), biasDir.rotateLeft().rotateLeft().rotateLeft(), biasDir.rotateRight().rotateRight().rotateRight(), biasDir.opposite()};
-    //     for (Direction dir : biasedDirections){
-    //         MapLocation loc = rc.getLocation().add(dir);
-    //         if (!dirs[dir.ordinal()] || !rc.onTheMap(loc) || rc.canSenseRobotAtLocation(loc)) continue;
-    //         int rubbleVal = rc.senseRubble(loc);
-    //         if (rubbleVal < val){
-    //             bestSpawnDir = dir;
-    //             val = rubbleVal;
-    //         }
-    //     }
-    //     rc.setIndicatorString("Mine spawn dir: " + bestSpawnDir);
-    //     return bestSpawnDir;
-    // }
-
-
     public static Direction getBestSpawnDirection(RobotType unitType) throws GameActionException{
         Direction bestSpawnDir = null;
         double bestSpawnValue = 0;
@@ -336,6 +307,18 @@ public class BotArchon extends Util{
         Comms.updateArchonLocations();
     }
 
+    private static void updateHealingQueueComms(){
+        int unitsToHealCount = 0;
+        int healthDiff = 0;
+        for(int i = inRangeAllies.length; --i >=0;){
+            RobotInfo ally = inRangeAllies[i];
+            healthDiff = ally.getType().getMaxHealth(rc.getLevel()) - ally.getHealth();
+            if(healthDiff == 0) continue;
+            unitsToHealCount++;
+        }
+        Comms.updateHealingUnitNearby(unitsToHealCount);
+    }
+
 
     private static void shouldFlee() throws GameActionException{
         // if (checkIfAnyOtherArchonIsMoving()){
@@ -430,6 +413,7 @@ public class BotArchon extends Util{
         // shouldTransformAndMove();
         getEnemyArchonLocations();
         updateArchonBuildUnits();
+        updateHealingQueueComms();
     }
 
 

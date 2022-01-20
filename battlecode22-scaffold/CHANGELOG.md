@@ -81,3 +81,4 @@ than max rubble.
 ## AnomalyBot
 
 * Added comm functions for healing units count near archons.
+* Miner disintegrate near archons when low health
