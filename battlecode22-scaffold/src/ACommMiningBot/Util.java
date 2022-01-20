@@ -1,4 +1,4 @@
-package AnAnomalyBot;
+package ACommMiningBot;
 
 import battlecode.common.MapLocation;
 import battlecode.common.Clock;

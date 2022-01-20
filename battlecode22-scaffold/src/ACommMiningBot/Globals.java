@@ -1,4 +1,4 @@
-package AnAnomalyBot;
+package ACommMiningBot;
 
 import java.util.Random;
 

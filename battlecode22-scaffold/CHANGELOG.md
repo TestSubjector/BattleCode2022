@@ -86,3 +86,5 @@ than max rubble.
 * Created Anomaly.java
 * Modified BotMiner: increased findOptimalMiningLocation(lead) lower bound to 8; Decreased ratio (dist to allied archon/ enemy archon) of mine depletion check to 1.2
 * Laboratory now moves to adjacent lesser rubble area if present.
+
+# CommMiningBot
