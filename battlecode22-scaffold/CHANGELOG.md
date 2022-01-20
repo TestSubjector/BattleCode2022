@@ -74,3 +74,6 @@ than max rubble.
 ## LabBot
 
 * Basic BotBuilder code written.
+* Prioritise healing least damaged unit first
+* Create Labs
+* Transmute gold

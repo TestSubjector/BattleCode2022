@@ -382,13 +382,15 @@ public class BotArchon extends Util{
 
     // Sadly, self heal does not look possible.
     private static void selfHeal() throws GameActionException{
-        if (rc.isActionReady() && rc.senseRubble(rc.getLocation()) < 10) {
+        if (rc.isActionReady()) {
             RobotInfo unit = null;
+            int healthDiff = 0;
             double robotHealth = 1000;
             for(int i = inRangeAllies.length; --i >=0;){
                 RobotInfo ally = inRangeAllies[i];
-                if(ally.getHealth() == ally.getType().getMaxHealth(rc.getLevel())) continue;
-                if (ally.getHealth() < robotHealth && rc.canRepair(ally.getLocation())) {
+                healthDiff = ally.getType().getMaxHealth(rc.getLevel()) - ally.getHealth();
+                if(healthDiff == 0) continue;
+                if (healthDiff < robotHealth && rc.canRepair(ally.getLocation())) {
                     robotHealth = ally.health;
                     unit = ally;
                 }
