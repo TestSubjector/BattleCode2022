@@ -414,7 +414,10 @@ public class BotArchon extends Util{
         updateVision();
         selectedEnemyDestination = setEnemyDestination(); // This is for building of soldiers closer to enemy archon guess
         Comms.writeArchonMode(rc.getMode());
-        if (commID == 0) Comms.wipeChannels(Comms.commType.COMBAT);
+        if (commID == 0) {
+            Comms.wipeChannels(Comms.commType.COMBAT);
+            Comms.wipeChannels(Comms.commType.MINER);
+        }
         // shouldTransformAndMove();
         getEnemyArchonLocations();
         updateArchonBuildUnits();

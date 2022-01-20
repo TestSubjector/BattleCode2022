@@ -282,10 +282,12 @@ public class BotMiner extends Explore{
 
 
     public static boolean foundMiningLocationFromComms() throws GameActionException{
-        if (!tooCrowded) 
-            miningLocation = Comms.findNearestLocationOfThisTypeAndWipeChannel(rc.getLocation(), Comms.commType.MINER, Comms.SHAFlag.LEAD_LOCATION);
-        else
-            miningLocation = Comms.findNearestLocationOfThisTypeOutOfVisionAndWipeChannel(rc.getLocation(), Comms.commType.MINER, Comms.SHAFlag.LEAD_LOCATION);
+        // if (!tooCrowded) 
+        //     miningLocation = Comms.findNearestLocationOfThisTypeOutOfVision(rc.getLocation(), Comms.commType.MINER, Comms.SHAFlag.LEAD_LOCATION);
+        //     // miningLocation = Comms.findNearestLocationOfThisTypeAndWipeChannel(rc.getLocation(), Comms.commType.MINER, Comms.SHAFlag.LEAD_LOCATION);
+        // else
+        miningLocation = Comms.findNearestLocationOfThisTypeOutOfVision(rc.getLocation(), Comms.commType.MINER, Comms.SHAFlag.LEAD_LOCATION);
+            // miningLocation = Comms.findNearestLocationOfThisTypeOutOfVisionAndWipeChannel(rc.getLocation(), Comms.commType.MINER, Comms.SHAFlag.LEAD_LOCATION);
         if (miningLocation != null){
             // desperationIndex--;
             desperationIndex = 0;
@@ -381,7 +383,7 @@ public class BotMiner extends Explore{
         
         // TODO - Tune this weight
         // if (turnCount > 900 && foundMiningLocationFromComms()) return;
-        // if (foundMiningLocationFromComms()) return;
+        if (foundMiningLocationFromComms()) return;
         // Explore now how?
         // Head away from parent Archon to explore. Might get us new mining locations
         
@@ -405,16 +407,28 @@ public class BotMiner extends Explore{
     }
 
 
-    // public static void surveyForOpenMiningLocationsNearby() throws GameActionException{
-    //     MapLocation[] potentialMiningLocations = rc.senseNearbyLocationsWithLead(UNIT_TYPE.visionRadiusSquared);
-    //     for (MapLocation loc : potentialMiningLocations){  // Team bias
-    //         if (Clock.getBytecodesLeft() < 1200)
-    //             break;
-    //         if (rc.getLocation().distanceSquaredTo(loc) > 2 && goodMiningSpot(loc)){
-    //             Comms.writeCommMessageOverrwriteLesserPriorityMessageUsingQueue(Comms.commType.LEAD, loc, Comms.SHAFlag.LEAD_LOCATION);
-    //         }
-    //     }
-    // }
+    public static void surveyForOpenMiningLocationsNearby() throws GameActionException{
+        MapLocation[] potentialMiningLocations;
+        // potentialMiningLocations = rc.senseNearbyLocationsWithGold();
+        // if (potentialMiningLocations.length != 0){
+        //     MapLocation loc;
+        //     for (int i = potentialMiningLocations.length; --i >= 0;){
+        //         loc = potentialMiningLocations[i];
+        //         if (Clock.getBytecodesLeft() < 1000) return;
+        //         Comms.writeCommMessageOverrwriteLesserPriorityMessageUsingQueue(Comms.commType.MINER, loc, Comms.SHAFlag.LEAD_LOCATION);
+        //     }
+        // }
+        potentialMiningLocations = rc.senseNearbyLocationsWithLead(UNIT_TYPE.visionRadiusSquared);
+        if (potentialMiningLocations.length < 25) return;
+        Comms.writeCommMessageOverrwriteLesserPriorityMessageUsingQueue(Comms.commType.MINER, rc.getLocation(), Comms.SHAFlag.LEAD_LOCATION);
+        // for (MapLocation loc : potentialMiningLocations){  // Team bias
+        //     if (Clock.getBytecodesLeft() < 1200)
+        //         break;
+        //     if (rc.getLocation().distanceSquaredTo(loc) > 2 && goodMiningSpot(loc)){
+        //         Comms.writeCommMessageOverrwriteLesserPriorityMessageUsingQueue(Comms.commType.LEAD, loc, Comms.SHAFlag.LEAD_LOCATION);
+        //     }
+        // }
+    }
     
 
     public static boolean isSafeToMine(MapLocation loc){
@@ -583,6 +597,6 @@ public class BotMiner extends Explore{
         if (moveOut) goMoveOut();
         mine();
         BotSoldier.sendCombatLocation(visibleEnemies);
-        // surveyForOpenMiningLocationsNearby();
+        surveyForOpenMiningLocationsNearby();
     }
 }

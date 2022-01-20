@@ -353,5 +353,6 @@ public class BotSoldier extends CombatUtil{
                 chooseTargetAndAttack(inRangeEnemies);
             }
         }
+        BotMiner.surveyForOpenMiningLocationsNearby();
     }
 }
