@@ -1,7 +1,8 @@
 #!/bin/bash
 
-team1=ASageActionBot
-team2=OCommMiningBot
+team1=APerfectProducerBot
+team2=OSageActionBot
+# team2=OTempBot
 
 mkdir -p logs
 if test -f "logs/results.log"; then
@@ -27,7 +28,9 @@ fi
 
 count=0
 for i in nottestsmall squer jellyfish progress sandwich underground \
-    intersection valley fortress rivers uncomfortable eckleburg colosseum #doubledoors newdoubledoors
+    intersection valley fortress rivers uncomfortable eckleburg colosseum \
+    chessboard dodgeball equals nyancat panda pillars snowflake spine tower \
+    highway collaboration
 do
   count=$[count+1]
   echo "Running map $count: $i"
