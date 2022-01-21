@@ -4,23 +4,35 @@ import battlecode.common.*;
 
 public class BotBuilder extends Util{
 
-    private static MapLocation destAdjacent;
     private static MapLocation buildLocation;
-    // private static RobotType buildType;
-    private static int desperationIndex; // TODO: Can possibly create lead farms by builder sacrifice.
     private static boolean repairMode;
-    private static MapLocation healLocation;
     private static boolean TAG_ALONG_ENABLED = true;
     private static MapLocation[] visibleLocations, inRangeLocations;
-    private static RobotInfo[] visibleAllies;
-    // private static final int MIN_LATTICE_DIST = 15;
+    private static RobotInfo[] visibleAllies, visibleEnemies;
+    private static boolean isFleeing;
 
     public static void initBotBuilder(){
-        destAdjacent = null;
         buildLocation = null;
-        // healMode = false;
-        healLocation = null;
         repairMode = false;
+        isFleeing = false;
+    }
+
+
+    public static boolean isSafeToBuild(MapLocation loc){
+        for (int i = visibleEnemies.length; --i >= 0;) {
+            RobotInfo enemy = visibleEnemies[i];
+            switch (enemy.type) {
+                case SOLDIER:
+                case WATCHTOWER:
+                case SAGE:
+                    if(SMALL_MAP && enemy.type.actionRadiusSquared == loc.distanceSquaredTo(enemy.location))
+                        return false;
+                    if (enemy.type.actionRadiusSquared > loc.distanceSquaredTo(enemy.location))
+                        return false;
+                default: break;
+            }
+        }
+        return true;
     }
 
 
@@ -31,6 +43,13 @@ public class BotBuilder extends Util{
             visibleLocations = rc.getAllLocationsWithinRadiusSquared(rc.getLocation(), BUILDER_VISION_RADIUS);
             inRangeLocations = rc.getAllLocationsWithinRadiusSquared(rc.getLocation(), BUILDER_ACTION_RADIUS);
             visibleAllies = rc.senseNearbyRobots();
+            visibleEnemies = rc.senseNearbyRobots(BUILDER_VISION_RADIUS, ENEMY_TEAM);
+            if (!isSafeToBuild(rc.getLocation())){
+                isFleeing = true;
+                buildLocation = null;
+                rc.setIndicatorString("Fleeing!");
+                isFleeing = CombatUtil.tryToBackUpToMaintainMaxRangeMiner(visibleEnemies);
+            }
         } catch (Exception e){
             e.printStackTrace();
         }
@@ -250,6 +269,8 @@ public class BotBuilder extends Util{
     public static void runBuilder(RobotController rc){
         try{
             updateBuilder();
+            BotMiner.surveyForOpenMiningLocationsNearby();
+            if (isFleeing) return;
             if (buildMode() || repairMode()) return;
             else{
                 if (TAG_ALONG_ENABLED) moveTowardsWatchTower();

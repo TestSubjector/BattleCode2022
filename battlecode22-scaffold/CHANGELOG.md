@@ -95,6 +95,8 @@ than max rubble.
 
 ## SageActionBot
 
+* Write to comms the locations that have large swaths (> 15) of lead mines.
 * Sages can envision and step forward aggressively
 * Soldiers will now go to Archon with less units to heal
 * Insta-kill score for soldiers and healing for sages.
+* Bug fix in isSafeToMine in BotMiner and added fleeing code to BotBuilder.

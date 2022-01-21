@@ -418,8 +418,8 @@ public class BotMiner extends Explore{
         //         Comms.writeCommMessageOverrwriteLesserPriorityMessageUsingQueue(Comms.commType.MINER, loc, Comms.SHAFlag.LEAD_LOCATION);
         //     }
         // }
-        potentialMiningLocations = rc.senseNearbyLocationsWithLead(UNIT_TYPE.visionRadiusSquared);
-        if (potentialMiningLocations.length < 25) return;
+        potentialMiningLocations = rc.senseNearbyLocationsWithLead(UNIT_TYPE.visionRadiusSquared, 6);
+        if (potentialMiningLocations.length < 15) return;
         Comms.writeCommMessageOverrwriteLesserPriorityMessageUsingQueue(Comms.commType.MINER, rc.getLocation(), Comms.SHAFlag.LEAD_LOCATION);
         // for (MapLocation loc : potentialMiningLocations){  // Team bias
         //     if (Clock.getBytecodesLeft() < 1200)
@@ -444,7 +444,7 @@ public class BotMiner extends Explore{
                         return false;
 
                 default:
-                    return true;
+                    break;
             }
         }
         return true;
