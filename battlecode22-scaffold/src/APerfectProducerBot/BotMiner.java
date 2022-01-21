@@ -63,11 +63,12 @@ public class BotMiner extends Explore{
         isMinedThisTurn = false;
         moveOut = true;
         tooCrowded = false;
-        fleeCount = Math.max(0, fleeCount - 1);
-        if (fleeCount == 0) isFleeing = false;
-        else isFleeing = true;
         minerComms();
         updateVision();
+        if (visibleEnemies.length == 0)
+            fleeCount = Math.max(0, fleeCount - 1);
+        if (fleeCount == 0) isFleeing = false;
+        else isFleeing = true;
         if (BotArchon.SMALL_MAP)
             depleteMine = checkIfEnemyArchonInVision();
         else
@@ -506,7 +507,10 @@ public class BotMiner extends Explore{
 
 
     public static void doMining() throws GameActionException{
-        if (isFleeing) return;
+        if (isFleeing) {
+            BFS.move(explore());
+            return;
+        }
         if (isMinedThisTurn){
             moveOut = false;
             return;
