@@ -42,7 +42,7 @@ public class BotBuilder extends Util{
             repairMode = false;
             visibleLocations = rc.getAllLocationsWithinRadiusSquared(rc.getLocation(), BUILDER_VISION_RADIUS);
             inRangeLocations = rc.getAllLocationsWithinRadiusSquared(rc.getLocation(), BUILDER_ACTION_RADIUS);
-            visibleAllies = rc.senseNearbyRobots();
+            visibleAllies = rc.senseNearbyRobots(BUILDER_VISION_RADIUS, MY_TEAM);
             visibleEnemies = rc.senseNearbyRobots(BUILDER_VISION_RADIUS, ENEMY_TEAM);
             if (!isSafeToBuild(rc.getLocation())){
                 isFleeing = true;

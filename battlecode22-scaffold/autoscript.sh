@@ -28,9 +28,9 @@ fi
 
 count=0
 for i in nottestsmall squer jellyfish progress sandwich underground \
-    intersection valley fortress rivers uncomfortable eckleburg colosseum \
-    chessboard dodgeball equals nyancat panda pillars snowflake spine tower \
-    highway collaboration
+    intersection valley fortress rivers uncomfortable eckleburg colosseum # chessboard \
+    # dodgeball equals nyancat panda pillars snowflake spine tower \
+    # highway collaboration
 do
   count=$[count+1]
   echo "Running map $count: $i"

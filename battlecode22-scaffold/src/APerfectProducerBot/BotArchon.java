@@ -321,6 +321,7 @@ public class BotArchon extends Util{
             if(healthDiff == 0) continue;
             unitsToHealCount++;
         }
+        rc.setIndicatorString("Heal: " + unitsToHealCount);
         Comms.updateHealingUnitNearby(unitsToHealCount);
     }
 

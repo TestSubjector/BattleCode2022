@@ -282,17 +282,18 @@ public class BotSoldier extends CombatUtil{
 		
 		if (closestArchon == null)
             return false;
-        else if (rc.getLocation().distanceSquaredTo(closestArchon) <= ARCHON_ACTION_RADIUS) {
-            // if (rc.getHealth() <= 8 && visibleEnemies.length == 0) {
-            //     finalDestination = getClosestNonLeadLocation(closestArchon);
-            //     if (finalDestination == null) rc.disintegrate();
-            //     if (rc.canSenseRobotAtLocation(finalDestination)) rc.disintegrate();
-            //     if (!BFS.move(finalDestination)) rc.disintegrate();
-            // }
-            Movement.tryMoveInDirection(closestArchon);
-        }
-		else if (finalDestination == null)
-            BFS.move(closestArchon); // TODO: Avoid enemies
+            else if (rc.getLocation().distanceSquaredTo(closestArchon) <= ARCHON_ACTION_RADIUS) {
+                if (rc.getHealth() <= 5 && visibleEnemies.length == 0 && isOverCrowdedArchon()) {
+                    rc.disintegrate();
+                //     finalDestination = getClosestNonLeadLocation(closestArchon);
+                //     if (finalDestination == null) rc.disintegrate();
+                //     if (rc.canSenseRobotAtLocation(finalDestination)) rc.disintegrate();
+                //     if (!BFS.move(finalDestination)) rc.disintegrate();
+                }
+                Movement.tryMoveInDirection(closestArchon);
+            }
+        else if (finalDestination == null)
+            BFS.move(closestArchon);
 		return true;
 	}
 

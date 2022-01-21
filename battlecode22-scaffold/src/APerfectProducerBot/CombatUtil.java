@@ -125,6 +125,7 @@ public class CombatUtil extends Util{
 			rc.move(bestRetreatDir);
             currentLocation = rc.getLocation();
 			if (UNIT_TYPE.equals(RobotType.MINER)){ 
+                rc.setIndicatorString("Backing: " + bestRetreatDir);
 				Explore.exploreDir = bestRetreatDir;
 				Explore.assignExplore3Dir(exploreDir);
 			}
@@ -171,6 +172,7 @@ public class CombatUtil extends Util{
 			}
 		}
 		if (bestRetreatDir != null) {
+            rc.setIndicatorString("Backing: " + bestRetreatDir);
 			rc.move(bestRetreatDir);
             currentLocation = rc.getLocation();
 			return true;

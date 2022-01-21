@@ -122,6 +122,18 @@ public class Util extends Globals {
         return closest;
     }
 
+    public static boolean isOverCrowdedArchon(){
+        int unitsBeingHealedByArchon = 0;
+        MapLocation closest = archonLocations[0];
+        for(int i = 0; i < archonCount; i++){
+            if(closest!=null && rc.getLocation().distanceSquaredTo(archonLocations[i]) <= rc.getLocation().distanceSquaredTo(closest)){
+                closest = archonLocations[i];
+                unitsBeingHealedByArchon = Comms.readHealingUnitsNearby(i);
+            }
+        }
+        return unitsBeingHealedByArchon > 5;
+    }
+
     public static MapLocation getClosestArchonLocation(boolean isArchon){
         int minDistance = Integer.MAX_VALUE;
         int curDistance = 0;

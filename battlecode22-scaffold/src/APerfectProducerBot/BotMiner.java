@@ -569,12 +569,13 @@ public class BotMiner extends Explore{
             System.out.println("Warning, Still happening?!!");
             return;
         }
-        if (finalDestination == null && rc.getLocation().distanceSquaredTo(lowHealthStratArchon) > ARCHON_ACTION_RADIUS){
+        if (rc.getLocation().distanceSquaredTo(lowHealthStratArchon) > ARCHON_ACTION_RADIUS){
             BFS.move(lowHealthStratArchon);
             return;
         } 
         else if (rc.getHealth() < 8 && visibleEnemies.length == 0) {
             finalDestination = getClosestNonLeadLocation(lowHealthStratArchon);
+            if (finalDestination == rc.getLocation()) rc.disintegrate();
             if (finalDestination == null) rc.disintegrate();
             if (rc.canSenseRobotAtLocation(finalDestination)) rc.disintegrate();
             if (!BFS.move(finalDestination)) rc.disintegrate();
