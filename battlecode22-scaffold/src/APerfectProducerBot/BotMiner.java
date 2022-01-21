@@ -65,7 +65,7 @@ public class BotMiner extends Explore{
         tooCrowded = false;
         minerComms();
         updateVision();
-        if (visibleEnemies.length == 0)
+        if (CombatUtil.militaryCount(visibleEnemies) == 0)
             fleeCount = Math.max(0, fleeCount - 1);
         if (fleeCount == 0) isFleeing = false;
         else isFleeing = true;

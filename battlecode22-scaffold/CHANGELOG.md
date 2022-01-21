@@ -103,3 +103,7 @@ than max rubble.
 
 ## PerfectProducerBot
 
+* Miners now separate from other units better at start
+* Miners flee better
+* Some disintegration of units
+* Some more util functions
