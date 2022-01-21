@@ -1,4 +1,4 @@
-package APerfectProducerBot;
+package APolishBot;
 
 import battlecode.common.Direction;
 import battlecode.common.MapLocation;

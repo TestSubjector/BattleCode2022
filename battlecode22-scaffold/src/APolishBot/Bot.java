@@ -1,4 +1,4 @@
-package APerfectProducerBot;
+package APolishBot;
 
 import battlecode.common.*;
 

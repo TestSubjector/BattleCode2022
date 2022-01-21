@@ -1,4 +1,4 @@
-package APerfectProducerBot;
+package APolishBot;
 
 import java.util.Random;
 

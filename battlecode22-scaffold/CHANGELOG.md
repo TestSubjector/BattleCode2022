@@ -107,3 +107,6 @@ than max rubble.
 * Miners flee better
 * Some disintegration of units
 * Some more util functions
+* Minor change to how Watchtower weight is calculated
+
+## PolishBot
