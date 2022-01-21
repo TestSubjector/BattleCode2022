@@ -1,10 +1,6 @@
 package APerfectProducerBot;
 
-import battlecode.common.MapLocation;
-import battlecode.common.Clock;
-import battlecode.common.GameActionException;
-import battlecode.common.RobotInfo;
-// import utility.Globals;
+import battlecode.common.*;
 
 public class Util extends Globals {
     //TODO: Make separate versions of each method for different units to avoid if cases
@@ -167,6 +163,19 @@ public class Util extends Globals {
     // Very important function
     public static boolean closerToCenter(MapLocation firstLoc, MapLocation secondLoc){
         return (firstLoc.distanceSquaredTo(CENTER_OF_THE_MAP) < secondLoc.distanceSquaredTo(CENTER_OF_THE_MAP));
+    }
+
+    public static Direction directionAwayFromAllRobots(){
+        RobotInfo[] senseRobots = rc.senseNearbyRobots();
+        MapLocation currentTarget = rc.getLocation();
+        for (int i = senseRobots.length; --i >= 0;) {
+            RobotInfo aRobot = senseRobots[i];			
+        	currentTarget = currentTarget.add(aRobot.location.directionTo(rc.getLocation()));
+        }
+        if (!rc.getLocation().equals(currentTarget)) {
+        	return rc.getLocation().directionTo(currentTarget);
+        }
+        return null;
     }
 
     public static MapLocation getClosestNonLeadLocation(MapLocation givenLocation) throws GameActionException{

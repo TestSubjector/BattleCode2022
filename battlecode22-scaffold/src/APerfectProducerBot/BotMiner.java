@@ -348,6 +348,11 @@ public class BotMiner extends Explore{
 
 
     public static void getExploreDir(){
+        Direction away = directionAwayFromAllRobots();
+        if (away != null){
+            assignExplore3Dir(away);
+            return;
+        }
         MapLocation closestArchon = getClosestArchonLocation();
         if (rc.canSenseLocation(closestArchon)) 
             assignExplore3Dir(closestArchon.directionTo(rc.getLocation()));
