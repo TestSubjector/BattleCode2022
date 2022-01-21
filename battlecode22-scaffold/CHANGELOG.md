@@ -100,3 +100,6 @@ than max rubble.
 * Soldiers will now go to Archon with less units to heal
 * Insta-kill score for soldiers and healing for sages.
 * Bug fix in isSafeToMine in BotMiner and added fleeing code to BotBuilder.
+
+## PerfectProducerBot
+

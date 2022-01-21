@@ -1,4 +1,4 @@
-package ASageActionBot;
+package OSageActionBot;
 
 import battlecode.common.*;
 
