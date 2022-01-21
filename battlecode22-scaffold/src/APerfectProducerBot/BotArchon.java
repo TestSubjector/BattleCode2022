@@ -73,14 +73,14 @@ public class BotArchon extends Util{
     public static void updateArchonBuildUnits(){
         double lTC = turnCount;
         if (SMALL_MAP){
-            watchTowerWeight = watchTowerCount;
+            watchTowerWeight = (watchTowerCount+laboratoryCount)/1.5;
             aBUWeights[ArchonBuildUnits.BUILDER.ordinal()] = Math.min(1.0d, 0.15d + lTC/400.0d);
             aBUWeights[ArchonBuildUnits.MINER.ordinal()] = Math.max(1.3d, 4.5d - (lTC/100.0d) - ((double)minerCount)/30.0d);
             aBUWeights[ArchonBuildUnits.SAGE.ordinal()] = Math.max(2.50d, 4.5d - lTC/100.0d);
             aBUWeights[ArchonBuildUnits.SOLDIER.ordinal()] = Math.min(4.50d, 2.0d + lTC/20.0d - (double)soldierCount/70.0d);
             return;
         }
-        watchTowerWeight = watchTowerCount/1.5;
+        watchTowerWeight = (watchTowerCount + laboratoryCount)/2;
         aBUWeights[ArchonBuildUnits.BUILDER.ordinal()] = Math.min(1.0d, 0.35d + lTC/400.0d);
         aBUWeights[ArchonBuildUnits.MINER.ordinal()] = Math.max(1.5d, 4.5d - (lTC/100.0d) - ((double)minerCount)/30.0d);
         aBUWeights[ArchonBuildUnits.SAGE.ordinal()] = Math.max(3.0d, 4.5d - lTC/100.0d);
@@ -244,13 +244,13 @@ public class BotArchon extends Util{
                 builderCount != 0 && 
                 currentLeadReserves < giveUnitType(unitToBuild).buildCostLead + RobotType.WATCHTOWER.buildCostLead && 
                 turnsWaitingToBuild < 60 && 
-                (BotMiner.areMiningLocationsAbundant() || currentLeadReserves > 100);
+                (BotMiner.areMiningLocationsAbundant() || currentLeadReserves > 80);
     }
 
 
     public static boolean shouldBuildBuilder(){
-        if (turnCount < 30) return false;
-        if (builderCount > archonCount || currentLeadReserves < 90) return false;
+        if (turnCount < 30 + commID) return false;
+        if (builderCount > (watchTowerCount+ laboratoryCount + 1) || currentLeadReserves < 90) return false;
         return true;
     }
 
