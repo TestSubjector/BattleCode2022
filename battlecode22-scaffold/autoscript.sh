@@ -1,7 +1,7 @@
 #!/bin/bash
 
-team1=APerfectProducerBot
-team2=OSageActionBot
+team1=APolishBot
+team2=OPerfectProducerBot
 # team2=OTempBot
 
 mkdir -p logs
