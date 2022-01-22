@@ -127,3 +127,4 @@ than max rubble.
 * Slight soldier bytecode optimisation
 * Increase the gold generation limit of labs
 * No more watchtowers
+* Archons move from high rubble areas.
