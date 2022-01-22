@@ -91,7 +91,7 @@ public class BotArchon extends Util{
             watchTowerWeight = (watchTowerCount + laboratoryCount)/2;
             aBUWeights[ArchonBuildUnits.BUILDER.ordinal()] = Math.min(1.0d, 0.35d + lTC/400.0d);
             aBUWeights[ArchonBuildUnits.MINER.ordinal()] = Math.max(1.5d, 4.5d - (lTC/100.0d) - ((double)minerCount)/30.0d);
-            aBUWeights[ArchonBuildUnits.SAGE.ordinal()] = Math.max(3.0d, 4.5d - lTC/100.0d);
+            aBUWeights[ArchonBuildUnits.SAGE.ordinal()] = Math.max(10.0d, 10.0d);
             aBUWeights[ArchonBuildUnits.SOLDIER.ordinal()] = Math.min(5.50d, 2.0d + lTC/20.0d - (double)soldierCount/70.0d);
         }
     }
@@ -268,6 +268,7 @@ public class BotArchon extends Util{
 
 
     public static boolean shouldBuildSoldier(){
+        if ((rc.getTeamGoldAmount(MY_TEAM) >= 20)) return false;
         if (SMALL_MAP) return turnCount >= 6;
         return (turnCount >= 15);
     }

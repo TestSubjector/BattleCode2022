@@ -18,6 +18,7 @@ public class BotLaboratory extends Util {
 
 
     private static boolean shouldTransmute(){
+        if (rc.getTeamGoldAmount(MY_TEAM) > 40) return false;
         // TODO: Figure out a criteria to turn on conversion of Lead -> Gold
         return true;
     }

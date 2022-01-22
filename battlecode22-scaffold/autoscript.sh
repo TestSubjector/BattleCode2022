@@ -43,8 +43,8 @@ do
   # ./gradlew -PteamA=$team1 -PteamB=$team2 -Pmaps=$i -PprofilerEnabled=false run >> logs/log.log
   # ./gradlew -PteamA=$team2 -PteamB=$team1 -Pmaps=$i -PprofilerEnabled=false run >> logs/log.log
   (trap 'kill 0' SIGINT;
-  ./gradlew -PteamA=$team1 -PteamB=$team2 -Pmaps=$i -PprofilerEnabled=false run >> logs/log1.log &
-  ./gradlew -PteamA=$team2 -PteamB=$team1 -Pmaps=$i -PprofilerEnabled=false run >> logs/log2.log
+  ./gradlew --build-cache -PteamA=$team1 -PteamB=$team2 -Pmaps=$i -PprofilerEnabled=false run >> logs/log1.log &
+  ./gradlew --build-cache -PteamA=$team2 -PteamB=$team1 -Pmaps=$i -PprofilerEnabled=false run >> logs/log2.log
   )
   wait
 done
@@ -67,28 +67,28 @@ echo -e "===========\n" >> logs/results.log
 grep -E "Birth |vs. " logs/log2.log >> logs/freezing.log 
 elapsed=$(( SECONDS - start_time ))
 eval "echo Elapsed time: $(date -ud "@$elapsed" +'$((%s/3600/24)) days %H hr %M min %S sec')"
-# Nottestsmall  : 20 x 20 : 400
-# spine         : 21 x 21 : 441
-# Squer         : 25 x 25 : 625
-# equals        : 30 x 30 : 900
-# Jellyfish     : 30 x 30 : 900
-# Progress      : 30 x 30 : 900
-# tower         : 30 x 30 : 900
-# collaboration : 38 x 25 : 950
-# pillars       : 31 x 31 : 961
-# Sandwich      : 59 x 20 : 1180
-# Underground   : 59 x 20 : 1180
-# Intersection  : 49 x 25 : 1225
-# stronghold    : 41 x 31 : 1271
-# Valley        : 37 x 37 : 1669
-# snowflake     : 41 x 43 : 1763
-# dodgeball     : 60 x 30 : 1800
-# Fortress      : 60 x 30 : 1800
-# chessboard    : 47 x 47 : 2209
-# nyancat       : 50 x 45 : 2250
-# Rivers        : 55 x 45 : 2475
-# highway       : 50 x 50 : 2500
-# panda         : 60 x 45 : 2700
-# Uncomfortable : 58 x 58 : 3364
-# Eckleburg     : 60 x 60 : 3600
-# Colosseum     : 60 x 60 : 3600
+#1: Nottestsmall  : 20 x 20 : 400
+#2: spine         : 21 x 21 : 441
+#3: Squer         : 25 x 25 : 625
+#4: equals        : 30 x 30 : 900
+#5: Jellyfish     : 30 x 30 : 900
+#6: Progress      : 30 x 30 : 900
+#7: tower         : 30 x 30 : 900
+#8: collaboration : 38 x 25 : 950
+#9: pillars       : 31 x 31 : 961
+#10: Sandwich      : 59 x 20 : 1180
+#11: Underground   : 59 x 20 : 1180
+#12: Intersection  : 49 x 25 : 1225
+#13: stronghold    : 41 x 31 : 1271
+#14: Valley        : 37 x 37 : 1669
+#15: snowflake     : 41 x 43 : 1763
+#16: dodgeball     : 60 x 30 : 1800
+#17: Fortress      : 60 x 30 : 1800
+#18: chessboard    : 47 x 47 : 2209
+#19: nyancat       : 50 x 45 : 2250
+#20: Rivers        : 55 x 45 : 2475
+#21: highway       : 50 x 50 : 2500
+#22: panda         : 60 x 45 : 2700
+#23: Uncomfortable : 58 x 58 : 3364
+#24: Eckleburg     : 60 x 60 : 3600
+#25: Colosseum     : 60 x 60 : 3600

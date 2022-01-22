@@ -1,9 +1,6 @@
 package ASplitBot;
 
-import battlecode.common.Direction;
-import battlecode.common.MapLocation;
-// import battlecode.common.RobotController;
-// import battlecode.common.RobotType;
+import battlecode.common.*;
 
 public class BFSDroid extends Globals {
 
@@ -1485,7 +1482,7 @@ public class BFSDroid extends Globals {
             }
             if (cost > 150) 
                 return BugNav.walkTowards(target);
-            // if(rc.getType() == RobotType.SOLDIER) System.out.println("For destination " + target + " bestEstimation: " + bestEstimation + " cost: " + cost);
+            // if(rc.getType() == RobotType.SOLDIER && rc.getRoundNum() < 90) rc.setIndicatorString("For destination " + target  + " cost: " + cost);
             return ans;
 
         } catch (Exception e){
