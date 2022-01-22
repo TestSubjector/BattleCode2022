@@ -26,6 +26,7 @@ public class BotArchon extends Util{
     public static int watchTowerCount;
     public static int laboratoryCount;
     public static double watchTowerWeight;
+    public static double laboratoryWeight;
     public static int turnsWaitingToBuild;
     private static int enemyArchonQueueHead;
     public static final int TRANSFORM_AND_MOVE_WAIT_TIME = 70;
@@ -37,6 +38,7 @@ public class BotArchon extends Util{
     private static MapLocation fleeLocation;
     private static boolean isFleeing = false;
     private static MapLocation selectedEnemyDestination;
+    // private static boolean createLeadFarm;
 
     public static MapLocation setEnemyDestination() throws GameActionException{
         // MapLocation lClosestEnemyArchon = Comms.getClosestEnemyArchonLocation();
@@ -75,16 +77,17 @@ public class BotArchon extends Util{
         if (SMALL_MAP){
             watchTowerWeight = (watchTowerCount+laboratoryCount)/1.5;
             aBUWeights[ArchonBuildUnits.BUILDER.ordinal()] = Math.min(1.0d, 0.15d + lTC/400.0d);
-            aBUWeights[ArchonBuildUnits.MINER.ordinal()] = Math.max(1.3d, 4.5d - (lTC/100.0d) - ((double)minerCount)/30.0d);
+            aBUWeights[ArchonBuildUnits.MINER.ordinal()] = Math.max(1.3d, 4.5d - (lTC/100.0d) - ((double)minerCount)/40.0d);
             aBUWeights[ArchonBuildUnits.SAGE.ordinal()] = Math.max(2.50d, 4.5d - lTC/100.0d);
-            aBUWeights[ArchonBuildUnits.SOLDIER.ordinal()] = Math.min(4.50d, 2.0d + lTC/20.0d - (double)soldierCount/70.0d);
+            aBUWeights[ArchonBuildUnits.SOLDIER.ordinal()] = Math.min(4.50d, 2.0d + lTC/100.0d - (double)soldierCount/20.0d);
             return;
         }
-        watchTowerWeight = (watchTowerCount + laboratoryCount)/2;
-        aBUWeights[ArchonBuildUnits.BUILDER.ordinal()] = Math.min(1.0d, 0.35d + lTC/400.0d);
-        aBUWeights[ArchonBuildUnits.MINER.ordinal()] = Math.max(1.5d, 4.5d - (lTC/100.0d) - ((double)minerCount)/30.0d);
-        aBUWeights[ArchonBuildUnits.SAGE.ordinal()] = Math.max(3.0d, 4.5d - lTC/100.0d);
-        aBUWeights[ArchonBuildUnits.SOLDIER.ordinal()] = Math.min(4.50d, 2.0d + lTC/20.0d - (double)soldierCount/70.0d);
+        watchTowerWeight = (watchTowerCount + laboratoryCount)/4.0d;
+        laboratoryWeight = ((double)laboratoryCount)/1.5d;
+        aBUWeights[ArchonBuildUnits.BUILDER.ordinal()] = Math.min(1.5d, 4.5d - lTC/800.0d - ((double)builderCount / 20.0d));
+        aBUWeights[ArchonBuildUnits.MINER.ordinal()] = Math.max(1.5d, 3.75d - (lTC/500.0d) - ((double)minerCount)/20.0d);
+        aBUWeights[ArchonBuildUnits.SAGE.ordinal()] = Math.max(3.75d, 4.2d - lTC/100.0d);
+        aBUWeights[ArchonBuildUnits.SOLDIER.ordinal()] = Math.min(4.50d, 4.5d - lTC/300.0d - (double)soldierCount/50.0d);
     }
 
 
@@ -97,12 +100,13 @@ public class BotArchon extends Util{
 
 
     public static void buildDivision() throws GameActionException{
-        if (!rc.isActionReady() || currentLeadReserves < RobotType.MINER.buildCostLead) return;
+        // if (!rc.isActionReady() || currentLeadReserves < RobotType.MINER.buildCostLead) return;
+        if (!rc.isActionReady()) return;
         else buildUnit();
     }
 
 
-    public static RobotType giveUnitType(ArchonBuildUnits unitToBuild) throws GameActionException{
+    public static RobotType giveUnitType(ArchonBuildUnits unitToBuild){
         switch(unitToBuild){
             case BUILDER: return RobotType.BUILDER; 
             case MINER:   return RobotType.MINER;   
@@ -180,12 +184,16 @@ public class BotArchon extends Util{
 
     public static void buildUnit() throws GameActionException{
         try {
-            if(!rc.isActionReady()) return;
+            // if(!rc.isActionReady()) return;
             ArchonBuildUnits unitToBuild = standardOrder();
             if (unitToBuild == null || waitQuota()) {
+                rc.setIndicatorString("Waiting to build: " + turnsWaitingToBuild + ", std unitType: " + unitToBuild);
                 turnsWaitingToBuild++;
                 return;
             }
+            // if (rc.getRoundNum() > 230){
+            //     System.out.println("unitToBuild: " + unitToBuild);
+            // }
             RobotType unitType = giveUnitType(unitToBuild);
             Direction bestSpawnDir = getBestSpawnDirection(unitType);
             spawnBot(unitType, bestSpawnDir, unitToBuild);
@@ -226,10 +234,10 @@ public class BotArchon extends Util{
                 unitToBuild = archonBuildUnits[i];
             }
         }
-
-        if (watchTowerDebt(minWeight, unitToBuild)) {
+        rc.setIndicatorString("minWeight: " + minWeight + ", watchtowerweight: " + watchTowerWeight);
+        if (laboratoryDebt(minWeight, unitToBuild) || watchTowerDebt(minWeight, unitToBuild)) {
                 // System.out.println("Building watchtower instead of " + giveUnitType(unitToBuild));
-                turnsWaitingToBuild++;
+                // turnsWaitingToBuild++;
                 return null;
         }
         // System.out.println("Unit to build is " + unitToBuild + " with weight " + minWeight);
@@ -239,29 +247,48 @@ public class BotArchon extends Util{
 
      // TODO: Reorganise after sprint
     public static boolean watchTowerDebt(double minWeight, ArchonBuildUnits unitToBuild) throws GameActionException{
-        return minWeight < 100000 && 
-                watchTowerWeight < minWeight && 
+        return false;
+        // return minWeight < 100000 && 
+        //         watchTowerWeight < minWeight && 
+        //         builderCount != 0 && 
+        //         currentLeadReserves < giveUnitType(unitToBuild).buildCostLead + RobotType.WATCHTOWER.buildCostLead && 
+        //         turnsWaitingToBuild < 60 && 
+        //         (BotMiner.areMiningLocationsAbundant() || currentLeadReserves > 80);
+    }
+
+
+    public static boolean laboratoryDebt(double minWeight, ArchonBuildUnits unitToBuild) throws GameActionException{
+        // return false;
+        return minWeight < 100000 &&
+                laboratoryCount < MAX_LABORATORY_COUNT &&
+                turnCount > 50 &&  
+                laboratoryWeight <= minWeight && 
                 builderCount != 0 && 
-                currentLeadReserves < giveUnitType(unitToBuild).buildCostLead + RobotType.WATCHTOWER.buildCostLead && 
-                turnsWaitingToBuild < 60 && 
-                (BotMiner.areMiningLocationsAbundant() || currentLeadReserves > 80);
+                turnsWaitingToBuild < 60;
+                // currentLeadReserves < RobotType.LABORATORY.buildCostLead &&
+                // currentLeadReserves < giveUnitType(unitToBuild).buildCostLead + RobotType.LABORATORY.buildCostLead &&  
+                // (BotMiner.areMiningLocationsAbundant() || currentLeadReserves > 80);
     }
 
 
     public static boolean shouldBuildBuilder(){
-        if (turnCount < 30 + commID) return false;
-        if (builderCount > (watchTowerCount+ laboratoryCount + 1) || currentLeadReserves < 90) return false;
+        // if (turnCount < 30 + commID) return false;
+        // if (createLeadFarm) return true;
+        if (builderCount > (watchTowerCount+ laboratoryCount + 1) || currentLeadReserves < 55) return false;
         return true;
     }
 
     public static boolean shouldBuildMiner(){
         // TODO: Add turnsWaitingToBuild because of less lead here
         // if (minerCount > 30 * archonCount) return false;
+        // return currentLeadReserves >= RobotType.MINER.buildCostLead && (minerCount < 6 || !createLeadFarm);
         return currentLeadReserves >= RobotType.MINER.buildCostLead;
     }
 
 
     public static boolean shouldBuildSoldier(){
+        // return false;
+        // return (turnCount >= 15 && !createLeadFarm);
         return (turnCount >= 15);
     }
 
@@ -321,7 +348,7 @@ public class BotArchon extends Util{
             if(healthDiff == 0) continue;
             unitsToHealCount++;
         }
-        rc.setIndicatorString("Heal: " + unitsToHealCount);
+        // rc.setIndicatorString("Heal: " + unitsToHealCount);
         Comms.updateHealingUnitNearby(unitsToHealCount);
     }
 
@@ -410,6 +437,27 @@ public class BotArchon extends Util{
     }
 
 
+    // private static void shouldCreateLeadFarm(){
+    //     try{
+    //         createLeadFarm = false;
+    //         if (rc.senseNearbyLocationsWithLead().length > 5){
+    //             Comms.updateLeadFarmsFlag(false);
+    //             return;
+    //         }
+    //         createLeadFarm = true;
+    //         Comms.updateLeadFarmsFlag(true);
+    //         return;
+    //         // if (rc.getTeamLeadAmount(ENEMY_TEAM) - rc.getTeamLeadAmount(MY_TEAM) > 100){
+    //         //     createLeadFarm = true;
+    //         //     Comms.updateLeadFarmsFlag(true);
+    //         //     return;
+    //         // }
+    //     } catch (Exception e){
+    //         e.printStackTrace();
+    //     }
+    // }
+
+
     private static void updateArchon() throws GameActionException{
         archonComms();
         updateVision();
@@ -423,6 +471,7 @@ public class BotArchon extends Util{
         getEnemyArchonLocations();
         updateArchonBuildUnits();
         updateHealingQueueComms();
+        // shouldCreateLeadFarm();
     }
 
 

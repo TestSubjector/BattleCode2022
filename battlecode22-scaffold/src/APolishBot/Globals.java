@@ -38,6 +38,7 @@ public class Globals {
     public static boolean underAttack;
     public static boolean isSafe=false;
     public static boolean hasMoved=false;
+    public static final int MAX_LABORATORY_COUNT = 2;
 
     // For bytecode comparison of functions
     public static int bytecodediff = 0;

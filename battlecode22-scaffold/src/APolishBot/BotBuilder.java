@@ -10,11 +10,15 @@ public class BotBuilder extends Util{
     private static MapLocation[] visibleLocations, inRangeLocations;
     private static RobotInfo[] visibleAllies, visibleEnemies;
     private static boolean isFleeing;
+    // private static boolean makeLeadFarm;
+    private static MapLocation closestArchonLocation;
 
     public static void initBotBuilder(){
         buildLocation = null;
         repairMode = false;
         isFleeing = false;
+        // makeLeadFarm = false;
+        closestArchonLocation = null;
     }
 
 
@@ -44,6 +48,8 @@ public class BotBuilder extends Util{
             inRangeLocations = rc.getAllLocationsWithinRadiusSquared(rc.getLocation(), BUILDER_ACTION_RADIUS);
             visibleAllies = rc.senseNearbyRobots(BUILDER_VISION_RADIUS, MY_TEAM);
             visibleEnemies = rc.senseNearbyRobots(BUILDER_VISION_RADIUS, ENEMY_TEAM);
+            // makeLeadFarm = Comms.shouldCreateLeadFarms();
+            closestArchonLocation = getClosestArchonLocation();
             if (!isSafeToBuild(rc.getLocation())){
                 isFleeing = true;
                 buildLocation = null;
@@ -145,13 +151,13 @@ public class BotBuilder extends Util{
     private static void findBuildLocation(){
         try{
             if (buildLocation != null) return;
-            MapLocation closestArchon = getClosestArchonLocation();
-            if (closestArchon != null && closestArchon.distanceSquaredTo(rc.getLocation()) <= BUILDER_ACTION_RADIUS){
-                Movement.moveAwayFromLocation(closestArchon);
+            // MapLocation closestArchon = getClosestArchonLocation();
+            if (closestArchonLocation != null && closestArchonLocation.distanceSquaredTo(rc.getLocation()) <= BUILDER_ACTION_RADIUS){
+                Movement.moveAwayFromLocation(closestArchonLocation);
                 return;
             }
             // buildLocation = Movement.moveToLattice(MIN_LATTICE_DIST, 0);
-            buildLocation = findRubbleFreeBuildLocation(closestArchon);
+            buildLocation = findRubbleFreeBuildLocation(closestArchonLocation);
             if (buildLocation == null) System.out.println("Seriously?!!!");
         } catch (Exception e){
             e.printStackTrace();
@@ -160,11 +166,31 @@ public class BotBuilder extends Util{
     }
 
 
+    private static boolean checkIfAnyLaboratoriesAreNearby(){
+        try{
+            RobotInfo[] bots = rc.senseNearbyRobots();
+            RobotInfo bot;
+            for (int i = bots.length; i-- > 0;){
+                bot = bots[i];
+                if (bot.type.equals(RobotType.LABORATORY)) return true;
+            }
+            return false;
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+
     private static RobotType getUnitTypeToBuild(){
         // TODO: Include labs in this.
         int laboratoryCount = Comms.getLaboratoryCount();
-        if (laboratoryCount == 0) return RobotType.LABORATORY;
-        return RobotType.WATCHTOWER;
+        if (laboratoryCount < MAX_LABORATORY_COUNT){
+            // if (!checkIfAnyLaboratoriesAreNearby())
+            return RobotType.LABORATORY;
+        } 
+        // return RobotType.WATCHTOWER;
+        return null;
     }
 
 
@@ -195,6 +221,7 @@ public class BotBuilder extends Util{
         try{
             if (prioritizeAdjacentPrototypeRepair()) return true;
             RobotType buildType = getUnitTypeToBuild();
+            if (buildType == null) return false;
             findBuildLocation();
             if (buildLocation == null) {
                 rc.setIndicatorString("Moving away from archon it seems. Check.");
@@ -202,6 +229,7 @@ public class BotBuilder extends Util{
             }
             int buildCost = buildType.buildCostLead;
             if (rc.getTeamLeadAmount(MY_TEAM) < buildCost){
+                rc.setIndicatorString("Not enough lead!");
                 repairMode = true;
                 return false;
             }
@@ -210,12 +238,16 @@ public class BotBuilder extends Util{
                 rc.setIndicatorString("Moving to buildLocation : " + buildLocation);
                 return true;
             }
-            if (!rc.isActionReady()) return false;
+            if (!rc.isActionReady()){
+                rc.setIndicatorString("Not Action Ready");
+                return false;
+            }
             Direction targetDir = findBuildDirection(buildType);
             if (targetDir == null){
                 rc.setIndicatorString("Must be surrounded by bots in all directions. Check.");
                 return false;
             }
+            rc.setIndicatorString("Building!");
             rc.buildRobot(buildType, targetDir);
             buildLocation = null;
             return true;
@@ -266,9 +298,29 @@ public class BotBuilder extends Util{
     }
 
 
+    // private static void leadFarm(){
+    //     try{
+    //         if (!makeLeadFarm) return;
+    //         if (closestArchonLocation.distanceSquaredTo(rc.getLocation()) > MINER_VISION_RADIUS){
+    //             BFS.move(closestArchonLocation);
+    //             return;
+    //         }
+    //         MapLocation loc = getClosestNonLeadLocation(rc.getLocation());
+    //         if (loc.equals(rc.getLocation())){
+    //             rc.disintegrate();
+    //             return;
+    //         }
+    //         BFS.move(loc);
+    //     } catch (Exception e) {
+    //         e.printStackTrace();
+    //     }
+    // }
+
+
     public static void runBuilder(RobotController rc){
         try{
             updateBuilder();
+            // leadFarm();
             BotMiner.surveyForOpenMiningLocationsNearby();
             if (isFleeing) return;
             if (buildMode() || repairMode()) return;

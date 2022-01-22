@@ -68,7 +68,10 @@ public class BotMiner extends Explore{
         if (CombatUtil.militaryCount(visibleEnemies) == 0)
             fleeCount = Math.max(0, fleeCount - 1);
         if (fleeCount == 0) isFleeing = false;
-        else isFleeing = true;
+        else {
+            isFleeing = true;
+            moveOut = false;
+        }
         if (BotArchon.SMALL_MAP)
             depleteMine = checkIfEnemyArchonInVision();
         else
@@ -76,6 +79,7 @@ public class BotMiner extends Explore{
         // depleteMine = (checkIfToDepleteMine() || checkIfEnemyArchonInVision());
         if (!isSafeToMine(rc.getLocation())){
             isFleeing = true;
+            moveOut = false;
             miningLocation = null;
             inPlaceForMining = false;
             isFleeing = CombatUtil.tryToBackUpToMaintainMaxRangeMiner(visibleEnemies);
@@ -243,6 +247,7 @@ public class BotMiner extends Explore{
         // If outside of vision or Location is not occupied:
         if (curDist > MINER_VISION_RADIUS || !rc.isLocationOccupied(miningLocation)){
         // if (curDist > MINER_VISION_RADIUS || !isLocationBeingMined(miningLocation)){
+            rc.setIndicatorString("Moving to miningLocation" + miningLocation);
             if (!BFS.move(miningLocation)) desperationIndex++;
             // if (!Movement.goToDirect(miningLocation)) desperationIndex++;
             return;
@@ -254,6 +259,7 @@ public class BotMiner extends Explore{
         if (!rc.isMovementReady()) return;
         
         // goToMine(); // Be careful of recursive calls.
+        rc.setIndicatorString("trying to move to another miningLocation" + miningLocation);
         if (miningLocation!= null && !BFS.move(miningLocation)) desperationIndex++;
         // if (miningLocation!= null && !Movement.goToDirect(miningLocation)) desperationIndex++;
     }
@@ -393,6 +399,7 @@ public class BotMiner extends Explore{
         // Explore now how?
         // Head away from parent Archon to explore. Might get us new mining locations
         
+        rc.setIndicatorString("Exploring!");
         if (!BFS.move(explore())) desperationIndex++;
         // if (!Movement.goToDirect(explore())) desperationIndex++;
         // if (!Movement.goToDirect(rc.getLocation().add(persistingRandomMovement()))) desperationIndex++;
@@ -494,6 +501,7 @@ public class BotMiner extends Explore{
         Direction dir = null;
         if (selectedLoc != null){
             dir = rc.getLocation().directionTo(selectedLoc);
+            rc.setIndicatorString("moving if needed: " + dir);
             if (rc.canMove(dir)){
                 rc.move(dir);
                 // miningLocation = selectedLoc;
@@ -542,6 +550,7 @@ public class BotMiner extends Explore{
         if (!rc.isMovementReady()) return;
         if (miningLocation != null) goToMine();
         else {
+            rc.setIndicatorString("exploring from goMoveOut");
             BFS.move(explore());
         }
     }
@@ -565,6 +574,7 @@ public class BotMiner extends Explore{
             // System.out.println("Low health strat trigger: " + LOW_HEALTH_STRAT_TRIGGER);
             rc.setIndicatorString("lowHealthStrategy triggered");
             lowHealthStratInPlay = true;
+            moveOut = false;
             lowHealthStratArchon = getClosestArchonLocation();
         }
         if (!lowHealthStratInPlay) return;
@@ -578,10 +588,14 @@ public class BotMiner extends Explore{
         }
         if (rc.getLocation().distanceSquaredTo(lowHealthStratArchon) > ARCHON_ACTION_RADIUS){
             BFS.move(lowHealthStratArchon);
+            moveOut = false;
+            rc.setIndicatorString("Moving to lowHealthStratArchon: " + lowHealthStratArchon);
             return;
         } 
         else if (rc.getHealth() < 8 && visibleEnemies.length == 0) {
             finalDestination = getClosestNonLeadLocation(lowHealthStratArchon);
+            moveOut = false;
+            rc.setIndicatorString("Moving to final destination: " + finalDestination);
             if (finalDestination == rc.getLocation()) rc.disintegrate();
             if (finalDestination == null) rc.disintegrate();
             if (rc.canSenseRobotAtLocation(finalDestination)) rc.disintegrate();

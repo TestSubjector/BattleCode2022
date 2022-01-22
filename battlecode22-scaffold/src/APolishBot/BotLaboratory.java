@@ -19,6 +19,7 @@ public class BotLaboratory extends Util {
 
     private static boolean shouldTransmute(){
         // TODO: Figure out a criteria to turn on conversion of Lead -> Gold
+        // return (rc.getTeamLeadAmount(MY_TEAM) >= RobotType.MINER.buildCostLead);
         return true;
     }
 

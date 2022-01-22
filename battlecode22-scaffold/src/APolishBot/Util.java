@@ -182,6 +182,7 @@ public class Util extends Globals {
         MapLocation targetLocations[] = rc.getAllLocationsWithinRadiusSquared(givenLocation, 13);
         MapLocation selectedLocation = null;
         int distToLoc = Integer.MAX_VALUE;
+        if (rc.getLocation().equals(givenLocation) && rc.senseLead(givenLocation) == 0) return givenLocation;
         for (int i = targetLocations.length; i --> 0; ){
             if (rc.canSenseLocation(targetLocations[i]) && rc.senseLead(targetLocations[i]) == 0 && !rc.canSenseRobotAtLocation(targetLocations[i]) && 
                 targetLocations[i].distanceSquaredTo(rc.getLocation()) < distToLoc){

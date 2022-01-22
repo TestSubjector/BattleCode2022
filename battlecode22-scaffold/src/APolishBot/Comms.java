@@ -696,7 +696,7 @@ public class Comms extends Util{
         if (underAttack)
         rc.writeSharedArray(channel, (rc.readSharedArray(channel) | 0x2));
         else
-        rc.writeSharedArray(channel, (rc.readSharedArray(channel) & 0xFFFD));
+        rc.writeSharedArray(channel, (rc.readSharedArray(channel) & 0xFFFE));
     }
 
 
@@ -761,7 +761,7 @@ public class Comms extends Util{
     // Uses first two bits of archon_util to store laboratory count
     public static void writeLaboratoryCount(int count){
         try{
-            rc.writeSharedArray(CHANNEL_ARCHON_UTIL, count);
+            rc.writeSharedArray(CHANNEL_ARCHON_UTIL, ((rc.readSharedArray(CHANNEL_ARCHON_UTIL) & 0xFFFD) | count));
         } catch (Exception e){
             e.printStackTrace();
         }
@@ -782,9 +782,7 @@ public class Comms extends Util{
     public static void updateHealingUnitNearby(int count){
         try{
             int channel = CHANNEL_ARCHON_START + BotArchon.commID * 4 + 3;
-            int val = rc.readSharedArray(channel);
-            val = ((val & 0xFFF0) | count);
-            rc.writeSharedArray(channel, val);
+            rc.writeSharedArray(channel, ((rc.readSharedArray(channel) & 0xFFF0) | count));
         } catch (Exception e){
             e.printStackTrace();
         }
@@ -798,5 +796,32 @@ public class Comms extends Util{
             e.printStackTrace();
         }
         return -1;
+    }
+
+
+    // Uses 3rd bit of archon_util to set a flag for createLeadFarm command
+    public static void updateLeadFarmsFlag(boolean makeLeadFarm){
+        try{
+            if (makeLeadFarm)
+                rc.writeSharedArray(CHANNEL_ARCHON_UTIL, ((rc.readSharedArray(CHANNEL_ARCHON_UTIL)) | 0x4));
+            else
+                rc.writeSharedArray(CHANNEL_ARCHON_UTIL, (rc.readSharedArray(CHANNEL_ARCHON_UTIL) & 0xFFFB));
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
+
+    public static boolean shouldCreateLeadFarms(){
+        try{
+            int val = ((rc.readSharedArray(CHANNEL_ARCHON_UTIL) & 0x4) >> 2);
+            switch(val){
+                case 0: return false;
+                case 1: return true;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
     }
 }
