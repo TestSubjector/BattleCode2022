@@ -1,4 +1,4 @@
-package ASplitBot;
+package OSplitBot;
 
 import battlecode.common.MapLocation;
 

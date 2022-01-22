@@ -1,4 +1,4 @@
-package ASplitBot;
+package AMapBot;
 
 import battlecode.common.*;
 
@@ -141,6 +141,9 @@ public class BotSoldier extends CombatUtil{
 		
 		int numNearbyAllies = 1; // Counts ourself
 		for (int i = visibleAllies.length; --i >= 0;) {
+            // if (visibleAllies[i].type == RobotType.ARCHON){
+            //     numNearbyAllies += 5;
+            // }
 			if (visibleAllies[i].type.canAttack() && visibleAllies[i].health >= visibleAllies[i].type.getMaxHealth(visibleAllies[i].getLevel())/2.0) {
 				numNearbyAllies += 1;
 			}

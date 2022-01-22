@@ -115,3 +115,10 @@ than max rubble.
 * Make standoff situations stop sending comms
 
 ## ASplitBot
+
+* Split to different maps
+* More aggressive soldiers
+* More labs in large maps
+* Sage retreat
+
+## AMapBot

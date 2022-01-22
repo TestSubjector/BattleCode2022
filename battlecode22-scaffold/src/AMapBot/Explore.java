@@ -1,4 +1,4 @@
-package ASplitBot;
+package AMapBot;
 
 import battlecode.common.*;
 

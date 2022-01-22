@@ -1,4 +1,4 @@
-package ASplitBot;
+package AMapBot;
 
 import battlecode.common.*;
 
@@ -136,15 +136,21 @@ public class CombatUtil extends Util{
 
     public static boolean tryToBackUpToMaintainMaxRangeSoldier(RobotInfo[] visibleHostiles) throws GameActionException {
 		int closestHostileDistSq = Integer.MAX_VALUE;
+        // int sageCount = 0;
+        // int otherEnemies = 0;
         MapLocation lCR = rc.getLocation();
         for (RobotInfo hostile : visibleHostiles) {
 			if (!hostile.type.canAttack() && hostile.type != RobotType.ARCHON) continue;
+            // if (hostile.type == RobotType.SAGE) sageCount += 1;
+            // else if (hostile.type == RobotType.ARCHON) otherEnemies += 0;
+            // else otherEnemies += 1;
 			int distSq = lCR.distanceSquaredTo(hostile.location);
 			if (distSq < closestHostileDistSq) {
 				closestHostileDistSq = distSq;
 			}
 		}
 		
+        // if (otherEnemies == 0 && sageCount > 0) return false;
 		if (closestHostileDistSq > SOLDIER_ACTION_RADIUS) return false; // We dont want to get out of our max range
 		
 		Direction bestRetreatDir = null;

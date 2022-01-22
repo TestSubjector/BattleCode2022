@@ -1,4 +1,4 @@
-package ASplitBot;
+package AMapBot;
 
 import java.util.Random;
 
