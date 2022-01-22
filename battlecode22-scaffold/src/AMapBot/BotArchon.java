@@ -248,6 +248,7 @@ public class BotArchon extends Util{
     public static boolean watchTowerDebt(double minWeight, ArchonBuildUnits unitToBuild) throws GameActionException{
         return minWeight < 100000 && 
                 watchTowerWeight < minWeight && 
+                laboratoryCount < 3 &&
                 builderCount != 0 && 
                 currentLeadReserves < giveUnitType(unitToBuild).buildCostLead + RobotType.WATCHTOWER.buildCostLead && 
                 turnsWaitingToBuild < 60 && 
@@ -269,7 +270,7 @@ public class BotArchon extends Util{
 
     public static boolean shouldBuildSoldier(){
         if ((rc.getTeamGoldAmount(MY_TEAM) >= 20)) return false;
-        if (SMALL_MAP) return turnCount >= 6;
+        if (SMALL_MAP) return turnCount >= 5;
         return (turnCount >= 15);
     }
 

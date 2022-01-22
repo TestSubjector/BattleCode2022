@@ -8,8 +8,6 @@ public class BotSoldier extends CombatUtil{
 
     private static RobotInfo[] visibleEnemies;
     private static RobotInfo[] inRangeEnemies;
-    private static RobotInfo[] visibleAllies;
-    private static RobotInfo attackTarget;
     private static boolean inHealingState;
     private static MapLocation finalDestination = null; 
     private static boolean standOff = false;
@@ -49,7 +47,6 @@ public class BotSoldier extends CombatUtil{
     private static void updateVision() throws GameActionException {
         visibleEnemies = rc.senseNearbyRobots(SOLDIER_VISION_RADIUS, ENEMY_TEAM);
         inRangeEnemies = rc.senseNearbyRobots(SOLDIER_ACTION_RADIUS, ENEMY_TEAM);
-        visibleAllies = rc.senseNearbyRobots(SOLDIER_VISION_RADIUS, MY_TEAM);
     }
 
     private static double getEnemyScore(RobotInfo enemyUnit) throws GameActionException{
@@ -61,7 +58,7 @@ public class BotSoldier extends CombatUtil{
 		case ARCHON:
 			return 0.00001;
 		case LABORATORY:
-			return 0.000001;
+			return 1;
         case BUILDER:
 		case MINER:
 			return 0.22 /(enemyHealth * (10.0+rubbleAtLocation)); // Max= 0.22, Min = 0.005 Low priority
@@ -138,7 +135,7 @@ public class BotSoldier extends CombatUtil{
 				// }
 			}
 		}
-		
+		RobotInfo[] visibleAllies = rc.senseNearbyRobots(SOLDIER_VISION_RADIUS, MY_TEAM);
 		int numNearbyAllies = 1; // Counts ourself
 		for (int i = visibleAllies.length; --i >= 0;) {
             // if (visibleAllies[i].type == RobotType.ARCHON){

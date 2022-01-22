@@ -63,7 +63,7 @@ public class BotSage extends Util{
 		case ARCHON:
 			return 0.00001;
 		case LABORATORY:
-			return 0.000001;
+			return 1;
         case BUILDER:
 		case MINER:
 			return 0.22 /(enemyHealth * (10.0+rubbleAtLocation));

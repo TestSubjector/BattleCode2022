@@ -1,8 +1,8 @@
 #!/bin/bash
 start_time=$SECONDS
-team1=ASplitBot
-team2=OPerfectProducerBot
-# team2=OTempBot
+team1=AMapBot
+team2=OSplitBot
+# team2=OPerfectProducerBot
 
 mkdir -p logs
 if test -f "logs/results.log"; then

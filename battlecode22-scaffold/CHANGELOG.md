@@ -122,3 +122,8 @@ than max rubble.
 * Sage retreat
 
 ## AMapBot
+
+* 3 labs
+* Slight soldier bytecode optimisation
+* Increase the gold generation limit of labs
+* No more watchtowers
