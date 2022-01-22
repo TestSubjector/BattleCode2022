@@ -75,16 +75,25 @@ public class BotArchon extends Util{
         if (SMALL_MAP){
             watchTowerWeight = (watchTowerCount+laboratoryCount)/1.5;
             aBUWeights[ArchonBuildUnits.BUILDER.ordinal()] = Math.min(1.0d, 0.15d + lTC/400.0d);
-            aBUWeights[ArchonBuildUnits.MINER.ordinal()] = Math.max(1.3d, 4.5d - (lTC/100.0d) - ((double)minerCount)/30.0d);
+            aBUWeights[ArchonBuildUnits.MINER.ordinal()] = Math.max(1.5d, 3.5d - (lTC/200.0d) - ((double)minerCount)/20.0d);
             aBUWeights[ArchonBuildUnits.SAGE.ordinal()] = Math.max(2.50d, 4.5d - lTC/100.0d);
-            aBUWeights[ArchonBuildUnits.SOLDIER.ordinal()] = Math.min(4.50d, 2.0d + lTC/20.0d - (double)soldierCount/70.0d);
-            return;
+            aBUWeights[ArchonBuildUnits.SOLDIER.ordinal()] = Math.min(5.5d, 2.5d + lTC/40.0d - (double)soldierCount/70.0d);
+            
         }
-        watchTowerWeight = (watchTowerCount + laboratoryCount)/2;
-        aBUWeights[ArchonBuildUnits.BUILDER.ordinal()] = Math.min(1.0d, 0.35d + lTC/400.0d);
-        aBUWeights[ArchonBuildUnits.MINER.ordinal()] = Math.max(1.5d, 4.5d - (lTC/100.0d) - ((double)minerCount)/30.0d);
-        aBUWeights[ArchonBuildUnits.SAGE.ordinal()] = Math.max(3.0d, 4.5d - lTC/100.0d);
-        aBUWeights[ArchonBuildUnits.SOLDIER.ordinal()] = Math.min(4.50d, 2.0d + lTC/20.0d - (double)soldierCount/70.0d);
+        else if (MEDIUM_MAP){
+            watchTowerWeight = (watchTowerCount + laboratoryCount)/2;
+            aBUWeights[ArchonBuildUnits.BUILDER.ordinal()] = Math.min(1.0d, 0.35d + lTC/400.0d);
+            aBUWeights[ArchonBuildUnits.MINER.ordinal()] = Math.max(1.5d, 4.0d - (lTC/200.0d) - ((double)minerCount)/20.0d);
+            aBUWeights[ArchonBuildUnits.SAGE.ordinal()] = Math.max(2.50d, 4.5d - lTC/100.0d);
+            aBUWeights[ArchonBuildUnits.SOLDIER.ordinal()] = Math.min(5.50d, 2.5d + lTC/20.0d - (double)soldierCount/70.0d);
+        }
+        else {
+            watchTowerWeight = (watchTowerCount + laboratoryCount)/2;
+            aBUWeights[ArchonBuildUnits.BUILDER.ordinal()] = Math.min(1.0d, 0.35d + lTC/400.0d);
+            aBUWeights[ArchonBuildUnits.MINER.ordinal()] = Math.max(1.5d, 4.5d - (lTC/100.0d) - ((double)minerCount)/30.0d);
+            aBUWeights[ArchonBuildUnits.SAGE.ordinal()] = Math.max(3.0d, 4.5d - lTC/100.0d);
+            aBUWeights[ArchonBuildUnits.SOLDIER.ordinal()] = Math.min(5.50d, 2.0d + lTC/20.0d - (double)soldierCount/70.0d);
+        }
     }
 
 
@@ -189,8 +198,6 @@ public class BotArchon extends Util{
             RobotType unitType = giveUnitType(unitToBuild);
             Direction bestSpawnDir = getBestSpawnDirection(unitType);
             spawnBot(unitType, bestSpawnDir, unitToBuild);
-            // TODO: Use crowded flag to send a panic message to comms that the bots should get out of the way.
-            // if (crowded)
 
         } catch (Exception e) {
             System.out.println("Archon buildUnit() Exception");
@@ -249,14 +256,13 @@ public class BotArchon extends Util{
 
 
     public static boolean shouldBuildBuilder(){
+        if (SMALL_MAP || MEDIUM_MAP) return false;   
         if (turnCount < 30 + commID) return false;
         if (builderCount > (watchTowerCount+ laboratoryCount + 1) || currentLeadReserves < 90) return false;
         return true;
     }
 
-    public static boolean shouldBuildMiner(){
-        // TODO: Add turnsWaitingToBuild because of less lead here
-        // if (minerCount > 30 * archonCount) return false;
+    public static boolean shouldBuildMiner(){     
         return currentLeadReserves >= RobotType.MINER.buildCostLead;
     }
 
@@ -419,7 +425,6 @@ public class BotArchon extends Util{
             Comms.wipeChannels(Comms.commType.COMBAT);
             Comms.wipeChannels(Comms.commType.MINER);
         }
-        // shouldTransformAndMove();
         getEnemyArchonLocations();
         updateArchonBuildUnits();
         updateHealingQueueComms();

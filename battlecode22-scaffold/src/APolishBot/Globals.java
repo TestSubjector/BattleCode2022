@@ -119,6 +119,7 @@ public class Globals {
     public static boolean isMapSquare = true;
     public static MapLocation CENTER_OF_THE_MAP;
     public static boolean SMALL_MAP;
+    public static boolean MEDIUM_MAP;
     public static int mapSymmetry = 0; // 0 = vertical symmetry, 1 = horizontal symmetry, 2 = rotational symmetry
     public static int currentLeadReserves;
     // TODO: Flag for shape of map (square, rectangle, very rectangle(thin))
@@ -252,6 +253,7 @@ public class Globals {
         START_LOCATION = rc.getLocation();
         ID = rc.getID();
         SMALL_MAP = ((MAP_HEIGHT*MAP_WIDTH) < 1000);
+        MEDIUM_MAP = (MAP_WIDTH < 40 && MAP_HEIGHT < 40);
         // For bytecode comparison of functions
         bytecodediff = Math.max(bytecodediff, 0);
 

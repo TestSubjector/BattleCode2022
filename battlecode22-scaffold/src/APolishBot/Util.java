@@ -178,6 +178,18 @@ public class Util extends Globals {
         return null;
     }
 
+    public static Direction directionAwayFromGivenRobots(RobotInfo[] givenRobots){
+        MapLocation currentTarget = rc.getLocation();
+        for (int i = givenRobots.length; --i >= 0;) {
+            RobotInfo aRobot = givenRobots[i];			
+        	currentTarget = currentTarget.add(aRobot.location.directionTo(rc.getLocation()));
+        }
+        if (!rc.getLocation().equals(currentTarget)) {
+        	return rc.getLocation().directionTo(currentTarget);
+        }
+        return null;
+    }
+
     public static MapLocation getClosestNonLeadLocation(MapLocation givenLocation) throws GameActionException{
         MapLocation targetLocations[] = rc.getAllLocationsWithinRadiusSquared(givenLocation, 13);
         MapLocation selectedLocation = null;

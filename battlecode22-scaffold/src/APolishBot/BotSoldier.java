@@ -8,9 +8,11 @@ public class BotSoldier extends CombatUtil{
 
     private static RobotInfo[] visibleEnemies;
     private static RobotInfo[] inRangeEnemies;
+    private static RobotInfo[] visibleAllies;
     private static RobotInfo attackTarget;
     private static boolean inHealingState;
     private static MapLocation finalDestination = null; 
+    private static boolean standOff = false;
 
     public static void initBotSoldier() throws GameActionException{
         inHealingState = false;
@@ -20,18 +22,21 @@ public class BotSoldier extends CombatUtil{
                 if (rememberedEnemyArchonLocations[i] != null && CombatUtil.enemyArchonLocationAreaIsFalse(rememberedEnemyArchonLocations[i]))
                     rememberedEnemyArchonLocations[i] = null;
             }
-            int token = BIRTH_ROUND % 3;
-            if (rememberedEnemyArchonLocations[(token+1)%3] != null)  
-                currentDestination = rememberedEnemyArchonLocations[(token+1)%3];
-            else if (rememberedEnemyArchonLocations[(token+2)%3] != null) 
-                currentDestination = rememberedEnemyArchonLocations[(token+2)%3];
-            else if (rememberedEnemyArchonLocations[(token)%3] != null) 
-                currentDestination = rememberedEnemyArchonLocations[(token)%3];
+            if (rememberedEnemyArchonLocations[2] != null)  
+                currentDestination = rememberedEnemyArchonLocations[2];
+            else if (rememberedEnemyArchonLocations[0] != null) 
+                currentDestination = rememberedEnemyArchonLocations[0];
+            else if (rememberedEnemyArchonLocations[1] != null) 
+                currentDestination = rememberedEnemyArchonLocations[1];
             else{
                 findNewCombatLocation();
                 if (currentDestination == null) currentDestination = CENTER_OF_THE_MAP;
             }
         }
+    }
+
+    public static void updateSoldier(){
+        standOff = false;
     }
 
     public static void soldierComms() throws GameActionException {
@@ -44,6 +49,7 @@ public class BotSoldier extends CombatUtil{
     private static void updateVision() throws GameActionException {
         visibleEnemies = rc.senseNearbyRobots(SOLDIER_VISION_RADIUS, ENEMY_TEAM);
         inRangeEnemies = rc.senseNearbyRobots(SOLDIER_ACTION_RADIUS, ENEMY_TEAM);
+        visibleAllies = rc.senseNearbyRobots(SOLDIER_VISION_RADIUS, MY_TEAM);
     }
 
     private static double getEnemyScore(RobotInfo enemyUnit) throws GameActionException{
@@ -100,8 +106,10 @@ public class BotSoldier extends CombatUtil{
 			}
 		}
 		if (allyIsFighting) 
-			if (Movement.tryMoveInDirection(closestHostileLocation)) 
-				return true;
+			if (Movement.tryMoveInDirection(closestHostileLocation)) {
+				rc.setIndicatorString("Trying to help");
+                return true;
+            }
 		return false;
 	}
 
@@ -109,10 +117,13 @@ public class BotSoldier extends CombatUtil{
         if(closestHostile == null) return false;
 		if (closestHostile.type.canAttack()) 
             return false;
-	    if (Clock.getBytecodesLeft() > 3500 && BFS.move(closestHostile.location)) 
+	    if (BFS.move(closestHostile.location)){
             return true;
-        else if (Movement.tryMoveInDirection(closestHostile.location)) 
+        } 
+        else if (Movement.tryMoveInDirection(closestHostile.location)) {
+            rc.setIndicatorString("Trying to attack production unit");
             return true;
+        }
 		return false;
 	}
 
@@ -129,15 +140,19 @@ public class BotSoldier extends CombatUtil{
 		}
 		
 		int numNearbyAllies = 1; // Counts ourself
-		RobotInfo[] nearbyAllies = rc.senseNearbyRobots(closestHostileLocation, SOLDIER_ACTION_RADIUS, MY_TEAM);
-		for (int i = nearbyAllies.length; --i >= 0;) {
-			if (nearbyAllies[i].type.canAttack() && nearbyAllies[i].health >= nearbyAllies[i].type.getMaxHealth(nearbyAllies[i].getLevel())/2.0) {
+		for (int i = visibleAllies.length; --i >= 0;) {
+			if (visibleAllies[i].type.canAttack() && visibleAllies[i].health >= visibleAllies[i].type.getMaxHealth(visibleAllies[i].getLevel())/2.0) {
 				numNearbyAllies += 1;
 			}
 		}
 		
 		if (numNearbyAllies > numNearbyHostiles || (numNearbyHostiles == 1 && rc.getHealth() > closestHostile.health)) {
-			return Movement.tryMoveInDirection(closestHostile.location);
+			if (Movement.tryMoveInDirection(closestHostile.location))
+                return true;
+            else {
+                standOff = true;
+                return false;
+            }
 		}
 		return false;
 	}
@@ -241,9 +256,10 @@ public class BotSoldier extends CombatUtil{
         if (visibleHostiles.length != 0 && Clock.getBytecodesLeft() > 600){
 			RobotInfo closestHostile = getClosestUnitWithCombatPriority(visibleHostiles);
             if (closestHostile == null) return false;
-			currentDestination = closestHostile.location;
+			if (!standOff) currentDestination = closestHostile.location;
             if (closestHostile != null)
-				Comms.writeCommMessageOverrwriteLesserPriorityMessageUsingQueue(Comms.commType.COMBAT, closestHostile.getLocation(), Comms.SHAFlag.COMBAT_LOCATION);
+                if (!standOff)
+				    Comms.writeCommMessageOverrwriteLesserPriorityMessageUsingQueue(Comms.commType.COMBAT, closestHostile.getLocation(), Comms.SHAFlag.COMBAT_LOCATION);
             return true;
         }
         return false;
@@ -254,7 +270,6 @@ public class BotSoldier extends CombatUtil{
         if (currentDestination == null || (visibleEnemies.length == 0 && rc.getLocation().distanceSquaredTo(currentDestination) <= SOLDIER_VISION_RADIUS)){
             MapLocation combatLocation = Comms.findNearestLocationOfThisTypeOutOfVision(rc.getLocation(), Comms.commType.COMBAT, Comms.SHAFlag.COMBAT_LOCATION);
             if (combatLocation != null) currentDestination = combatLocation;
-
             return true;
         }
         return false;
@@ -285,10 +300,6 @@ public class BotSoldier extends CombatUtil{
             else if (rc.getLocation().distanceSquaredTo(closestArchon) <= ARCHON_ACTION_RADIUS) {
                 if (rc.getHealth() <= 5 && visibleEnemies.length == 0 && isOverCrowdedArchon()) {
                     rc.disintegrate();
-                //     finalDestination = getClosestNonLeadLocation(closestArchon);
-                //     if (finalDestination == null) rc.disintegrate();
-                //     if (rc.canSenseRobotAtLocation(finalDestination)) rc.disintegrate();
-                //     if (!BFS.move(finalDestination)) rc.disintegrate();
                 }
                 Movement.tryMoveInDirection(closestArchon);
             }
@@ -296,16 +307,6 @@ public class BotSoldier extends CombatUtil{
             BFS.move(closestArchon);
 		return true;
 	}
-
-    // private static boolean checkIfEnemyArchonInVision() throws GameActionException{
-    //     for (RobotInfo bot : visibleEnemies){
-    //         if (bot.type == RobotType.ARCHON){
-    //             Comms.writeCommMessageOverrwriteLesserPriorityMessageUsingQueue(Comms.commType.COMBAT, bot.getLocation(), Comms.SHAFlag.CONFIRMED_ENEMY_ARCHON_LOCATION);
-    //             return true;
-    //         }
-    //     }
-    //     return false;
-    // }
 
     /**
     * This will try to update the destination of the soldier so as to not make it go away from fights to a predetermined location.
@@ -327,6 +328,7 @@ public class BotSoldier extends CombatUtil{
     static void runSoldier(RobotController rc) throws GameActionException {
         soldierComms(); // 300 Bytecodes
         updateVision();
+        updateSoldier();
         opportunisticCombatDestination();
 
         // checkIfEnemyArchonInVision();
@@ -338,16 +340,15 @@ public class BotSoldier extends CombatUtil{
         // TODO: Turret avoidance Comms code
 
         if (inHealingState && tryToHealAtArchon()){
-            return;
+            updateVision();
         } 
-        if (visibleEnemies.length == 0 && rc.isMovementReady()) {
-            BFS.move(currentDestination); // 2700 Bytecodes
-        }
-        updateVision();
-        if(sendCombatLocation(visibleEnemies)){    
-        }
+        if(sendCombatLocation(visibleEnemies));
         else {
             findNewCombatLocation();
+        }
+        if (visibleEnemies.length == 0 && rc.isMovementReady()) {
+            BFS.move(currentDestination); // 2700 Bytecodes
+            updateVision();
         }
         if (rc.isActionReady()){
             if (inRangeEnemies.length > 0) {

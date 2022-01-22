@@ -239,8 +239,8 @@ public class BotSage extends Util{
 
         if (!rc.isActionReady() && rc.isMovementReady()){
             MapLocation closestArchon = getClosestArchonLocation();
-            if (CombatUtil.militaryCount(inRangeEnemies) > 1 && closestArchon != null){
-                retreatIfOutnumbered(inRangeEnemies);
+            if (CombatUtil.militaryCount(inRangeEnemies) > 0 && closestArchon != null){
+                BFS.move(closestArchon);
                 updateVision();
             }
         }

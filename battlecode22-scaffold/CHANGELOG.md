@@ -110,3 +110,8 @@ than max rubble.
 * Minor change to how Watchtower weight is calculated
 
 ## PolishBot
+
+* Make soldiers and other production queue separate for different maps
+* Make standoff situations stop sending comms
+
+## ASplitBot
