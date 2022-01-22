@@ -1,7 +1,7 @@
 #!/bin/bash
 start_time=$SECONDS
 team1=AMapBot
-team2=OPerfectProducerBot
+team2=OSplitBot
 # team2=OPerfectProducerBot
 
 mkdir -p logs
@@ -31,7 +31,7 @@ fi
 # rm -f logs/log2.log
 
 count=0
-for i in nottestsmall spine squer equals jellyfish progress tower collaboration pillars sandwich underground \
+for i in sandwich underground \
     intersection stronghold valley snowflake dodgeball fortress chessboard nyancat rivers highway panda uncomfortable eckleburg colosseum #  \
 do
   count=$[count+1]
@@ -92,3 +92,5 @@ eval "echo Elapsed time: $(date -ud "@$elapsed" +'$((%s/3600/24)) days %H hr %M 
 #23: Uncomfortable : 58 x 58 : 3364
 #24: Eckleburg     : 60 x 60 : 3600
 #25: Colosseum     : 60 x 60 : 3600
+
+#nottestsmall spine squer equals jellyfish progress tower collaboration pillars

@@ -128,3 +128,5 @@ than max rubble.
 * Increase the gold generation limit of labs
 * No more watchtowers
 * Archons move from high rubble areas.
+* No more middle map (was literally just valley map and doing badly in that, ouch)
+  
