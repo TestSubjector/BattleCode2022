@@ -675,7 +675,7 @@ public class Comms extends Util{
             case PORTABLE: val = 1; break;
             default : System.out.println("This shouldn't ever happen"); break;
         }
-        curVal = (curVal | val);
+        curVal = ((curVal & 0xFFFE) | val);
         rc.writeSharedArray(channel, curVal);
     }
 
