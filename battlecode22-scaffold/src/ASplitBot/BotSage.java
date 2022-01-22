@@ -117,70 +117,6 @@ public class BotSage extends Util{
             return null;
     }
 
-    private static boolean retreatIfOutnumbered(RobotInfo[] visibleHostiles) throws GameActionException {
-		RobotInfo closestHostileThatAttacksUs = null;
-		int closestDistSq = Integer.MAX_VALUE;
-		int numHostilesThatAttackUs = 0;
-		for (int i = visibleHostiles.length; --i >= 0;) {
-            RobotInfo hostile = visibleHostiles[i];
-			if (hostile.type.canAttack()) {
-				int distSq = hostile.location.distanceSquaredTo(rc.getLocation());
-				if (distSq <= hostile.type.actionRadiusSquared) {
-					if (distSq < closestDistSq) {
-						closestDistSq = distSq;
-						closestHostileThatAttacksUs = hostile;
-					}
-					numHostilesThatAttackUs += 1;
-				}
-			}
-		}
-		
-		if (numHostilesThatAttackUs == 0) {
-			return false;
-		}
-		
-		int numAlliesAttackingClosestHostile = 0;
-		if (rc.getLocation().distanceSquaredTo(closestHostileThatAttacksUs.location) <= SAGE_ACTION_RADIUS) {
-			numAlliesAttackingClosestHostile += 1;
-		}
-
-		RobotInfo[] nearbyAllies = rc.senseNearbyRobots(closestHostileThatAttacksUs.location, SAGE_ACTION_RADIUS, MY_TEAM);
-		for (int i = nearbyAllies.length; --i >= 0;) {
-            RobotInfo ally = nearbyAllies[i];
-			if (ally.type.canAttack()) {
-				if (ally.location.distanceSquaredTo(closestHostileThatAttacksUs.location)
-						<= ally.type.actionRadiusSquared) {
-					numAlliesAttackingClosestHostile += 1;
-				}
-			}
-		}
-		
-		if (numAlliesAttackingClosestHostile > numHostilesThatAttackUs) {
-			return false;
-		} 
-		if (numAlliesAttackingClosestHostile == numHostilesThatAttackUs) {
-			if (numHostilesThatAttackUs == 1) {
-				if (rc.getHealth() >= closestHostileThatAttacksUs.health) {
-					return false;
-				}
-			} else {
-				return false;
-			}
-		}
-		
-		MapLocation retreatTarget = rc.getLocation();
-		for (int i = visibleHostiles.length; --i >= 0;) {
-            RobotInfo hostile = visibleHostiles[i];
-			if (!hostile.type.canAttack()) continue;			
-			retreatTarget = retreatTarget.add(hostile.location.directionTo(rc.getLocation()));
-		}
-		if (!rc.getLocation().equals(retreatTarget)) {
-			Direction retreatDir = rc.getLocation().directionTo(retreatTarget);
-			return CombatUtil.tryHardMoveInDirection(retreatDir);
-		}
-		return false;
-	}
-
     private static void manageHealingState() {
         if (rc.getHealth() < rc.getType().getMaxHealth(rc.getLevel()) / 8.0) {
             inHealingState = true;
@@ -238,9 +174,18 @@ public class BotSage extends Util{
         } 
 
         if (!rc.isActionReady() && rc.isMovementReady()){
-            MapLocation closestArchon = getClosestArchonLocation();
-            if (CombatUtil.militaryCount(inRangeEnemies) > 0 && closestArchon != null){
-                BFS.move(closestArchon);
+            // MapLocation closestArchon = getClosestArchonLocation();
+            if (CombatUtil.militaryCount(inRangeEnemies) > 0){
+                MapLocation retreatTarget = rc.getLocation();
+		        for (int i = inRangeEnemies.length; --i >= 0;) {
+                    RobotInfo hostile = inRangeEnemies[i];
+		        	if (!hostile.type.canAttack()) continue;			
+		        	retreatTarget = retreatTarget.add(hostile.location.directionTo(rc.getLocation()));
+		        }
+		        if (!rc.getLocation().equals(retreatTarget)) {
+		        	if (Movement.tryMoveInDirection(retreatTarget));
+                    else BFS.move(getClosestArchonLocation());
+		        }
                 updateVision();
             }
         }

@@ -1,6 +1,6 @@
 #!/bin/bash
 start_time=$SECONDS
-team1=APolishBot
+team1=ASplitBot
 team2=OPerfectProducerBot
 # team2=OTempBot
 
