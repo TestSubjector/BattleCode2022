@@ -1,4 +1,4 @@
-package APolishBot;
+package ASplitBot;
 
 import battlecode.common.*;
 

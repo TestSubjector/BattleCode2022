@@ -1,4 +1,4 @@
-package APolishBot;
+package OPolishBot;
 
 import java.util.Random;
 

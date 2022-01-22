@@ -1,4 +1,4 @@
-package APolishBot;
+package OPolishBot;
 
 import battlecode.common.*;
 
