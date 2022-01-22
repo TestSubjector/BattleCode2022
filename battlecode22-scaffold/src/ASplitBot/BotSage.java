@@ -66,11 +66,11 @@ public class BotSage extends Util{
 			return 0.000001;
         case BUILDER:
 		case MINER:
-			return 0.22 /(enemyHealth * (10.0+rubbleAtLocation)); // Max= 0.22, Min = 0.005 Low priority
+			return 0.22 /(enemyHealth * (10.0+rubbleAtLocation));
 		case WATCHTOWER:
 		case SOLDIER:
 		case SAGE:
-			return 220.0 * enemyType.getDamage(enemyUnit.getLevel()) / (Math.abs(enemyHealth - 45.00001) * (10.0+rubbleAtLocation));
+			return 220.0 * enemyType.getDamage(enemyUnit.getLevel()) / (Math.abs(enemyHealth + Math.max(enemyHealth, 45) - 90.00001) * (10.0+rubbleAtLocation));
 		default:
 			return 0.0001;
 		}
@@ -174,7 +174,6 @@ public class BotSage extends Util{
         } 
 
         if (!rc.isActionReady() && rc.isMovementReady()){
-            // MapLocation closestArchon = getClosestArchonLocation();
             if (CombatUtil.militaryCount(inRangeEnemies) > 0){
                 MapLocation retreatTarget = rc.getLocation();
 		        for (int i = inRangeEnemies.length; --i >= 0;) {

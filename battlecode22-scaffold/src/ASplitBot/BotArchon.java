@@ -334,21 +334,13 @@ public class BotArchon extends Util{
 
 
     private static void shouldFlee() throws GameActionException{
-        // if (checkIfAnyOtherArchonIsMoving()){
-        //     fleeIndex = 0;
-        //     return;
-        // }
         // You have more enemies attacking you than friends that could come save you and you are not the main producer Archon
         // if (rc.getMode() == RobotMode.TURRET){
             int enemyMilitaryCount = CombatUtil.militaryCount(inRangeEnemies);
             if(enemyMilitaryCount > 2 && rc.getHealth() < 2.0/3.0 * rc.getType().getMaxHealth(rc.getLevel()) && 
-                enemyMilitaryCount > CombatUtil.militaryCount(visibleAllies) && archonCount != 1) // TODO: Make soldiers
+                enemyMilitaryCount > CombatUtil.militaryCount(visibleAllies) && archonCount != 1)
                 fleeIndex++;
             else fleeIndex = 0;
-        // }
-        // else{
-        //     int enemyMilitaryCount 
-        // }
     }
 
 
