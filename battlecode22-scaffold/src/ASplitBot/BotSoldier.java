@@ -133,9 +133,9 @@ public class BotSoldier extends CombatUtil{
         int numNearbyHostiles = 0;
 		for (int i = visibleHostiles.length; --i >= 0;) {
 			if (visibleHostiles[i].type.canAttack()) {
-				if (visibleHostiles[i].location.distanceSquaredTo(closestHostileLocation) <= SOLDIER_ACTION_RADIUS) {
+				// if (visibleHostiles[i].location.distanceSquaredTo(closestHostileLocation) <= SOLDIER_ACTION_RADIUS) {
 					numNearbyHostiles += 1;
-				}
+				// }
 			}
 		}
 		
@@ -146,9 +146,12 @@ public class BotSoldier extends CombatUtil{
 			}
 		}
 		
-		if (numNearbyAllies > numNearbyHostiles || (numNearbyHostiles == 1 && rc.getHealth() > closestHostile.health)) {
+		if (numNearbyAllies >= numNearbyHostiles || (numNearbyHostiles == 1 && rc.getHealth() > closestHostile.health)) {
 			if (Movement.tryMoveInDirection(closestHostile.location))
                 return true;
+            else if(numNearbyAllies >= 1.5 * numNearbyHostiles && Movement.tryForcedMoveInDirection(closestHostile.location)){
+                return true;
+            }
             else {
                 standOff = true;
                 return false;

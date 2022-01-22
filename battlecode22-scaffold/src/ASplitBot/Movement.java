@@ -45,6 +45,47 @@ public class Movement extends Util{
         }
     }
 
+    public static boolean tryForcedMoveInDirection(MapLocation dest) throws GameActionException {
+        try{
+            if(!rc.isMovementReady()) return false;
+            MapLocation lCR = rc.getLocation();
+            if (lCR.equals(dest)) return false;
+            Direction forward = lCR.directionTo(dest);
+            MapLocation dirLoc = null;
+            Direction[] dirs;
+            if (preferLeft(dest)) {
+                dirs = new Direction[] { forward, forward.rotateLeft(), forward.rotateRight()};         
+            } else {
+                dirs = new Direction[] { forward, forward.rotateRight(), forward.rotateLeft()};
+            }
+            Direction bestDir = null;
+            double bestRubble = rc.senseRubble(rc.getLocation());
+            int currentDistSq = lCR.distanceSquaredTo(dest);
+            for (Direction direction : dirs) {
+                dirLoc = lCR.add(direction);
+                if (!rc.onTheMap(dirLoc)) continue; // The location will always be in vision
+                if (bestDir != null && dirLoc.distanceSquaredTo(dest) > currentDistSq) continue;
+                double rubble = rc.senseRubble(dirLoc);
+                if ((rubble <= bestRubble || rubble == 0) && rc.canMove(direction)) {
+                    bestRubble = rubble;
+                    bestDir = direction;
+                }
+            }
+        
+            if (bestDir != null) {
+                rc.move(bestDir);
+                currentLocation = rc.getLocation();
+                return true;
+            }
+            return false;
+        }
+        catch (Exception e) {
+            System.out.println("Exception in tryMoveInDirection: " + e.getMessage());
+            e.printStackTrace();
+            return false;
+        }
+    }
+
     // Takes around 400 bytecodes to run 
     public static boolean goToDirect(MapLocation dest) throws GameActionException {
         try{

@@ -77,7 +77,7 @@ public class BotArchon extends Util{
             aBUWeights[ArchonBuildUnits.BUILDER.ordinal()] = Math.min(1.0d, 0.15d + lTC/400.0d);
             aBUWeights[ArchonBuildUnits.MINER.ordinal()] = Math.max(1.5d, 3.5d - (lTC/200.0d) - ((double)minerCount)/20.0d);
             aBUWeights[ArchonBuildUnits.SAGE.ordinal()] = Math.max(2.50d, 4.5d - lTC/100.0d);
-            aBUWeights[ArchonBuildUnits.SOLDIER.ordinal()] = Math.min(5.5d, 2.5d + lTC/40.0d - (double)soldierCount/70.0d);
+            aBUWeights[ArchonBuildUnits.SOLDIER.ordinal()] = Math.min(5.5d, 1.1d + lTC/20.0d - (double)soldierCount/70.0d);
             
         }
         else if (MEDIUM_MAP){
@@ -268,6 +268,7 @@ public class BotArchon extends Util{
 
 
     public static boolean shouldBuildSoldier(){
+        if (SMALL_MAP) return turnCount >= 6;
         return (turnCount >= 15);
     }
 
