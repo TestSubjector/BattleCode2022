@@ -142,9 +142,21 @@ public class BotBuilder extends Util{
     }
 
 
-    private static void findBuildLocation(){
+    private static void findLaboratoryBuildLocation(){
+        buildLocation = findClosestCorner(rc.getLocation());
+        return;
+    }
+
+
+    private static void findBuildLocation(RobotType buildType){
         try{
-            if (buildLocation != null) return;
+            if (buildLocation != null && !buildType.equals(RobotType.LABORATORY)) return;
+            if (buildLocation == null && buildType.equals(RobotType.LABORATORY)){
+                findLaboratoryBuildLocation();
+            }
+            if (buildLocation != null){
+                if (rc.getLocation().distanceSquaredTo(buildLocation) > BUILDER_VISION_RADIUS) return;
+            }
             MapLocation closestArchon = getClosestArchonLocation();
             if (closestArchon != null && closestArchon.distanceSquaredTo(rc.getLocation()) <= BUILDER_ACTION_RADIUS){
                 Movement.moveAwayFromLocation(closestArchon);
@@ -161,7 +173,6 @@ public class BotBuilder extends Util{
 
 
     private static RobotType getUnitTypeToBuild(){
-        // TODO: Include labs in this.
         int laboratoryCount = Comms.getLaboratoryCount();
         if (laboratoryCount < 3) return RobotType.LABORATORY;
         return RobotType.WATCHTOWER;
@@ -195,20 +206,22 @@ public class BotBuilder extends Util{
         try{
             if (prioritizeAdjacentPrototypeRepair()) return true;
             RobotType buildType = getUnitTypeToBuild();
-            findBuildLocation();
+            if (buildType == null) return false;
+            findBuildLocation(buildType);
             if (buildLocation == null) {
                 rc.setIndicatorString("Moving away from archon it seems. Check.");
                 return false;
+            }
+            if (!rc.getLocation().equals(buildLocation)){ 
+                // Movement.goToDirect(buildLocation);
+                BFS.move(buildLocation);
+                rc.setIndicatorString("Moving to buildLocation : " + buildLocation);
+                return true;
             }
             int buildCost = buildType.buildCostLead;
             if (rc.getTeamLeadAmount(MY_TEAM) < buildCost){
                 repairMode = true;
                 return false;
-            }
-            if (!rc.getLocation().equals(buildLocation)){ 
-                Movement.goToDirect(buildLocation);
-                rc.setIndicatorString("Moving to buildLocation : " + buildLocation);
-                return true;
             }
             if (!rc.isActionReady()) return false;
             Direction targetDir = findBuildDirection(buildType);
@@ -254,7 +267,7 @@ public class BotBuilder extends Util{
                 bot = visibleAllies[i];
                 if (bot.type.equals(RobotType.WATCHTOWER)){
                     if (rc.getLocation().distanceSquaredTo(bot.location) > BUILDER_ACTION_RADIUS)
-                        Movement.goToDirect(bot.location);
+                        BFS.move(bot.location);
                     rc.setIndicatorString("Moving towards watchtower");
                     buildLocation = null;
                     return;

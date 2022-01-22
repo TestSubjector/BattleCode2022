@@ -62,11 +62,11 @@ public class Explore extends Util{
             if (!isValidMapLocation(loc)) {
                 return true;
             }
-            loc = loc.add(dir);
-            // System.out.println("loc4: " + loc);
-            if (!isValidMapLocation(loc)) {
-                return true;
-            }
+            // loc = loc.add(dir);
+            // // System.out.println("loc4: " + loc);
+            // if (!isValidMapLocation(loc)) {
+            //     return true;
+            // }
         } catch (Exception e){
             e.printStackTrace();
         }

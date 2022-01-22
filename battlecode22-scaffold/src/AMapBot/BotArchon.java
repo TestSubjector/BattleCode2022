@@ -542,7 +542,8 @@ public class BotArchon extends Util{
                         rc.setIndicatorString("Movement cooldown dude. Have patience");
                         return;
                     }
-                    Movement.goToDirect(moveIfNeededTarget);
+                    BFS.move(moveIfNeededTarget);
+                    // Movement.goToDirect(moveIfNeededTarget);
                     return;
                 }
                 if (moveIfNeededTarget.equals(rc.getLocation())){

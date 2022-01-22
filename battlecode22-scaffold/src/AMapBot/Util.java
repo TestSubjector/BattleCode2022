@@ -210,6 +210,21 @@ public class Util extends Globals {
     //     return dx * dx + dy * dy; //Returns zero if inside Quad(Rectangle)
     // }
 
+
+    public static MapLocation findClosestCorner(MapLocation curLoc){
+        int optDist = Integer.MAX_VALUE, dist;
+        MapLocation loc = null;
+        for (int i = -1; ++i < 4;){
+            dist = MAP_CORNERS[i].distanceSquaredTo(curLoc);
+            if (loc == null || dist < optDist){
+                loc = MAP_CORNERS[i];
+                optDist = dist;
+            }
+        }
+        return loc;
+    }
+
+
     public static void byteCodeTest(){
         int temp = 1;
         int index_i = 0, index_j =0;

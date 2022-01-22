@@ -30,6 +30,7 @@ public class Globals {
     public static MapLocation parentArchonLocation = null;
     public static MapLocation archonLocations[];
     public static MapLocation rememberedEnemyArchonLocations[];
+    public static MapLocation[] MAP_CORNERS = new MapLocation[4];
     public static int parentArchonCongruence;
     public static boolean botFreeze;
     public static int turnBroadcastCount;
@@ -256,6 +257,10 @@ public class Globals {
         MEDIUM_MAP = (MAP_WIDTH < 40 && MAP_HEIGHT < 40);
         // For bytecode comparison of functions
         bytecodediff = Math.max(bytecodediff, 0);
+        MAP_CORNERS[0] = new MapLocation(0,0);
+        MAP_CORNERS[1] = new MapLocation(MAP_WIDTH - 1, 0);
+        MAP_CORNERS[2] = new MapLocation(0, MAP_HEIGHT - 1);
+        MAP_CORNERS[3] = new MapLocation(MAP_WIDTH - 1, MAP_HEIGHT - 1);
 
         archonCount = rc.getArchonCount(); // 20 bytecodes
 
