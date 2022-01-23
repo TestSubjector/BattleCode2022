@@ -132,3 +132,9 @@ than max rubble.
 
 ## APreQualBot
   
+* No more wobble for healing
+* Change to small queue, make sages after turn 300 rush if rush failed
+* Extra catch on getClosestUnitWithCombatPriority
+* Lab max count flag
+* Enemy archon vision changes
+  

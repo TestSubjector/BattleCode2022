@@ -43,18 +43,21 @@ public class BotArchon extends Util{
     private static final int HIGH_RUBBLE_MOVE_TRIGGER = 40;
 
     public static MapLocation setEnemyDestination() throws GameActionException{
-        // MapLocation lClosestEnemyArchon = Comms.getClosestEnemyArchonLocation();
-        // if (lClosestEnemyArchon != null)  return lClosestEnemyArchon;
+        if (rc.getRoundNum() > 1){
+            MapLocation closestEnemy = Comms.findNearestLocationOfThisType(rc.getLocation(), Comms.commType.COMBAT, Comms.SHAFlag.COMBAT_LOCATION);
+            if (closestEnemy != null) return closestEnemy;
+            MapLocation lClosestEnemyArchon = Comms.getClosestEnemyArchonLocation();
+            if (lClosestEnemyArchon != null)  return lClosestEnemyArchon;
 
-        for (int i = 0; i < 4; i++){
-            if (rememberedEnemyArchonLocations[i] != null && CombatUtil.enemyArchonLocationGuessIsFalse(rememberedEnemyArchonLocations[i]))
-                rememberedEnemyArchonLocations[i] = null;
+            for (int i = 0; i < 4; i++){
+                if (rememberedEnemyArchonLocations[i] != null && CombatUtil.enemyArchonLocationGuessIsFalse(rememberedEnemyArchonLocations[i]))
+                    rememberedEnemyArchonLocations[i] = null;
+            }
         }
         if (rememberedEnemyArchonLocations[1] != null)  return rememberedEnemyArchonLocations[1];
         else if (rememberedEnemyArchonLocations[2] != null) return rememberedEnemyArchonLocations[2];
         else if (rememberedEnemyArchonLocations[0] != null) return rememberedEnemyArchonLocations[0];
         else{
-            // System.out.println("ERROR: No enemy archon locations");
             return CENTER_OF_THE_MAP;
         }
     }
@@ -87,9 +90,9 @@ public class BotArchon extends Util{
         if (SMALL_MAP){
             watchTowerWeight = (watchTowerCount+laboratoryCount)/1.5;
             aBUWeights[ArchonBuildUnits.BUILDER.ordinal()] = Math.min(1.0d, 0.15d + lTC/400.0d);
-            aBUWeights[ArchonBuildUnits.MINER.ordinal()] = Math.max(1.5d, 3.5d - (lTC/200.0d) - ((double)minerCount)/20.0d);
+            aBUWeights[ArchonBuildUnits.MINER.ordinal()] = Math.max(1.8d, 3.2d - (lTC/200.0d) - ((double)minerCount)/20.0d);
             aBUWeights[ArchonBuildUnits.SAGE.ordinal()] = Math.max(2.50d, 4.5d - lTC/100.0d);
-            aBUWeights[ArchonBuildUnits.SOLDIER.ordinal()] = Math.min(5.5d, 1.1d + lTC/20.0d - (double)soldierCount/70.0d);
+            aBUWeights[ArchonBuildUnits.SOLDIER.ordinal()] = Math.min(5.5d, 2.0d + lTC/40.0d - (double)soldierCount/70.0d);
             
         }
         else {
@@ -115,7 +118,6 @@ public class BotArchon extends Util{
         else buildUnit();
     }
 
-
     public static RobotType giveUnitType(ArchonBuildUnits unitToBuild) throws GameActionException{
         switch(unitToBuild){
             case BUILDER: return RobotType.BUILDER; 
@@ -125,7 +127,6 @@ public class BotArchon extends Util{
             default: return RobotType.SOLDIER; 
         }
     }
-
 
     // TODO - Analyse this and if fleeindex != 0 make required units
     public static boolean waitQuota() throws GameActionException{
@@ -137,11 +138,16 @@ public class BotArchon extends Util{
         }
     }
 
+    static double getValue(MapLocation archonLocation, MapLocation dest, Direction dir) throws GameActionException {
+        double dist = 1;
+        if (dest != null) dist = archonLocation.add(dir).distanceSquaredTo(dest);
+        return dist * (10 + rc.senseRubble(archonLocation.add(dir)));
+    }
 
     public static Direction getBestSpawnDirection(RobotType unitType) throws GameActionException{
         Direction bestSpawnDir = null;
-        double bestSpawnValue = 0;
-        double SpawnValue = 0;
+        double bestSpawnValue = Double.MAX_VALUE;
+        double SpawnValue = Double.MAX_VALUE;
         MapLocation lCR = currentLocation;
 
         if (unitType == RobotType.SOLDIER || unitType == RobotType.SAGE){
@@ -163,7 +169,6 @@ public class BotArchon extends Util{
         for (Direction dir : directions){
             MapLocation loc = lCR.add(dir);
             if (!rc.canBuildRobot(unitType, dir)) continue;
-            // if (!rc.canSenseLocation(loc) || rc.canSenseRobotAtLocation(loc)) continue;
             bestRubble = Math.min(bestRubble, rc.senseRubble(loc));
         }
 
@@ -209,16 +214,6 @@ public class BotArchon extends Util{
             e.printStackTrace();
         }
     }
-    
-
-    static double getValue(MapLocation archonLocation, MapLocation dest, Direction dir) throws GameActionException {
-        double dist = 1;
-        if (dest != null){
-            dist = archonLocation.add(dir).distanceSquaredTo(dest);
-        }
-        return dist * (10 + rc.senseRubble(archonLocation.add(dir)));
-    }
-
 
     public static ArchonBuildUnits standardOrder() throws GameActionException{
         boolean canBuild[] = new boolean[aBUWeights.length];
@@ -254,7 +249,7 @@ public class BotArchon extends Util{
         if (unitToBuild == ArchonBuildUnits.SAGE) return false;
         return minWeight < 100000 && 
                 watchTowerWeight < minWeight && 
-                laboratoryCount < 3 &&
+                laboratoryCount < MAX_LABORATORY_COUNT &&
                 builderCount != 0 && 
                 currentLeadReserves < giveUnitType(unitToBuild).buildCostLead + RobotType.WATCHTOWER.buildCostLead && 
                 turnsWaitingToBuild < 60 && 
@@ -417,17 +412,29 @@ public class BotArchon extends Util{
         }
     }
 
+    private static boolean checkIfEnemyArchonInVision() throws GameActionException{
+        for (int i = visibleEnemies.length; i-->0;){
+            RobotInfo bot = visibleEnemies[i];
+            if (bot.type == RobotType.ARCHON){
+                Comms.writeCommMessageOverrwriteLesserPriorityMessageUsingQueue(Comms.commType.COMBAT, bot.getLocation(), Comms.SHAFlag.CONFIRMED_ENEMY_ARCHON_LOCATION);
+                return true;
+            }
+        }
+        return false;
+    }
 
     private static void updateArchon() throws GameActionException{
         archonComms();
         updateVision();
+        if (rc.getRoundNum() > 300 && SMALL_MAP) SMALL_MAP = false;
         selectedEnemyDestination = setEnemyDestination(); // This is for building of soldiers closer to enemy archon guess
         Comms.writeArchonMode(rc.getMode());
+        checkIfEnemyArchonInVision();
+        getEnemyArchonLocations();
         if (commID == 0) {
             Comms.wipeChannels(Comms.commType.COMBAT);
             Comms.wipeChannels(Comms.commType.MINER);
         }
-        getEnemyArchonLocations();
         updateArchonBuildUnits();
         updateHealingQueueComms();
 

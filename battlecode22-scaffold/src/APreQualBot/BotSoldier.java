@@ -11,6 +11,7 @@ public class BotSoldier extends CombatUtil{
     private static boolean inHealingState;
     private static MapLocation finalDestination = null; 
     private static boolean standOff = false;
+    private static MapLocation closestHealingArchon = null;
 
     public static void initBotSoldier() throws GameActionException{
         inHealingState = false;
@@ -235,7 +236,7 @@ public class BotSoldier extends CombatUtil{
             if (inRangeEnemies.length > 0) {
                 chooseTargetAndAttack(inRangeEnemies);
             }
-            else if (rc.isMovementReady()){
+            else if (rc.isMovementReady() && visibleEnemies.length > 0) {
                 RobotInfo closestHostile = getClosestUnitWithCombatPriority(visibleEnemies);
                 if(tryMoveToHelpAlly(closestHostile)) return true;
                 if(tryMoveToAttackProductionUnit(closestHostile)) return true;
@@ -282,7 +283,8 @@ public class BotSoldier extends CombatUtil{
     }
     
     private static void manageHealingState() {
-        if (rc.getHealth() < rc.getType().getMaxHealth(rc.getLevel()) * 3.0/10.0) {
+        if (!inHealingState && rc.getHealth() < rc.getType().getMaxHealth(rc.getLevel()) * 3.0/10.0) {
+            closestHealingArchon = null;
             inHealingState = true;
         }
         else if (rc.getHealth() > 3.0/4.0 * rc.getType().getMaxHealth(rc.getLevel())) {
@@ -293,18 +295,18 @@ public class BotSoldier extends CombatUtil{
     private static boolean tryToHealAtArchon() throws GameActionException {
 		if (!rc.isMovementReady()) return false;
 		
-		MapLocation closestArchon = getLowestHealingArchonLocation();
+		if (closestHealingArchon == null) closestHealingArchon = getLowestHealingArchonLocation();
 		
-		if (closestArchon == null)
+		if (closestHealingArchon == null)
             return false;
-            else if (rc.getLocation().distanceSquaredTo(closestArchon) <= ARCHON_ACTION_RADIUS) {
+            else if (rc.getLocation().distanceSquaredTo(closestHealingArchon) <= ARCHON_ACTION_RADIUS) {
                 if (rc.getHealth() <= 5 && visibleEnemies.length == 0 && isOverCrowdedArchon()) {
                     rc.disintegrate();
                 }
-                Movement.tryMoveInDirection(closestArchon);
+                Movement.tryMoveInDirection(closestHealingArchon);
             }
         else if (finalDestination == null)
-            BFS.move(closestArchon);
+            BFS.move(closestHealingArchon);
 		return true;
 	}
 

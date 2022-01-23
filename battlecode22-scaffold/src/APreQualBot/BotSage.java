@@ -10,6 +10,7 @@ public class BotSage extends CombatUtil{
     private static RobotInfo[] inRangeEnemies;
     private static boolean inHealingState;
     private static MapLocation finalDestination = null; 
+    private static MapLocation closestHealingArchon = null;
 
     public static void initBotSage() throws GameActionException{
         // System.out.println("Hello, this is a sage.");
@@ -119,27 +120,29 @@ public class BotSage extends CombatUtil{
     }
 
     private static void manageHealingState() {
-        if (rc.getHealth() < rc.getType().getMaxHealth(rc.getLevel()) / 4.0) {
+        if (!inHealingState && rc.getHealth() < rc.getType().getMaxHealth(rc.getLevel()) / 4.0) {
             rc.setIndicatorString("healing");
+            closestHealingArchon = null;
             inHealingState = true;
         }
         else if (rc.getHealth() > 2.0/3.0 * rc.getType().getMaxHealth(rc.getLevel())) {
             inHealingState = false;
+            closestHealingArchon = null;
         }
     }
 
     private static boolean tryToHealAtArchon() throws GameActionException {
 		if (!rc.isMovementReady()) return false;
 		
-		MapLocation closestArchon = getLowestHealingArchonLocation();
+		if (closestHealingArchon == null) closestHealingArchon = getLowestHealingArchonLocation();
 		
-		if (closestArchon == null)
+		if (closestHealingArchon == null)
             return false;
-        else if (rc.getLocation().distanceSquaredTo(closestArchon) <= ARCHON_ACTION_RADIUS) {
-            Movement.tryMoveInDirection(closestArchon);
+        else if (rc.getLocation().distanceSquaredTo(closestHealingArchon) <= ARCHON_ACTION_RADIUS) {
+            Movement.tryMoveInDirection(closestHealingArchon);
         }
 		else if (finalDestination == null)
-            BFS.move(closestArchon); // TODO: Avoid enemies
+            BFS.move(closestHealingArchon); // TODO: Avoid enemies
 		return true;
 	}
 

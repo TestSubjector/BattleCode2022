@@ -174,7 +174,7 @@ public class BotBuilder extends Util{
 
     private static RobotType getUnitTypeToBuild(){
         int laboratoryCount = Comms.getLaboratoryCount();
-        if (laboratoryCount < 3) return RobotType.LABORATORY;
+        if (laboratoryCount < MAX_LABORATORY_COUNT) return RobotType.LABORATORY;
         return RobotType.WATCHTOWER;
     }
 

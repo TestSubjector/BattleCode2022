@@ -34,13 +34,14 @@ public class CombatUtil extends Util{
     }
 
     public static RobotInfo getClosestUnitWithCombatPriority(RobotInfo[] units) {
+        if (units.length == 0) return null;
 		RobotInfo closestUnit = null;
         RobotInfo closestCombatUnit = null;
 		int minDistSq = Integer.MAX_VALUE;
         int minCombatDistSq = Integer.MAX_VALUE;
         int distSq = 0;
         MapLocation lCR = rc.getLocation();
-		for (int i = units.length; --i >= 0; ) {
+		for (int i = units.length; --i >= 0;) {
 			distSq = lCR.distanceSquaredTo(units[i].location);
 			if (distSq < minDistSq) {
 				minDistSq = distSq;

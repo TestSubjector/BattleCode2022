@@ -39,6 +39,7 @@ public class Globals {
     public static boolean underAttack;
     public static boolean isSafe=false;
     public static boolean hasMoved=false;
+    public static int MAX_LABORATORY_COUNT;
 
     // For bytecode comparison of functions
     public static int bytecodediff = 0;
@@ -254,6 +255,7 @@ public class Globals {
         START_LOCATION = rc.getLocation();
         ID = rc.getID();
         SMALL_MAP = ((MAP_HEIGHT*MAP_WIDTH) < 1000);
+        MAX_LABORATORY_COUNT = SMALL_MAP ? 1 : 3;
         MEDIUM_MAP = (MAP_WIDTH < 40 && MAP_HEIGHT < 40);
         // For bytecode comparison of functions
         bytecodediff = Math.max(bytecodediff, 0);
