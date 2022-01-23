@@ -598,7 +598,16 @@ public class BotMiner extends Explore{
         }
     }
 
-
+    public static boolean sendCombatLocation(RobotInfo[] visibleHostiles) throws GameActionException{
+        if (visibleHostiles.length != 0 && Clock.getBytecodesLeft() > 600){
+			RobotInfo closestHostile = CombatUtil.getClosestUnitWithCombatPriority(visibleHostiles);
+            if (closestHostile == null) return false;
+            if (closestHostile != null)
+				    Comms.writeCommMessageOverrwriteLesserPriorityMessageUsingQueue(Comms.commType.COMBAT, closestHostile.getLocation(), Comms.SHAFlag.COMBAT_LOCATION);
+            return true;
+        }
+        return false;
+    }
 
     /**
     * Run a single turn for a Miner.
@@ -613,7 +622,7 @@ public class BotMiner extends Explore{
         doMining();
         if (moveOut) goMoveOut();
         mine();
-        BotSoldier.sendCombatLocation(visibleEnemies);
+        sendCombatLocation(visibleEnemies);
         surveyForOpenMiningLocationsNearby();
     }
 }

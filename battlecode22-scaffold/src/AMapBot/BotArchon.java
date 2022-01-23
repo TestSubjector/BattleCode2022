@@ -596,7 +596,7 @@ public class BotArchon extends Util{
         shouldFlee();
         transformAndFlee();
         selfHeal();
-        BotSoldier.sendCombatLocation(visibleEnemies);
+        BotMiner.sendCombatLocation(visibleEnemies);
         endOfTurnUpdate();
     }
 }

@@ -2,7 +2,7 @@ package AMapBot;
 
 import battlecode.common.*;
 
-public class BotSage extends Util{
+public class BotSage extends CombatUtil{
 
     //TODO: Watchtower will be in prototype form/portable form for a while. Make sure you dont call methods like attack not possible then.
 
@@ -81,11 +81,11 @@ public class BotSage extends Util{
 		RobotInfo bestTarget = null;
 		double bestValue = -1;
         double value = 0;
-		for (RobotInfo target : targets) {
-			value = getEnemyScore(target);
+		for (int i = targets.length; --i >= 0;) {
+			value = getEnemyScore(targets[i]);
 			if (value > bestValue) {
 				bestValue = value;
-				bestTarget = target;
+				bestTarget = targets[i];
 			}
 		}
 		if (bestTarget != null) {
@@ -101,6 +101,7 @@ public class BotSage extends Util{
             MapLocation adjLoc = rc.getLocation().add(dir);
             if (!rc.canMove(dir)) continue;
             for (RobotInfo hostile : visibleHostiles){
+                if (hostile.type == RobotType.MINER || hostile.type == RobotType.BUILDER) continue;
                 if (adjLoc.distanceSquaredTo(hostile.location) <= RobotType.SAGE.actionRadiusSquared){
                     crowd++;
                 }
@@ -119,6 +120,7 @@ public class BotSage extends Util{
 
     private static void manageHealingState() {
         if (rc.getHealth() < rc.getType().getMaxHealth(rc.getLevel()) / 8.0) {
+            rc.setIndicatorString("healing");
             inHealingState = true;
         }
         else if (rc.getHealth() > 2.0/3.0 * rc.getType().getMaxHealth(rc.getLevel())) {
@@ -148,11 +150,12 @@ public class BotSage extends Util{
                 if (crowdedDirection != null) {
                     rc.move(crowdedDirection);
                     updateVision();
+                    // rc.setIndicatorString("Charging");
                 }
             }
             if (inRangeEnemies.length > 0) {
                 if (rc.canEnvision(AnomalyType.CHARGE) && inRangeEnemies.length >= 4){
-                    System.out.println("Envisioning");
+                    // rc.setIndicatorString("Envisioning");
                     rc.envision(AnomalyType.CHARGE);
                 }
                 else{
@@ -162,10 +165,22 @@ public class BotSage extends Util{
         }
     }
 
+    private static boolean sendCombatLocation(RobotInfo[] visibleHostiles) throws GameActionException{
+        if (visibleHostiles.length != 0 && Clock.getBytecodesLeft() > 600){
+			RobotInfo closestHostile = getClosestUnitWithCombatPriority(visibleHostiles);
+            if (closestHostile == null) return false;
+            else
+                currentDestination = closestHostile.location;
+				Comms.writeCommMessageOverrwriteLesserPriorityMessageUsingQueue(Comms.commType.COMBAT, closestHostile.getLocation(), Comms.SHAFlag.COMBAT_LOCATION);
+            return true;
+        }
+        return false;
+    }
+
     static void runSage(RobotController rc) throws GameActionException {
         sageComms();
         updateVision();
-        BotSoldier.sendCombatLocation(visibleEnemies);
+        sendCombatLocation(visibleEnemies);
         manageHealingState();
         tryMicro();
         
@@ -184,11 +199,11 @@ public class BotSage extends Util{
 		        if (!rc.getLocation().equals(retreatTarget)) {
 		        	if (Movement.tryMoveInDirection(retreatTarget));
                     else BFS.move(getClosestArchonLocation());
+                    // rc.setIndicatorString("retreating");
 		        }
                 updateVision();
             }
         }
-
         if (currentDestination == null || visibleEnemies.length == 0 && rc.getLocation().distanceSquaredTo(currentDestination) <= SAGE_VISION_RADIUS)
         {
             currentDestination = Comms.findNearestLocationOfThisTypeOutOfVision(rc.getLocation(), Comms.commType.COMBAT, Comms.SHAFlag.COMBAT_LOCATION);

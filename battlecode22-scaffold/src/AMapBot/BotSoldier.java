@@ -126,11 +126,11 @@ public class BotSoldier extends CombatUtil{
 
     private static boolean tryMoveToEngageOutnumberedEnemy(RobotInfo[] visibleHostiles, RobotInfo closestHostile) throws GameActionException {
         if(closestHostile == null) return false;
-		MapLocation closestHostileLocation = closestHostile.location;
+        MapLocation closestHostileLocation = closestHostile.location;
         int numNearbyHostiles = 0;
 		for (int i = visibleHostiles.length; --i >= 0;) {
 			if (visibleHostiles[i].type.canAttack()) {
-				// if (visibleHostiles[i].location.distanceSquaredTo(closestHostileLocation) <= SOLDIER_ACTION_RADIUS) {
+				// if (!SMALL_MAP && visibleHostiles[i].location.distanceSquaredTo(closestHostileLocation) <= SOLDIER_ACTION_RADIUS) {
 					numNearbyHostiles += 1;
 				// }
 			}
@@ -138,9 +138,6 @@ public class BotSoldier extends CombatUtil{
 		RobotInfo[] visibleAllies = rc.senseNearbyRobots(SOLDIER_VISION_RADIUS, MY_TEAM);
 		int numNearbyAllies = 1; // Counts ourself
 		for (int i = visibleAllies.length; --i >= 0;) {
-            // if (visibleAllies[i].type == RobotType.ARCHON){
-            //     numNearbyAllies += 5;
-            // }
 			if (visibleAllies[i].type.canAttack() && visibleAllies[i].health >= visibleAllies[i].type.getMaxHealth(visibleAllies[i].getLevel())/2.0) {
 				numNearbyAllies += 1;
 			}
