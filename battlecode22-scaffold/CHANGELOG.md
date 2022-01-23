@@ -129,4 +129,6 @@ than max rubble.
 * No more watchtowers
 * Archons move from high rubble areas.
 * No more middle map (was literally just valley map and doing badly in that, ouch)
+
+## APreQualBot
   

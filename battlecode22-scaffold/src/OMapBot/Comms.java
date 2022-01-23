@@ -1,4 +1,4 @@
-package AMapBot;
+package OMapBot;
 
 import battlecode.common.*;
 
