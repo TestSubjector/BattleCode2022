@@ -758,19 +758,20 @@ public class Comms extends Util{
     }
 
 
-    // Uses first two bits of archon_util to store laboratory count
+    // Uses first three bits of archon_util to store laboratory count
     public static void writeLaboratoryCount(int count){
         try{
-            rc.writeSharedArray(CHANNEL_ARCHON_UTIL, count);
+            rc.writeSharedArray(CHANNEL_ARCHON_UTIL, (rc.readSharedArray(CHANNEL_ARCHON_UTIL) & 0xFFF8) | count);
         } catch (Exception e){
             e.printStackTrace();
         }
     }
 
 
+    // Reads from the first three bits of archon_util channel to get lab count
     public static int getLaboratoryCount(){
         try{
-            return (rc.readSharedArray(CHANNEL_ARCHON_UTIL) & 0x3);
+            return (rc.readSharedArray(CHANNEL_ARCHON_UTIL) & 0x7);
         } catch (Exception e){
             e.printStackTrace();
         }
