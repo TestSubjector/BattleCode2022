@@ -27,7 +27,7 @@ public class BotMiner extends Explore{
     public static MapLocation lowHealthStratArchon;
     public static int fleeCount;
     private static MapLocation finalDestination = null; 
-    private static boolean DEBUG_MODE = true;
+    private static boolean DEBUG_MODE = false;
 
     public static boolean areMiningLocationsAbundant(){
         try{
@@ -245,7 +245,8 @@ public class BotMiner extends Explore{
         if (curDist > MINER_VISION_RADIUS || !rc.isLocationOccupied(miningLocation)){
         // if (curDist > MINER_VISION_RADIUS || !isLocationBeingMined(miningLocation)){
             if (!BFS.move(miningLocation)) desperationIndex++;
-            // rc.setIndicatorString("moving to miningLocation: " + miningLocation);
+            if (DEBUG_MODE)
+            rc.setIndicatorString("moving to miningLocation: " + miningLocation);
             // if (!Movement.goToDirect(miningLocation)) desperationIndex++;
             return;
         }
@@ -257,7 +258,8 @@ public class BotMiner extends Explore{
         
         // goToMine(); // Be careful of recursive calls.
         if (miningLocation!= null && !BFS.move(miningLocation)) desperationIndex++;
-        // rc.setIndicatorString("moving to another miningLocation: " + miningLocation);
+        if (DEBUG_MODE)
+        rc.setIndicatorString("moving to another miningLocation: " + miningLocation);
         // if (miningLocation!= null && !Movement.goToDirect(miningLocation)) desperationIndex++;
     }
 
@@ -385,8 +387,9 @@ public class BotMiner extends Explore{
         moveOut = false;
         if (miningLocation != null) System.out.println("Location already found?? Something's wrong.");
 
-        if(foundMiningLocationFromVision()){ 
-            // rc.setIndicatorString("vision location found: " + miningLocation);
+        if(foundMiningLocationFromVision()){
+            if (DEBUG_MODE) 
+            rc.setIndicatorString("vision location found: " + miningLocation);
             return;
         }
         
@@ -397,7 +400,8 @@ public class BotMiner extends Explore{
         // Head away from parent Archon to explore. Might get us new mining locations
         
         if (!BFS.move(explore())) desperationIndex++;
-        // rc.setIndicatorString("exploring!");
+        if (DEBUG_MODE)
+        rc.setIndicatorString("exploring!");
         // if (!Movement.goToDirect(explore())) desperationIndex++;
         // if (!Movement.goToDirect(rc.getLocation().add(persistingRandomMovement()))) desperationIndex++;
         
@@ -511,7 +515,8 @@ public class BotMiner extends Explore{
     public static void doMining() throws GameActionException{
         if (isFleeing) {
             BFS.move(explore());
-            // rc.setIndicatorString("exploring while actually fleeing");
+            if (DEBUG_MODE)
+            rc.setIndicatorString("exploring while actually fleeing");
             moveOut = false;
             return;
         }
@@ -549,13 +554,15 @@ public class BotMiner extends Explore{
         if (miningLocation != null) goToMine();
         else {
             BFS.move(explore());
-            // rc.setIndicatorString("exploring from goMoveOut");
+            if (DEBUG_MODE)
+            rc.setIndicatorString("exploring from goMoveOut");
         }
     }
 
 
     public static void toDieOrNotToDie(){
         if (desperationIndex > 50){
+            if (DEBUG_MODE)
             System.out.println("Forced to take the final option");
             rc.disintegrate(); // Bye Bye
         }
@@ -568,9 +575,8 @@ public class BotMiner extends Explore{
             return;
         }
         if (!lowHealthStratInPlay && rc.getHealth() < LOW_HEALTH_STRAT_TRIGGER){ 
-            // System.out.println("Current Health: " + rc.getHealth());
-            // System.out.println("Low health strat trigger: " + LOW_HEALTH_STRAT_TRIGGER);
-            // rc.setIndicatorString("lowHealthStrategy triggered");
+            if (DEBUG_MODE)
+            rc.setIndicatorString("lowHealthStrategy triggered");
             lowHealthStratInPlay = true;
             lowHealthStratArchon = getClosestArchonLocation();
         }
@@ -585,12 +591,14 @@ public class BotMiner extends Explore{
         }
         if (rc.getLocation().distanceSquaredTo(lowHealthStratArchon) > ARCHON_ACTION_RADIUS){
             BFS.move(lowHealthStratArchon);
-            // rc.setIndicatorString("moving to lowHealthStratArchon:" + lowHealthStratArchon);
+            if (DEBUG_MODE)
+            rc.setIndicatorString("moving to lowHealthStratArchon:" + lowHealthStratArchon);
             return;
         } 
         else if (rc.getHealth() < 8 && visibleEnemies.length == 0) {
             finalDestination = getClosestNonLeadLocation(lowHealthStratArchon);
-            // rc.setIndicatorString("moving to finalDestination: " + finalDestination);
+            if (DEBUG_MODE)
+            rc.setIndicatorString("moving to finalDestination: " + finalDestination);
             if (finalDestination == rc.getLocation()) rc.disintegrate();
             if (finalDestination == null) rc.disintegrate();
             if (rc.canSenseRobotAtLocation(finalDestination)) rc.disintegrate();

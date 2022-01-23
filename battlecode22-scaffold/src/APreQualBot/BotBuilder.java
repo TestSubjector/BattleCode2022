@@ -4,17 +4,23 @@ import battlecode.common.*;
 
 public class BotBuilder extends Util{
 
-    private static MapLocation buildLocation;
     private static boolean repairMode;
     private static boolean TAG_ALONG_ENABLED = true;
+    private static MapLocation buildLocation;
+    private static MapLocation healArchon;
     private static MapLocation[] visibleLocations, inRangeLocations;
     private static RobotInfo[] visibleAllies, visibleEnemies;
     private static boolean isFleeing;
+    private static boolean archonHealingDuty;
+    private static final boolean DEBUG_MODE = false;
+    private static int healArchonCommID;
 
     public static void initBotBuilder(){
         buildLocation = null;
         repairMode = false;
         isFleeing = false;
+        archonHealingDuty = false;
+        healArchon = null;
     }
 
 
@@ -47,6 +53,7 @@ public class BotBuilder extends Util{
             if (!isSafeToBuild(rc.getLocation())){
                 isFleeing = true;
                 buildLocation = null;
+                if (DEBUG_MODE)
                 rc.setIndicatorString("Fleeing!");
                 isFleeing = CombatUtil.tryToBackUpToMaintainMaxRangeMiner(visibleEnemies);
             }
@@ -76,6 +83,7 @@ public class BotBuilder extends Util{
 
     private static MapLocation findNearestBuildingThatCanBeRepaired(){
         try{
+            if (visibleAllies.length == 0) return null;
             RobotInfo bot;
             for (int i = visibleAllies.length; --i >= 0;){
                 bot = visibleAllies[i];
@@ -89,17 +97,40 @@ public class BotBuilder extends Util{
     }
 
 
+    private static MapLocation findNearestBuildingThatCanBeMutated(){
+        try{
+            if (visibleAllies.length == 0) return null;
+            RobotInfo bot;
+            for (int i = visibleAllies.length; --i >= 0;){
+                bot = visibleAllies[i];
+                if (bot == null || bot.team == ENEMY_TEAM || !rc.canMutate(bot.location)) continue;
+                return bot.location;
+            }
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+
     private static boolean repairMode(){
         try{
             if (!repairMode) return false;
             MapLocation repairTarget = findNearestBuildingThatCanBeRepaired();
-            if (repairTarget == null) return false;
+            if (repairTarget == null) {
+                if (DEBUG_MODE)
+                rc.setIndicatorString("can't finding anything to repair");
+                return false;
+            }
             if (rc.getLocation().distanceSquaredTo(repairTarget) > BUILDER_ACTION_RADIUS){ 
                 Movement.goToDirect(repairTarget);
-                rc.setIndicatorString("Moving to repairTarget");
+                if (DEBUG_MODE)
+                rc.setIndicatorString("Moving to repairTarget: " + repairTarget);
                 return true;
             }
             if (rc.canRepair(repairTarget) && CombatUtil.isBotInjured(rc.senseRobotAtLocation(repairTarget))){ 
+                if (DEBUG_MODE)
+                rc.setIndicatorString("repairing: " + repairTarget);
                 rc.repair(repairTarget);
                 return true;
             }
@@ -204,17 +235,23 @@ public class BotBuilder extends Util{
 
     private static boolean buildMode(){
         try{
+            if (archonHealingDuty){
+                repairMode = true;
+                return false;
+            }
             if (prioritizeAdjacentPrototypeRepair()) return true;
             RobotType buildType = getUnitTypeToBuild();
             if (buildType == null) return false;
             findBuildLocation(buildType);
             if (buildLocation == null) {
+                if (DEBUG_MODE)
                 rc.setIndicatorString("Moving away from archon it seems. Check.");
                 return false;
             }
             if (!rc.getLocation().equals(buildLocation)){ 
                 // Movement.goToDirect(buildLocation);
                 BFS.move(buildLocation);
+                if (DEBUG_MODE)
                 rc.setIndicatorString("Moving to buildLocation : " + buildLocation);
                 return true;
             }
@@ -226,6 +263,7 @@ public class BotBuilder extends Util{
             if (!rc.isActionReady()) return false;
             Direction targetDir = findBuildDirection(buildType);
             if (targetDir == null){
+                if (DEBUG_MODE)
                 rc.setIndicatorString("Must be surrounded by bots in all directions. Check.");
                 return false;
             }
@@ -262,12 +300,14 @@ public class BotBuilder extends Util{
 
     private static void moveTowardsWatchTower(){
         try{
+            if (archonHealingDuty) return;
             RobotInfo bot;
             for (int i = visibleAllies.length; --i >= 0;){
                 bot = visibleAllies[i];
                 if (bot.type.equals(RobotType.WATCHTOWER)){
                     if (rc.getLocation().distanceSquaredTo(bot.location) > BUILDER_ACTION_RADIUS)
                         BFS.move(bot.location);
+                    if (DEBUG_MODE)
                     rc.setIndicatorString("Moving towards watchtower");
                     buildLocation = null;
                     return;
@@ -279,12 +319,89 @@ public class BotBuilder extends Util{
     }
 
 
+    private static void assignClosestUnHealedArchon() throws GameActionException{
+        int optDist = Integer.MAX_VALUE;
+        int index = -1;
+        // if (rc.getRoundNum() > 200)
+        // System.out.println("trying to assign healLocation");
+        for (int i = 0; i < archonCount; ++i){
+            if (Comms.checkIfArchonNeedsBuilder(i)){
+                MapLocation loc = Comms.getArchonLocation(i);
+                if (loc == null) continue;
+                if (!Comms.checkIfArchonNeedsBuilder(i)) continue;
+                int dist = rc.getLocation().distanceSquaredTo(loc);
+                if (healArchon == null || optDist < dist){
+                    dist = optDist;
+                    healArchon = loc;
+                    index = i;
+                }
+            }
+        }
+        if (index != -1){
+            System.out.println("wiping out need for healing flag");
+            Comms.updateArchonBuilderNeedFlag(index, false);
+            Comms.builderAssignedToArchon(index, true);
+            healArchonCommID = index;
+        }
+    }
+
+
+    public static boolean checkIfAnyArchonNeedsHealing() throws GameActionException{
+        for (int i = 0; i < archonCount; ++i){
+            if (Comms.checkIfArchonNeedsBuilder(i)) return true;
+        }
+        return false;
+    }
+
+
+    private static void healArchon() throws GameActionException{
+        if (!archonHealingDuty && !checkIfAnyArchonNeedsHealing()) return;
+        else if (!archonHealingDuty) archonHealingDuty = true;
+        if (healArchon == null) assignClosestUnHealedArchon();
+        if (healArchon == null) return;
+        Comms.builderAssignedToArchon(healArchonCommID, true);
+        if (rc.getLocation().distanceSquaredTo(healArchon) > BUILDER_ACTION_RADIUS){
+            if (DEBUG_MODE)
+            rc.setIndicatorString("heading out to heal archon");
+            BFS.move(healArchon);
+        }
+    }
+
+
+    private static boolean mutateMode() throws GameActionException{
+        // if (rc.getTeamLeadAmount(MY_TEAM) < 150 && rc.getTeamGoldAmount(MY_TEAM) < 30) return false;
+        if (rc.getTeamLeadAmount(MY_TEAM) < 150) return false;
+        if (visibleAllies.length == 0) return false;
+        MapLocation mutateTarget = findNearestBuildingThatCanBeMutated();
+        if (mutateTarget == null) {
+            if (DEBUG_MODE)
+            rc.setIndicatorString("can't finding anything to mutate");
+            return false;
+        }
+        if (rc.getLocation().distanceSquaredTo(mutateTarget) > 2){ 
+            Movement.goToDirect(mutateTarget);
+            if (DEBUG_MODE)
+            rc.setIndicatorString("Moving to mutateTarget: " + mutateTarget);
+            return true;
+        }
+        if (rc.canMutate(mutateTarget)){ 
+            if (DEBUG_MODE)
+            rc.setIndicatorString("mutating: " + mutateTarget);
+            System.out.println("Mutating!");
+            rc.mutate(mutateTarget);
+            return true;
+        }
+        return false;
+    }
+
+
     public static void runBuilder(RobotController rc){
         try{
             updateBuilder();
+            healArchon();
             BotMiner.surveyForOpenMiningLocationsNearby();
             if (isFleeing) return;
-            if (buildMode() || repairMode()) return;
+            if (buildMode() || mutateMode() || repairMode()) return;
             else{
                 if (TAG_ALONG_ENABLED) moveTowardsWatchTower();
                 else Movement.goToDirect(BotMiner.explore());

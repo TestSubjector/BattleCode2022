@@ -21,7 +21,7 @@ public class CombatUtil extends Util{
 	}
 
 	public static boolean isBotInjured(RobotInfo bot){
-		double frac = 2.0d/3.0d;
+		double frac = 1.0d;
 		return ((double)bot.health < frac * ((double)bot.type.getMaxHealth(bot.level)));
 	}
 

@@ -656,16 +656,19 @@ public class Comms extends Util{
     }
 
 
+    // 3rd private channel of each archon
     public static int getArchonUtilChannel(){
         return (CHANNEL_ARCHON_START + BotArchon.commID * 4 + 2);
     }
 
 
+    // 3rd private channel of archon with given commID
     public static int getArchonUtilChannel(int commID){
         return (CHANNEL_ARCHON_START + commID * 4 + 2);
     }
 
 
+    // uses the first bit of archon's 3rd private channel
     public static void writeArchonMode(RobotMode mode) throws GameActionException{
         int channel = getArchonUtilChannel();
         int curVal = rc.readSharedArray(channel);
@@ -680,6 +683,7 @@ public class Comms extends Util{
     }
 
 
+    // uses the first bit of archon's 3rd private channel
     public static RobotMode readArchonMode(int commID) throws GameActionException{
         int channel = getArchonUtilChannel(commID);
         int val = (rc.readSharedArray(channel) & 0x1);
@@ -691,15 +695,17 @@ public class Comms extends Util{
     }
 
 
+    // uses the second bit of archon's 3rd private channel
     public static void archonUnderCombat() throws GameActionException{
         int channel = getArchonUtilChannel();
         if (underAttack)
-        rc.writeSharedArray(channel, (rc.readSharedArray(channel) | 0x2));
+        rc.writeSharedArray(channel, ((rc.readSharedArray(channel) & 0xFFFD)| 0x2));
         else
         rc.writeSharedArray(channel, (rc.readSharedArray(channel) & 0xFFFD));
     }
 
 
+    // uses the second bit of archon's 3rd private channel
     public static boolean isArchonUnderAttack(int commID) throws GameActionException{
         int channel = getArchonUtilChannel(commID);
         switch(rc.readSharedArray(channel) & 0x2){
@@ -707,6 +713,67 @@ public class Comms extends Util{
             case 0: return false;
         }
         return false;
+    }
+
+
+    // uses the third bit of archon's 3rd private channel for communicating the need for a healing builder
+    public static void updateArchonBuilderNeedFlag(boolean needBuilder) throws GameActionException{
+        int channel = getArchonUtilChannel();
+        if (needBuilder)
+        rc.writeSharedArray(channel, ((rc.readSharedArray(channel) & 0xFFFB) | 0x4));
+        else
+        rc.writeSharedArray(channel, (rc.readSharedArray(channel) & 0xFFFB));
+    }
+
+
+    // uses the third bit of archon's 3rd private channel for communicating the need for a healing builder
+    public static void updateArchonBuilderNeedFlag(int commID, boolean needBuilder) throws GameActionException{
+        int channel = getArchonUtilChannel(commID);
+        if (needBuilder)
+        rc.writeSharedArray(channel, ((rc.readSharedArray(channel) & 0xFFFB) | 0x4));
+        else
+        rc.writeSharedArray(channel, (rc.readSharedArray(channel) & 0xFFFB));
+    }
+
+
+    // uses the third bit of archon's 3rd private channel
+    public static boolean checkIfArchonNeedsBuilder(int commID) throws GameActionException{
+        int channel = getArchonUtilChannel(commID);
+        switch(rc.readSharedArray(channel) & 0x4){
+            case 4: return true;
+            case 0: return false;
+            default: System.out.println("Comms: never happens");
+        }
+        return false;
+    }
+
+
+    // uses the fourth bit of archon's 3rd private channel
+    public static boolean isBuilderAssignedToArchon(int commID) throws GameActionException{
+        int channel = getArchonUtilChannel(commID);
+        switch(rc.readSharedArray(channel) & 0x8){
+            case 8: return true;
+            case 0: return false;
+        }
+        return false;
+    }
+
+
+    // uses the fourth bit of archon's 3rd private channel
+    public static boolean isBuilderAssignedToArchon() throws GameActionException{
+        int channel = getArchonUtilChannel();
+        switch(rc.readSharedArray(channel) & 0x8){
+            case 8: return true;
+            case 0: return false;
+        }
+        return false;
+    }
+
+
+    public static void builderAssignedToArchon(int commID, boolean assign) throws GameActionException{
+        int channel = getArchonUtilChannel(commID);
+        int val = (assign? 0x8 : 0);
+        rc.writeSharedArray(channel, ((rc.readSharedArray(channel) & 0xFFF7) | val));
     }
 
 
@@ -800,4 +867,14 @@ public class Comms extends Util{
         }
         return -1;
     }
+
+
+    public static MapLocation getArchonLocation(int commID) throws GameActionException{
+        int channel = CHANNEL_ARCHON_START + commID * 4;
+        int message = rc.readSharedArray(channel);
+        if (readSHAFlagFromMessage(message) == SHAFlag.ARCHON_LOCATION)
+            return readLocationFromMessage(message);
+        return null;
+    }
+
 }

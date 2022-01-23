@@ -305,7 +305,7 @@ public class Globals {
     public static void updateGlobals() {
         // TODO: Check if unit moved last turn
 		currentLocation = rc.getLocation();
-        
+        MAX_HEALTH = UNIT_TYPE.getMaxHealth(rc.getLevel());
         int curRound = rc.getRoundNum();
         //TODO : Reduce computation if bot is freezing
         if (curRound != turnCount + 1 && curRound != BIRTH_ROUND) {

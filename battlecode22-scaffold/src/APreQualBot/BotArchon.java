@@ -41,6 +41,7 @@ public class BotArchon extends Util{
     private static MapLocation moveIfNeededTarget;
     private static int updateNeedToMove;
     private static final int HIGH_RUBBLE_MOVE_TRIGGER = 40;
+    private static boolean healCommandSent;
 
     public static MapLocation setEnemyDestination() throws GameActionException{
         if (rc.getRoundNum() > 1){
@@ -74,12 +75,10 @@ public class BotArchon extends Util{
         if (rc.senseRubble(rc.getLocation()) > HIGH_RUBBLE_MOVE_TRIGGER)
         needToMove = true;
         else needToMove = false;
-        if (rc.getID() == 5 || rc.getID() == 7){
-            System.out.println("needToMove init: " + needToMove);
-        }
         moveIfNeededTarget = null;
         if (commID == 0) Anomaly.initAnomaly();
         updateNeedToMove = 2001;
+        healCommandSent = false;
     }
     
     
@@ -261,7 +260,8 @@ public class BotArchon extends Util{
         if (SMALL_MAP) return false;   
         if (builderCount == 0 && rc.getRoundNum() > 300) return true;
         if (turnCount < 30 + commID) return false;
-        if (builderCount > (laboratoryCount + 1) || currentLeadReserves < 90) return false;
+        // if (rc.getRoundNum() < 100 && (builderCount > (laboratoryCount + 1) || currentLeadReserves < 90)) return false; 
+        if (builderCount > (laboratoryCount + 1 + archonCount) || currentLeadReserves < 90) return false;
         return true;
     }
 
@@ -584,8 +584,21 @@ public class BotArchon extends Util{
     }
 
 
+    private static void healArchon() throws GameActionException{
+        if (myHealth < MAX_HEALTH && !Comms.isBuilderAssignedToArchon()){
+            Comms.updateArchonBuilderNeedFlag(true);
+        }
+        Comms.builderAssignedToArchon(commID, false);
+        // if (!healCommandSent && myHealth < MAX_HEALTH){
+        //     Comms.updateArchonBuilderNeedFlag(true);
+        //     healCommandSent = true;
+        // }
+    }
+
+
     private static void endOfTurnUpdate(){
         try{
+            healArchon();
             Comms.writeArchonMode(rc.getMode());
         } catch (Exception e){
             e.printStackTrace();
