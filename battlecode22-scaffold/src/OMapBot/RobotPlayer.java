@@ -50,7 +50,7 @@ public strictfp class RobotPlayer {
                 // if (rc.getRoundNum() == 2000 && Globals.UNIT_TYPE == RobotType.MINER){
                 //     System.out.println("Max bytecode diff: " + Globals.bytecodediff);
                 // }
-                if (Clock.getBytecodesLeft() < 500) System.out.println("Warning, bytecodes left this turn is: " + Clock.getBytecodesLeft());
+                // if (Clock.getBytecodesLeft() < 500) System.out.println("Warning, bytecodes left this turn is: " + Clock.getBytecodesLeft());
                 Clock.yield();
             }
         }

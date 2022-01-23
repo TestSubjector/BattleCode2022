@@ -259,6 +259,7 @@ public class BotArchon extends Util{
 
     public static boolean shouldBuildBuilder(){
         if (SMALL_MAP) return false;   
+        if (builderCount == 0 && rc.getRoundNum() > 300) return true;
         if (turnCount < 30 + commID) return false;
         if (builderCount > (laboratoryCount + 1) || currentLeadReserves < 90) return false;
         return true;

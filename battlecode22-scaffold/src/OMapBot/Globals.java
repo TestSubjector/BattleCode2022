@@ -308,7 +308,7 @@ public class Globals {
         //TODO : Reduce computation if bot is freezing
         if (curRound != turnCount + 1 && curRound != BIRTH_ROUND) {
             botFreeze = true;
-            System.out.println("Birth round " + BIRTH_ROUND + " Current Round "+ curRound + " Turn Count " + turnCount + " Bot Froze"); 
+            // System.out.println("Birth round " + BIRTH_ROUND + " Current Round "+ curRound + " Turn Count " + turnCount + " Bot Froze"); 
         }
         turnCount = curRound;
 
