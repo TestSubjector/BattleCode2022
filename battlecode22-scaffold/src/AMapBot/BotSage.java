@@ -12,9 +12,9 @@ public class BotSage extends CombatUtil{
     private static MapLocation finalDestination = null; 
 
     public static void initBotSage() throws GameActionException{
-        System.out.println("Hello, this is a sage.");
+        // System.out.println("Hello, this is a sage.");
         inHealingState = false;
-        currentDestination = Comms.getClosestEnemyArchonLocation();
+        findNewCombatLocation();
         if (currentDestination == null){
             for (int i = 0; i < 4; i++){
                 if (rememberedEnemyArchonLocations[i] != null && CombatUtil.enemyArchonLocationAreaIsFalse(rememberedEnemyArchonLocations[i]))
@@ -101,7 +101,7 @@ public class BotSage extends CombatUtil{
             MapLocation adjLoc = rc.getLocation().add(dir);
             if (!rc.canMove(dir)) continue;
             for (RobotInfo hostile : visibleHostiles){
-                if (hostile.type == RobotType.MINER || hostile.type == RobotType.BUILDER) continue;
+                if (hostile.type != RobotType.SOLDIER || hostile.type == RobotType.SAGE) continue;
                 if (adjLoc.distanceSquaredTo(hostile.location) <= RobotType.SAGE.actionRadiusSquared){
                     crowd++;
                 }
@@ -119,7 +119,7 @@ public class BotSage extends CombatUtil{
     }
 
     private static void manageHealingState() {
-        if (rc.getHealth() < rc.getType().getMaxHealth(rc.getLevel()) / 8.0) {
+        if (rc.getHealth() < rc.getType().getMaxHealth(rc.getLevel()) / 4.0) {
             rc.setIndicatorString("healing");
             inHealingState = true;
         }
@@ -177,15 +177,25 @@ public class BotSage extends CombatUtil{
         return false;
     }
 
+    private static void opportunisticCombatDestination() throws GameActionException{
+        MapLocation nearestCombatLocation = Comms.findNearestLocationOfThisTypeOutOfVision(rc.getLocation(), Comms.commType.COMBAT, Comms.SHAFlag.COMBAT_LOCATION);
+        if (nearestCombatLocation != null){ 
+            if (currentDestination == null) currentDestination = nearestCombatLocation;
+            else if (!rc.canSenseLocation(currentDestination) && rc.getLocation().distanceSquaredTo(currentDestination) > rc.getLocation().distanceSquaredTo(nearestCombatLocation)){
+                currentDestination = nearestCombatLocation;
+            }
+        }
+    }
+
     static void runSage(RobotController rc) throws GameActionException {
         sageComms();
         updateVision();
-        sendCombatLocation(visibleEnemies);
+        opportunisticCombatDestination();
         manageHealingState();
         tryMicro();
         
         if (inHealingState && tryToHealAtArchon()){
-            // return;
+            updateVision();
         } 
 
         if (!rc.isActionReady() && rc.isMovementReady()){
@@ -204,7 +214,9 @@ public class BotSage extends CombatUtil{
                 updateVision();
             }
         }
-        if (currentDestination == null || visibleEnemies.length == 0 && rc.getLocation().distanceSquaredTo(currentDestination) <= SAGE_VISION_RADIUS)
+
+        if (sendCombatLocation(visibleEnemies));
+        else if (currentDestination == null || visibleEnemies.length == 0 && rc.getLocation().distanceSquaredTo(currentDestination) <= SAGE_VISION_RADIUS)
         {
             currentDestination = Comms.findNearestLocationOfThisTypeOutOfVision(rc.getLocation(), Comms.commType.COMBAT, Comms.SHAFlag.COMBAT_LOCATION);
         }

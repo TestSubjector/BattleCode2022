@@ -53,12 +53,12 @@ public class BotLaboratory extends Util {
         try{
             if (!needForRelocation) return;
             if (relocationTarget != null && rc.getLocation().equals(relocationTarget)){
+                rc.setIndicatorString("RT " + relocationTarget);
                 if (rc.getMode().equals(RobotMode.PORTABLE)){
                     if (rc.canTransform()){
                         rc.transform();
                         relocationTarget = null;
                     }
-                    
                 }
                 else{
                     System.out.println("Enough is enough dude");
@@ -66,6 +66,7 @@ public class BotLaboratory extends Util {
                 return;
             }
             else if (relocationTarget != null){
+                rc.setIndicatorString("RT2 " + relocationTarget);
                 if (rc.getMode().equals(RobotMode.TURRET)){
                     if (rc.canTransform()) rc.transform();
                     return;
@@ -87,10 +88,12 @@ public class BotLaboratory extends Util {
                 if (rubble < optRubble){
                     optRubble = rubble;
                     optLoc = loc;
+                    rc.setIndicatorString("Opt loc" + optLoc);
                     optDist = dist;
                 }
                 else if (rubble == optRubble && dist < optDist){
                     optLoc = loc;
+                    rc.setIndicatorString("Opt loc" + optLoc);
                     optDist = dist;
                 }
             }
@@ -108,7 +111,7 @@ public class BotLaboratory extends Util {
 
     public static void runLaboratory(RobotController rc) throws GameActionException{
         updateLaboratory();
-        moveIfNeeded();
+        // moveIfNeeded();
         touchOfMidas();
     }
 }
