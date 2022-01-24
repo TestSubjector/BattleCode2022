@@ -7,13 +7,24 @@ public class BotLaboratory extends Util {
     public static boolean shouldDoAlchemy;
     public static int transmutationRate;
     public static MapLocation relocationTarget;
+    private static MapLocation vortexMoveIfNeededTarget;
     public static boolean needForRelocation;
+    private static boolean alreadyMoving;
+    private static boolean vortexStartedMoving;
+    private static AnomalyScheduleEntry prevAnomaly;
+    private static int updateNeedToMove;
 
     public static void initBotLaboratory(){
         shouldDoAlchemy = false;
         transmutationRate = rc.getTransmutationRate();
         relocationTarget = null;
         needForRelocation = true;
+        prevAnomaly = null;
+        alreadyMoving = false;
+        vortexMoveIfNeededTarget = null;
+        vortexStartedMoving = false;
+        updateNeedToMove = 2050;
+        Anomaly.initAnomaly();
     }
 
 
@@ -40,6 +51,29 @@ public class BotLaboratory extends Util {
         shouldDoAlchemy = shouldTransmute();
         // TODO: Don't update transmutationRate in every turn. Update only when the laboratory moves.
         transmutationRate = rc.getTransmutationRate(); // Bytecode Cost: 20
+        AnomalyScheduleEntry nextAnomaly = Anomaly.getNextAnomaly();
+        if (nextAnomaly != null && prevAnomaly == null){
+            prevAnomaly = nextAnomaly;
+            if (nextAnomaly.anomalyType == AnomalyType.VORTEX){
+                updateNeedToMove = nextAnomaly.roundNumber;
+            }
+            else{
+                updateNeedToMove = 2050;
+            }
+            // System.out.println("This anomaly: " + nextAnomaly.anomalyType);
+            // System.out.println("This anomaly round num: " + nextAnomaly.roundNumber);
+        }
+
+        if (nextAnomaly != null && !nextAnomaly.equals(prevAnomaly)){
+            prevAnomaly = nextAnomaly;
+            if (nextAnomaly.anomalyType == AnomalyType.VORTEX){
+                updateNeedToMove = nextAnomaly.roundNumber;
+            }
+            else
+                updateNeedToMove = 2050;
+            // System.out.println("This anomaly: " + nextAnomaly.anomalyType);
+            // System.out.println("This anomaly round num: " + nextAnomaly.roundNumber);
+        }
     }
 
 
@@ -138,9 +172,70 @@ public class BotLaboratory extends Util {
     }
 
 
+    private static void vortexMoveIfNeeded() throws GameActionException{
+        if (needForRelocation) return;
+        int roundsRemaining = (updateNeedToMove - rc.getRoundNum() - BotArchon.transformCooldownCompute()); 
+        if (roundsRemaining > 1 && !vortexStartedMoving) return;
+        else if (roundsRemaining == 1 && !vortexStartedMoving && rc.getMode().equals(RobotMode.PORTABLE)){
+            alreadyMoving = true;
+            return;
+        }
+        else if (roundsRemaining == 1 && !vortexStartedMoving) alreadyMoving = false;
+        if (alreadyMoving) return;
+        if (rc.getMode().equals(RobotMode.TURRET)){
+            if (rc.isTransformReady()) {
+                rc.transform();
+                vortexStartedMoving = true;
+            }
+            return;
+        }
+        if (!rc.isMovementReady()) return;
+        if (vortexMoveIfNeededTarget == null){
+            vortexMoveIfNeededTarget = findRubbleFreeLocation();
+        }
+        if (vortexMoveIfNeededTarget == null){
+            if (rc.isTransformReady()) {
+                rc.transform();
+                vortexStartedMoving = false;
+            }
+            System.out.println("never happens");
+            return;
+        }
+        if (vortexMoveIfNeededTarget.equals(rc.getLocation())){
+            if (rc.isTransformReady()){
+                rc.transform();
+                vortexMoveIfNeededTarget = null;
+                vortexStartedMoving = false;
+            }
+            return;
+        }
+        if (rc.canSenseRobotAtLocation(vortexMoveIfNeededTarget)){
+            vortexMoveIfNeededTarget = findRubbleFreeLocation();
+        }
+        if (vortexMoveIfNeededTarget.equals(rc.getLocation())){
+            if (rc.isTransformReady()){
+                rc.transform();
+                vortexMoveIfNeededTarget = null;
+                vortexStartedMoving = false;
+            }
+            return;
+        }
+        if (!rc.isMovementReady()) return;
+        if (!BFS.move(vortexMoveIfNeededTarget)){
+            if (rc.isTransformReady()){
+                rc.transform();
+                vortexStartedMoving = false;
+                vortexMoveIfNeededTarget = null;
+            }
+            return;
+        }
+    }
+
+
     public static void runLaboratory(RobotController rc) throws GameActionException{
         updateLaboratory();
         moveIfNeeded();
+        vortexMoveIfNeeded();
         touchOfMidas();
         BotMiner.surveyForOpenMiningLocationsNearby();
     }

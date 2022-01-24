@@ -43,10 +43,14 @@ public class BotArchon extends Util{
     private static MapLocation selectedEnemyDestination;
     private static MapLocation moveIfNeededTarget;
     private static MapLocation transformAndMoveTarget;
+    private static MapLocation vortexMoveIfNeededTarget;
     private static boolean transformAndMove;
     private static boolean atTargetLocationForTransform;
     private static boolean goodPlace;
     private static boolean mediumMapFlag;
+    private static boolean alreadyMoving;
+    private static boolean vortexStartedMoving;
+    private static AnomalyScheduleEntry prevAnomaly;
 
     public static MapLocation setEnemyDestination() throws GameActionException{
         if (rc.getRoundNum() > 1){
@@ -81,8 +85,9 @@ public class BotArchon extends Util{
         needToMove = true;
         else needToMove = false;
         moveIfNeededTarget = null;
-        if (commID == 0) Anomaly.initAnomaly();
-        updateNeedToMove = 2001;
+        // if (commID == 0) 
+        Anomaly.initAnomaly();
+        updateNeedToMove = 2050;
         transformAndMove = false;
         transformAndMoveTarget = null;
         atTargetLocationForTransform = false;
@@ -92,6 +97,12 @@ public class BotArchon extends Util{
             SMALL_MAP = true;
         }
         mediumMapFlag = MEDIUM_MAP;
+        prevAnomaly = null;
+        alreadyMoving = false;
+        vortexMoveIfNeededTarget = null;
+        vortexStartedMoving = false;
+        // if (commID == 0)
+        // Anomaly.printAllAnomalies();
     }
     
     
@@ -510,10 +521,30 @@ public class BotArchon extends Util{
         updateArchonBuildUnits();
         updateHealingQueueComms();
         shouldTransformAndMove();
-        // AnomalyScheduleEntry nextAnomaly = Anomaly.getNextAnomaly();
-        // if (nextAnomaly.anomalyType == AnomalyType.VORTEX){
-        //     updateNeedToMove = nextAnomaly.roundNumber;
-        // }
+        AnomalyScheduleEntry nextAnomaly = Anomaly.getNextAnomaly();
+        if (nextAnomaly != null && prevAnomaly == null){
+            prevAnomaly = nextAnomaly;
+            if (nextAnomaly.anomalyType == AnomalyType.VORTEX){
+                updateNeedToMove = nextAnomaly.roundNumber;
+            }
+            else{
+                updateNeedToMove = 2050;
+            }
+            // System.out.println("This anomaly: " + nextAnomaly.anomalyType);
+            // System.out.println("This anomaly round num: " + nextAnomaly.roundNumber);
+        }
+
+        if (nextAnomaly != null && !nextAnomaly.equals(prevAnomaly)){
+            prevAnomaly = nextAnomaly;
+            if (nextAnomaly.anomalyType == AnomalyType.VORTEX){
+                updateNeedToMove = nextAnomaly.roundNumber;
+            }
+            else
+                updateNeedToMove = 2050;
+            // System.out.println("This anomaly: " + nextAnomaly.anomalyType);
+            // System.out.println("This anomaly round num: " + nextAnomaly.roundNumber);
+        }
+        
         // if (rc.getRoundNum() > updateNeedToMove){
         //     if (rc.senseRubble(rc.getLocation()) > HIGH_RUBBLE_MOVE_TRIGGER)
         //         needToMove = true;
@@ -591,13 +622,79 @@ public class BotArchon extends Util{
     }
 
 
+    public static int transformCooldownCompute() throws GameActionException{
+        double cooldown = ((1.0d + ((double)rc.senseRubble(rc.getLocation())) / 10.0d) * ((double)UNIT_TYPE.actionCooldown));
+        return (((int)cooldown) / 10);
+    }
+
+
     private static boolean goodTimeToMove(){
-        if (checkIfAnyOtherArchonIsMoving()) return false;
+        // if (checkIfAnyOtherArchonIsMoving()) return false;
         if (rc.getRoundNum() > 50) return true;
         // if (turnsWaitingToBuild > 10) return true;
 
         return false;
     }
+
+
+    private static void vortexMoveIfNeeded() throws GameActionException{
+        int roundsRemaining = (updateNeedToMove - rc.getRoundNum() - transformCooldownCompute()); 
+        if (roundsRemaining > 1 && !vortexStartedMoving) return;
+        else if (roundsRemaining == 1 && !vortexStartedMoving && rc.getMode().equals(RobotMode.PORTABLE)){
+            alreadyMoving = true;
+            return;
+        }
+        else if (roundsRemaining == 1 && !vortexStartedMoving) alreadyMoving = false;
+        if (alreadyMoving) return;
+        if (rc.getMode().equals(RobotMode.TURRET)){
+            if (rc.isTransformReady()) {
+                rc.transform();
+                vortexStartedMoving = true;
+            }
+            return;
+        }
+        if (!rc.isMovementReady()) return;
+        if (vortexMoveIfNeededTarget == null){
+            vortexMoveIfNeededTarget = findBetterOverallLocation();
+        }
+        if (vortexMoveIfNeededTarget == null){
+            if (rc.isTransformReady()) {
+                rc.transform();
+                vortexStartedMoving = false;
+            }
+            System.out.println("never happens");
+            return;
+        }
+        if (vortexMoveIfNeededTarget.equals(rc.getLocation())){
+            if (rc.isTransformReady()){
+                rc.transform();
+                vortexMoveIfNeededTarget = null;
+                vortexStartedMoving = false;
+            }
+            return;
+        }
+        if (rc.canSenseRobotAtLocation(vortexMoveIfNeededTarget)){
+            vortexMoveIfNeededTarget = findBetterOverallLocation();
+        }
+        if (vortexMoveIfNeededTarget.equals(rc.getLocation())){
+            if (rc.isTransformReady()){
+                rc.transform();
+                vortexMoveIfNeededTarget = null;
+                vortexStartedMoving = false;
+            }
+            return;
+        }
+        if (!rc.isMovementReady()) return;
+        if (!BFS.move(vortexMoveIfNeededTarget)){
+            if (rc.isTransformReady()){
+                rc.transform();
+                vortexStartedMoving = false;
+                vortexMoveIfNeededTarget = null;
+            }
+            return;
+        }
+    }
+
 
 
     private static void moveIfNeeded(){
@@ -858,7 +955,7 @@ public class BotArchon extends Util{
     */
     public static void runArchon(RobotController rc) throws GameActionException {
         updateArchon();
-        moveIfNeeded();
+        vortexMoveIfNeeded();
         transformAndMove();
         buildDivision();
         shouldFlee();

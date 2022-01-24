@@ -15,11 +15,13 @@ public class Anomaly extends Util{
 
     public static AnomalyScheduleEntry getNextAnomaly(){
         try{
+            if (anomalyHead == anomalies.length) return null;
             AnomalyScheduleEntry anomaly = anomalies[anomalyHead];
             while(anomaly.roundNumber < rc.getRoundNum()){
                 anomalyHead++;
                 if (anomalyHead == anomalies.length){
                     anomaly = null;
+                    break;
                 }
                 anomaly = anomalies[anomalyHead];
             }
@@ -28,5 +30,18 @@ public class Anomaly extends Util{
             e.printStackTrace();
         }
         return null;
+    }
+
+
+    public static void printAnomaly(AnomalyScheduleEntry anomaly){
+        System.out.println("Anomaly Type: " + anomaly.anomalyType);
+        System.out.println("Anomaly Round Number: " + anomaly.roundNumber);
+    }
+
+
+    public static void printAllAnomalies(){
+        for (int i = 0; i < anomalies.length; ++i){
+            printAnomaly(anomalies[i]);
+        }
     }
 }
