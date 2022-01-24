@@ -254,9 +254,10 @@ public class Globals {
         ENEMY_TEAM = MY_TEAM.opponent();
         START_LOCATION = rc.getLocation();
         ID = rc.getID();
-        SMALL_MAP = ((MAP_HEIGHT*MAP_WIDTH) < 1000);
-        MAX_LABORATORY_COUNT = SMALL_MAP ? 1 : 3;
-        MEDIUM_MAP = (MAP_WIDTH < 40 && MAP_HEIGHT < 40);
+        SMALL_MAP = (MAP_HEIGHT*MAP_WIDTH < 799);
+        MEDIUM_MAP = !SMALL_MAP && (MAP_HEIGHT*MAP_WIDTH < 1002);
+        MAX_LABORATORY_COUNT = (SMALL_MAP || MEDIUM_MAP) ? 1 : 3;
+
         // For bytecode comparison of functions
         bytecodediff = Math.max(bytecodediff, 0);
         MAP_CORNERS[0] = new MapLocation(0,0);

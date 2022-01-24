@@ -46,7 +46,7 @@ public class BotArchon extends Util{
     private static boolean transformAndMove;
     private static boolean atTargetLocationForTransform;
     private static boolean goodPlace;
-
+    private static boolean mediumMapFlag;
 
     public static MapLocation setEnemyDestination() throws GameActionException{
         if (rc.getRoundNum() > 1){
@@ -87,6 +87,7 @@ public class BotArchon extends Util{
         transformAndMoveTarget = null;
         atTargetLocationForTransform = false;
         goodPlace = false;
+        mediumMapFlag = MEDIUM_MAP;
     }
     
     
@@ -101,6 +102,13 @@ public class BotArchon extends Util{
             aBUWeights[ArchonBuildUnits.SAGE.ordinal()] = Math.max(2.50d, 4.5d - lTC/100.0d);
             aBUWeights[ArchonBuildUnits.SOLDIER.ordinal()] = Math.min(5.5d, 2.0d + lTC/40.0d - (double)soldierCount/70.0d);
             
+        }
+        else if (MEDIUM_MAP) {
+            watchTowerWeight = (watchTowerCount + laboratoryCount)/2;
+            aBUWeights[ArchonBuildUnits.BUILDER.ordinal()] = 1.0d;
+            aBUWeights[ArchonBuildUnits.MINER.ordinal()] = 4.5d;
+            aBUWeights[ArchonBuildUnits.SAGE.ordinal()] = 9.0d;
+            aBUWeights[ArchonBuildUnits.SOLDIER.ordinal()] = 4.50d;
         }
         else {
             watchTowerWeight = (watchTowerCount + laboratoryCount)/2;
@@ -203,11 +211,24 @@ public class BotArchon extends Util{
         // if(ID ==2) System.out.println("Unit built is " + unitType + " Weights are " + Arrays.toString(currentWeights));
     }
 
+    public static ArchonBuildUnits labFirstOrder() throws GameActionException{
+        if (minerCount < 4) return ArchonBuildUnits.MINER;
+        else if (builderCount == 0 && rc.getRobotCount() <= archonCount + 4) return ArchonBuildUnits.BUILDER;
+        else if (laboratoryCount < 1 && turnsWaitingToBuild < 40) return null;
+        else {
+            mediumMapFlag = false;
+            return null;
+        }
+    } 
+
 
     public static void buildUnit() throws GameActionException{
         try {
             if(!rc.isActionReady()) return;
-            ArchonBuildUnits unitToBuild = standardOrder();
+            ArchonBuildUnits unitToBuild = null;
+            if (mediumMapFlag) unitToBuild = labFirstOrder();
+            else unitToBuild = standardOrder();
+            
             if (unitToBuild == null || waitQuota()) {
                 turnsWaitingToBuild++;
                 return;
@@ -232,8 +253,7 @@ public class BotArchon extends Util{
         ArchonBuildUnits unitToBuild = null;
         double minWeight = Double.MAX_VALUE;
 
-        // TODO : Loop unrolling
-        for(int i = 0; i < archonBuildUnits.length; i++){
+        for(int i = archonBuildUnits.length; --i >= 0;){
             if(!canBuild[i]) continue;
             if(unitToBuild == null || minWeight > currentWeights[i]){  // If unitToBuild is null, or this unit weight is *lesser*
                 minWeight = currentWeights[i];
@@ -251,7 +271,6 @@ public class BotArchon extends Util{
     }
 
 
-     // TODO: Reorganise after sprint
     public static boolean watchTowerDebt(double minWeight, ArchonBuildUnits unitToBuild) throws GameActionException{
         if (unitToBuild == ArchonBuildUnits.SAGE) return false;
         return minWeight < 100000 && 
@@ -273,7 +292,8 @@ public class BotArchon extends Util{
         return true;
     }
 
-    public static boolean shouldBuildMiner(){     
+    public static boolean shouldBuildMiner(){    
+        if (minerCount > 10 && minerCount > soldierCount + 1) return false;
         if (builderCount == 0 && minerCount >=4) return true;
         return currentLeadReserves >= RobotType.MINER.buildCostLead;
     }
@@ -281,7 +301,7 @@ public class BotArchon extends Util{
 
     public static boolean shouldBuildSoldier(){
         if ((rc.getTeamGoldAmount(MY_TEAM) >= 20)) return false;
-        if (SMALL_MAP) return turnCount >= 5;
+        if (SMALL_MAP || MEDIUM_MAP) return turnCount >= 5;
         return (turnCount >= 15);
     }
 

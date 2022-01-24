@@ -190,11 +190,38 @@ public class BotSage extends CombatUtil{
         }
     }
 
+    // private static void moveToBetterSpot() throws GameActionException{
+    //     Direction goodAdjDirections[] = directions;
+    //     int goodAdjCount = 0;
+    //     int bestRubble = rc.senseRubble(rc.getLocation());
+    //     for (Direction dir : directions){
+    //         MapLocation loc = rc.getLocation().add(dir);
+    //         if (!rc.canMove(dir)) continue;
+    //         bestRubble = Math.min(bestRubble, rc.senseRubble(loc));
+    //     }
+
+    //     for (Direction dir : directions){
+    //         MapLocation loc = rc.getLocation().add(dir);
+    //         if (!rc.canMove(dir)) continue;
+    //         if (rc.senseRubble(loc) == bestRubble){
+    //             goodAdjDirections[goodAdjCount] = dir;
+    //             goodAdjCount++;
+    //         }
+    //     }
+    //     if (goodAdjCount != 0){
+    //         rc.move(goodAdjDirections[rng.nextInt(goodAdjCount)]);
+    //         updateVision();
+    //     }
+    // }
+
     static void runSage(RobotController rc) throws GameActionException {
         sageComms();
         updateVision();
+        // if (visibleEnemies.length !=0) moveToBetterSpot();
+
         opportunisticCombatDestination();
         manageHealingState();
+
         tryMicro();
         
         if (inHealingState && tryToHealAtArchon()){

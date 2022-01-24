@@ -12,7 +12,7 @@ public class BotBuilder extends Util{
     private static RobotInfo[] visibleAllies, visibleEnemies;
     private static boolean isFleeing;
     private static boolean archonHealingDuty;
-    private static final boolean DEBUG_MODE = false;
+    private static final boolean DEBUG_MODE = true;
     private static int healArchonCommID;
 
     public static void initBotBuilder(){
@@ -151,7 +151,7 @@ public class BotBuilder extends Util{
             for (int i = visibleAllies.length; --i >= 0; ){
                 MapLocation loc = visibleLocations[i];
                 if (!rc.canSenseLocation(loc)) continue;
-                if (loc.distanceSquaredTo(closestArchon) <= BUILDER_ACTION_RADIUS) continue;
+                // if (loc.distanceSquaredTo(closestArchon) <= BUILDER_ACTION_RADIUS) continue;
                 // if (rc.senseLead(loc) > 0 || rc.senseGold(loc) > 0) continue;
                 int rubble = rc.senseRubble(loc), dist = rc.getLocation().distanceSquaredTo(loc);
 
@@ -189,10 +189,10 @@ public class BotBuilder extends Util{
                 if (rc.getLocation().distanceSquaredTo(buildLocation) > BUILDER_VISION_RADIUS) return;
             }
             MapLocation closestArchon = getClosestArchonLocation();
-            if (closestArchon != null && closestArchon.distanceSquaredTo(rc.getLocation()) <= BUILDER_ACTION_RADIUS){
-                Movement.moveAwayFromLocation(closestArchon);
-                return;
-            }
+            // if (closestArchon != null && closestArchon.distanceSquaredTo(buildLocation) <= BUILDER_ACTION_RADIUS){
+            //     Movement.moveAwayFromLocation(closestArchon);
+            //     return;
+            // }
             // buildLocation = Movement.moveToLattice(MIN_LATTICE_DIST, 0);
             buildLocation = findRubbleFreeBuildLocation(closestArchon);
             if (buildLocation == null) System.out.println("Seriously?!!!");
@@ -252,7 +252,7 @@ public class BotBuilder extends Util{
                 // Movement.goToDirect(buildLocation);
                 BFS.move(buildLocation);
                 if (DEBUG_MODE)
-                rc.setIndicatorString("Moving to buildLocation : " + buildLocation);
+                // rc.setIndicatorString("Moving to buildLocation : " + buildLocation);
                 return true;
             }
             int buildCost = buildType.buildCostLead;
