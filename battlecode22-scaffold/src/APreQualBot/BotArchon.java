@@ -1,5 +1,6 @@
 package APreQualBot;
 
+import APreQualBot.Comms.SHAFlag;
 import battlecode.common.*;
 
 public class BotArchon extends Util{
@@ -16,6 +17,7 @@ public class BotArchon extends Util{
     public static ArchonBuildUnits[] archonBuildUnits = ArchonBuildUnits.values();
     public static double[] aBUWeights = new double[ArchonBuildUnits.values().length];
     public static double[] currentWeights = new double[ArchonBuildUnits.values().length];
+    public static double watchTowerWeight;
     public static int myArchonID; // Each Archon will have their commID
     public static int commID; // Each Archon will have their commID
     public static int startingArchons;
@@ -25,23 +27,26 @@ public class BotArchon extends Util{
     public static int sageCount;
     public static int watchTowerCount;
     public static int laboratoryCount;
-    public static double watchTowerWeight;
     public static int turnsWaitingToBuild;
     private static int enemyArchonQueueHead;
-    public static final int TRANSFORM_AND_MOVE_WAIT_TIME = 70;
+    private static int fleeIndex;
+    private static int updateNeedToMove;
+    private static final int TRANSFORM_AND_MOVE_WAIT_TIME = 70;
+    private static final int HIGH_RUBBLE_MOVE_TRIGGER = 40;
     private static RobotInfo[] visibleEnemies;
     private static RobotInfo[] inRangeEnemies;
     private static RobotInfo[] visibleAllies;
     private static RobotInfo[] inRangeAllies;
-    private static int fleeIndex;
     private static boolean isFleeing = false;
     private static boolean needToMove;
     private static MapLocation fleeLocation;
     private static MapLocation selectedEnemyDestination;
     private static MapLocation moveIfNeededTarget;
-    private static int updateNeedToMove;
-    private static final int HIGH_RUBBLE_MOVE_TRIGGER = 40;
-    private static boolean healCommandSent;
+    private static MapLocation transformAndMoveTarget;
+    private static boolean transformAndMove;
+    private static boolean atTargetLocationForTransform;
+    private static boolean goodPlace;
+
 
     public static MapLocation setEnemyDestination() throws GameActionException{
         if (rc.getRoundNum() > 1){
@@ -78,7 +83,10 @@ public class BotArchon extends Util{
         moveIfNeededTarget = null;
         if (commID == 0) Anomaly.initAnomaly();
         updateNeedToMove = 2001;
-        healCommandSent = false;
+        transformAndMove = false;
+        transformAndMoveTarget = null;
+        atTargetLocationForTransform = false;
+        goodPlace = false;
     }
     
     
@@ -290,7 +298,7 @@ public class BotArchon extends Util{
         soldierCount = rc.readSharedArray(Comms.CHANNEL_SOLDIER_COUNT); 
         sageCount = rc.readSharedArray(Comms.CHANNEL_SAGE_COUNT);
         watchTowerCount = rc.readSharedArray(Comms.CHANNEL_WATCHTOWER_COUNT); 
-        laboratoryCount = rc.readSharedArray(Comms.CHANNEL_LABORATORY_COUNT);
+        laboratoryCount = (rc.readSharedArray(Comms.CHANNEL_LABORATORY_COUNT) & 0xFF);
     }
 
 
@@ -301,7 +309,8 @@ public class BotArchon extends Util{
         rc.writeSharedArray(Comms.CHANNEL_SAGE_COUNT, 0);
         rc.writeSharedArray(Comms.CHANNEL_WATCHTOWER_COUNT, 0);
         Comms.writeLaboratoryCount(laboratoryCount);
-        rc.writeSharedArray(Comms.CHANNEL_LABORATORY_COUNT, 0);
+        // rc.writeSharedArray(Comms.CHANNEL_LABORATORY_COUNT, 0);
+        rc.writeSharedArray(Comms.CHANNEL_LABORATORY_COUNT, (rc.readSharedArray(Comms.CHANNEL_LABORATORY_COUNT) & 0xFF00));
     }
 
 
@@ -350,7 +359,7 @@ public class BotArchon extends Util{
 
 
     private static void transformAndFlee() throws GameActionException{
-        if (fleeIndex > 5 && rc.getMode()!= RobotMode.PORTABLE && rc.canTransform()) {
+        if (fleeIndex > 5 && rc.getMode()!= RobotMode.PORTABLE && rc.isTransformReady()) {
             if (fleeLocation == null) { 
                 fleeLocation = getClosestArchonLocation(true);
                 if (fleeLocation!= null && !rc.canSenseLocation(fleeLocation)) rc.transform();
@@ -361,7 +370,7 @@ public class BotArchon extends Util{
 
         if (rc.getMode() == RobotMode.PORTABLE && isFleeing){ 
             // Enemies contained and transform cooldown gone
-            if (rc.canTransform() && currentLocation.isWithinDistanceSquared(fleeLocation, ARCHON_ACTION_RADIUS)){
+            if (rc.isTransformReady() && currentLocation.isWithinDistanceSquared(fleeLocation, ARCHON_ACTION_RADIUS)){
                 rc.transform(); // TODO - Doesn't account for Rubble
                 isFleeing = false;
                 fleeLocation = null;
@@ -438,7 +447,7 @@ public class BotArchon extends Util{
         }
         updateArchonBuildUnits();
         updateHealingQueueComms();
-
+        shouldTransformAndMove();
         // AnomalyScheduleEntry nextAnomaly = Anomaly.getNextAnomaly();
         // if (nextAnomaly.anomalyType == AnomalyType.VORTEX){
         //     updateNeedToMove = nextAnomaly.roundNumber;
@@ -537,7 +546,7 @@ public class BotArchon extends Util{
                 if (rc.getMode() == RobotMode.PORTABLE){
                     // moveIfNeededTarget = findBetterAdjacentLocation();
                     if (moveIfNeededTarget.equals(rc.getLocation())){
-                        if (rc.canTransform()){ 
+                        if (rc.isTransformReady()){ 
                             rc.transform();
                             rc.setIndicatorString("Started the transformation");
                             needToMove = false;
@@ -561,7 +570,7 @@ public class BotArchon extends Util{
                     needToMove = false;
                     return;
                 }
-                if (rc.canTransform()){ 
+                if (rc.isTransformReady()){ 
                     rc.transform();
                     rc.setIndicatorString("I am gaining the ability to move!");
                 }
@@ -574,7 +583,7 @@ public class BotArchon extends Util{
                 moveIfNeededTarget = null;
                 return;
             }
-            if (rc.canTransform()){ 
+            if (rc.isTransformReady()){ 
                 rc.transform();
                 rc.setIndicatorString("Imma gonna start moving!");
             }
@@ -603,7 +612,180 @@ public class BotArchon extends Util{
         } catch (Exception e){
             e.printStackTrace();
         }
-        
+    }
+
+
+    private static void findTransformAndMoveTarget() throws GameActionException{
+        if (!transformAndMove) return;
+        MapLocation loc = Comms.findNearestLocationOfThisType(rc.getLocation(), Comms.commType.COMBAT, Comms.SHAFlag.COMBAT_LOCATION);
+        // int[] distances = new int[3];
+        // for (int i = -1; ++i < 3;){
+        //     distances[i] += rc.getLocation().distanceSquaredTo(rememberedEnemyArchonLocations[i]);
+        // }
+        // int ind = 0, mx = distances[0];
+        // if (distances[1] > mx){
+        //     ind = 1;
+        //     mx = distances[1];
+        // }
+        // if (distances[2] > mx){
+        //     ind = 2;
+        //     mx = distances[2];
+        // }
+        if (loc == null) transformAndMoveTarget = loc;
+        else transformAndMoveTarget = translateByStepsCount(rc.getLocation(), loc, 20);
+    }
+
+
+    private static void shouldTransformAndMove() throws GameActionException{
+        // if (archonCount == 1) return;
+        // if (SMALL_MAP) return;
+        if (MAP_WIDTH * MAP_HEIGHT < 900) return;
+        if (archonCount == 1) return;
+        if (checkIfAnyOtherArchonIsMoving()){ 
+            transformAndMove = false;
+            return;
+        }
+        if (transformAndMove) return;
+        if (visibleEnemies.length > 0) return;
+        // boolean val = Comms.checkIfMessageOfThisTypeThere(Comms.commType.COMBAT, Comms.SHAFlag.COMBAT_LOCATION);
+
+        transformAndMove = (commID == Comms.getArchonTransformAndMoveTurn() && rc.getRoundNum() >= Comms.getArchonWaitTimeForArchonTransformAndMove());
+        findTransformAndMoveTarget();
+        if (transformAndMoveTarget == null){
+            transformAndMove = false;
+            return;
+        }
+        if (transformAndMoveTarget.distanceSquaredTo(rc.getLocation()) < 15){
+            transformAndMove = false;
+            transformAndMoveTarget = null;
+            atTargetLocationForTransform = false;
+            Comms.writeArchonMode(rc.getMode());
+            Comms.updateArchonTransformAndMoveTurn();
+            Comms.updateWaitTimeForArchonTransformAndMove(rc.getRoundNum() + TRANSFORM_AND_MOVE_WAIT_TIME);
+        }
+        // transformAndMoveOrigin = rc.getLocation();
+        // goodPlace = false;
+    }
+
+
+    public static boolean transformAndUpdate() throws GameActionException{
+        if (!rc.isTransformReady()) return false;
+        if (rc.getMode() == RobotMode.PORTABLE){
+            rc.transform();
+            transformAndMove = false;
+            transformAndMoveTarget = null;
+            atTargetLocationForTransform = false;
+            Comms.writeArchonMode(rc.getMode());
+            Comms.updateArchonTransformAndMoveTurn();
+            Comms.updateWaitTimeForArchonTransformAndMove(rc.getRoundNum() + TRANSFORM_AND_MOVE_WAIT_TIME);
+            goodPlace = false;
+            return true;
+        }
+        System.out.println("Should be unreachable piece of code");
+        transformAndMove = false;
+        transformAndMoveTarget = null;
+        atTargetLocationForTransform = false;
+        goodPlace = false;
+        Comms.writeArchonMode(rc.getMode());
+        Comms.updateArchonTransformAndMoveTurn();
+        Comms.updateWaitTimeForArchonTransformAndMove(rc.getRoundNum() + TRANSFORM_AND_MOVE_WAIT_TIME);
+        return true;
+    }
+
+
+    private static MapLocation findRubbleFreeSettleLocation() throws GameActionException{
+        MapLocation[] nearbyLocations = rc.getAllLocationsWithinRadiusSquared(rc.getLocation(), ARCHON_VISION_RADIUS);
+        MapLocation optLoc = rc.getLocation(), loc;
+        int optRubble = rc.senseRubble(optLoc), rubble, optDist = 0, dist;
+        for (int i = nearbyLocations.length; --i >= 0;){
+            loc = nearbyLocations[i];
+            if ((!rc.canSenseLocation(loc)) || rc.canSenseRobotAtLocation(loc)) continue;
+            rubble = rc.senseRubble(loc);
+            dist = rc.getLocation().distanceSquaredTo(loc);
+            if (rubble < optRubble){
+                optLoc = loc;
+                optRubble = rubble;
+                optDist = dist;
+            }
+            else if (rubble == optRubble && dist < optDist){
+                optLoc = loc;
+                optDist = dist;
+            }
+        }
+        return optLoc;
+    }
+
+
+    public static void transformAndMove(){
+        try{
+            if (!transformAndMove || isFleeing) return;
+            if (checkIfAnyOtherArchonIsMoving()){
+                if (rc.getMode() == RobotMode.PORTABLE){
+                    if (!rc.canSenseLocation(transformAndMoveTarget)){
+                        transformAndMoveTarget = findRubbleFreeSettleLocation();
+                        goodPlace = true;
+                    }
+                    if (rc.getLocation().equals(transformAndMoveTarget)){
+                        // if (rc.canTransform()) rc.transform();
+                        transformAndUpdate();
+                        return;
+                    }
+                    if (!rc.isMovementReady()) return;
+                    if ((!BFS.move(transformAndMoveTarget)) && rc.canSenseRobotAtLocation(transformAndMoveTarget)){
+                        // if (rc.canTransform()) rc.transform();
+                        // TODO: Improve this.
+                        transformAndUpdate();
+                    }
+                    return;
+                }
+                transformAndMoveTarget = null;
+                transformAndMove = false;
+                atTargetLocationForTransform = false;
+                Comms.writeArchonMode(rc.getMode());
+                Comms.updateArchonTransformAndMoveTurn();
+                Comms.updateWaitTimeForArchonTransformAndMove(rc.getRoundNum() + TRANSFORM_AND_MOVE_WAIT_TIME);
+            }
+            // updateTransformAndMoveTarget();
+            if (transformAndMoveTarget == null){
+                if (rc.getMode().equals(RobotMode.PORTABLE)){
+                    System.out.println("NOT. HAPPENING!");
+                    // if (rc.isTransformReady()) rc.transform();
+                    transformAndUpdate();
+                }
+                return;
+            }
+            if (rc.getLocation().equals(transformAndMoveTarget)){
+                // System.out.println("Reached!!");
+                if (rc.getMode() == RobotMode.PORTABLE){
+                    transformAndUpdate();
+                }
+                return;
+            }
+            if (rc.getMode().equals(RobotMode.TURRET)){
+                if (rc.isTransformReady()) rc.transform();
+                return;
+            }
+            if (rc.canSenseLocation(transformAndMoveTarget)){
+                if (!goodPlace){
+                    transformAndMoveTarget = findRubbleFreeSettleLocation();
+                    goodPlace = true;
+                }
+                else if (rc.canSenseRobotAtLocation(transformAndMoveTarget)){
+                    // TODO: Improve this.
+                    transformAndUpdate();
+                    return;
+                }
+            }
+            if (CombatUtil.militaryCount(visibleEnemies) > 0){
+                // TODO: Improve this too
+                transformAndMoveTarget = findRubbleFreeSettleLocation();
+                goodPlace = true;
+            }
+            BFS.move(transformAndMoveTarget);
+
+        } catch (Exception e){
+            e.printStackTrace();
+        }
     }
 
 
@@ -614,7 +796,7 @@ public class BotArchon extends Util{
     public static void runArchon(RobotController rc) throws GameActionException {
         updateArchon();
         moveIfNeeded();
-        // transformAndMove();
+        transformAndMove();
         buildDivision();
         shouldFlee();
         transformAndFlee();

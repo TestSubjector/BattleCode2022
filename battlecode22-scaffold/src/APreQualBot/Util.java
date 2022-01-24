@@ -247,6 +247,19 @@ public class Util extends Globals {
         System.out.println("Bytecodes left after testing area: " + Clock.getBytecodesLeft());
     }
 
+
+    public static MapLocation translateByStepsCount(MapLocation src, MapLocation dest, int count) throws GameActionException{
+        Direction dir = src.directionTo(dest);
+        MapLocation intermediateStep;
+        for (int i = -1; ++i < count;){
+            intermediateStep = src.add(dir);
+            if (!isValidMapLocation(intermediateStep)) return src;
+            src = intermediateStep;
+        }
+        return src;
+    }
+
+
     // String functions
 
     // Return string of length 

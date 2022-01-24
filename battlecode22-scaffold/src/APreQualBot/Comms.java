@@ -623,7 +623,15 @@ public class Comms extends Util{
 
     
     public static void updateChannelValueBy1(int channel) throws GameActionException{
+        if (channel != CHANNEL_LABORATORY_COUNT)
         rc.writeSharedArray(channel, rc.readSharedArray(channel) + 1);
+        else{
+            int actualVal = rc.readSharedArray(channel);
+            int count = (actualVal  & 0xFF);
+            count++;
+            actualVal = ((actualVal & 0xFF00) | count);
+            rc.writeSharedArray(channel, actualVal);
+        }
     }
 
 
@@ -779,43 +787,42 @@ public class Comms extends Util{
 
     // Defunct Function
     // Uses first two bits of CHANNEL_ARCHON_UTIL to store which archon should move:
-    // Note: these bits have been reassigned to some other purpose now since Archons don't move anymore.
-    // public static int getArchonTransformAndMoveTurn() throws GameActionException{
-    //     return (rc.readSharedArray(CHANNEL_ARCHON_UTIL) & 0x3);
-    // }
+    public static int getArchonTransformAndMoveTurn() throws GameActionException{
+        return (rc.readSharedArray(CHANNEL_ARCHON_UTIL) & 0x3);
+    }
 
 
     // Defunct Function
     // Uses first two bits of CHANNEL_ARCHON_UTIL to store which archon should move:
-    // Note: these bits have been reassigned to some other purpose now since Archons don't move anymore.
-    // public static void writeArchonTransformAndMoveTurn(int val) throws GameActionException{
-    //     rc.writeSharedArray(CHANNEL_ARCHON_UTIL, (rc.readSharedArray(CHANNEL_ARCHON_UTIL) | val));
-    // }
+    public static void writeArchonTransformAndMoveTurn(int val) throws GameActionException{
+        rc.writeSharedArray(CHANNEL_ARCHON_UTIL, ((rc.readSharedArray(CHANNEL_ARCHON_UTIL) & 0xFFFC) | val));
+    }
 
 
     // Defunct Function
-    // public static void updateArchonTransformAndMoveTurn() throws GameActionException{
-    //     int curVal = getArchonTransformAndMoveTurn();
-    //     curVal++;
-    //     curVal = curVal % archonCount;
-    //     writeArchonTransformAndMoveTurn(curVal);
-    // }
+    public static void updateArchonTransformAndMoveTurn() throws GameActionException{
+        int curVal = getArchonTransformAndMoveTurn();
+        curVal++;
+        curVal = curVal % archonCount;
+        writeArchonTransformAndMoveTurn(curVal);
+    }
 
 
     // Defunct Function
-    // Uses bits 3-14 of CHANNEL_ARCHON_UTIL to store which archon should move:
-    // Note: these bits have been reassigned to some other purpose now since Archons don't move anymore.
-    // public static int getArchonWaitTimeForArchonTransformAndMove() throws GameActionException{
-    //     return ((rc.readSharedArray(CHANNEL_ARCHON_UTIL) & 0x1FFC) >> 2);
-    // }
+    // Uses bits 2-12 (both inclusive) of CHANNEL_ARCHON_UTIL to store which archon should move:
+    public static int getArchonWaitTimeForArchonTransformAndMove() throws GameActionException{
+        return ((rc.readSharedArray(CHANNEL_ARCHON_UTIL) & 0x1FFC) >> 2);
+    }
 
 
     // Defunct Function
-    // Uses bits 3-14 of CHANNEL_ARCHON_UTIL to store which archon should move:
-    // Note: these bits have been reassigned to some other purpose now since Archons don't move anymore.
-    // public static void updateWaitTimeForArchonTransformAndMove(int waitTime) throws GameActionException{
-    //     rc.writeSharedArray(CHANNEL_ARCHON_UTIL, ((waitTime << 2) | getArchonTransformAndMoveTurn()));
-    // }
+    // Uses bits 2-12 of CHANNEL_ARCHON_UTIL to store which archon should move:
+    public static void updateWaitTimeForArchonTransformAndMove(int waitTime) throws GameActionException{
+        int val = rc.readSharedArray(CHANNEL_ARCHON_UTIL);
+        val = (val & 0xE000);
+        val = (val | ((waitTime << 2) | getArchonTransformAndMoveTurn()));
+        rc.writeSharedArray(CHANNEL_ARCHON_UTIL, val);
+    }
 
 
     public static void wipeChannels(commType type) throws GameActionException{
@@ -828,7 +835,8 @@ public class Comms extends Util{
     // Uses first three bits of archon_util to store laboratory count
     public static void writeLaboratoryCount(int count){
         try{
-            rc.writeSharedArray(CHANNEL_ARCHON_UTIL, (rc.readSharedArray(CHANNEL_ARCHON_UTIL) & 0xFFF8) | count);
+            rc.writeSharedArray(CHANNEL_LABORATORY_COUNT, ((rc.readSharedArray(CHANNEL_LABORATORY_COUNT) & 0xFF) | (count << 6)));
+            // rc.writeSharedArray(CHANNEL_ARCHON_UTIL, (rc.readSharedArray(CHANNEL_ARCHON_UTIL) & 0xFFF8) | count);
         } catch (Exception e){
             e.printStackTrace();
         }
@@ -838,7 +846,8 @@ public class Comms extends Util{
     // Reads from the first three bits of archon_util channel to get lab count
     public static int getLaboratoryCount(){
         try{
-            return (rc.readSharedArray(CHANNEL_ARCHON_UTIL) & 0x7);
+            // return (rc.readSharedArray(CHANNEL_ARCHON_UTIL) & 0x7);
+            return ((rc.readSharedArray(CHANNEL_LABORATORY_COUNT) & 0xFF00) >> 6);
         } catch (Exception e){
             e.printStackTrace();
         }
