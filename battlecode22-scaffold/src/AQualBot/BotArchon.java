@@ -288,6 +288,7 @@ public class BotArchon extends Util{
 
 
     public static boolean shouldBuildBuilder(){
+        // if (currentLeadReserves < RobotType.BUILDER.buildCostLead) return false;
         if (SMALL_MAP) return false;   
         if (builderCount == 0 && rc.getRoundNum() > 300) return true;
         if (turnCount < 30 + commID) return false;
@@ -297,6 +298,7 @@ public class BotArchon extends Util{
     }
 
     public static boolean shouldBuildMiner(){    
+        // if (currentLeadReserves < RobotType.MINER.buildCostLead) return false;
         if (minerCount > 10 && minerCount > soldierCount + 1) return false;
         if (builderCount == 0 && minerCount >=4) return true;
         return currentLeadReserves >= RobotType.MINER.buildCostLead;
@@ -304,6 +306,7 @@ public class BotArchon extends Util{
 
 
     public static boolean shouldBuildSoldier(){
+        // if (currentLeadReserves < RobotType.SOLDIER.buildCostLead) return false;
         if ((rc.getTeamGoldAmount(MY_TEAM) >= 20)) return false;
         if (SMALL_MAP || MEDIUM_MAP) return turnCount >= 5;
         return (turnCount >= 15);
@@ -407,22 +410,57 @@ public class BotArchon extends Util{
 
 
     // Sadly, self heal does not look possible.
+    // private static void selfHeal() throws GameActionException{
+    //     if (rc.isActionReady()) {
+    //         RobotInfo unit = null;
+    //         int healthDiff = 0;
+    //         double robotHealth = 1000;
+    //         for(int i = inRangeAllies.length; --i >=0;){
+    //             RobotInfo ally = inRangeAllies[i];
+    //             healthDiff = ally.getType().getMaxHealth(rc.getLevel()) - ally.getHealth();
+    //             if(healthDiff == 0) continue;
+    //             if (healthDiff < robotHealth && rc.canRepair(ally.getLocation())) {
+    //                 robotHealth = ally.health;
+    //                 unit = ally;
+    //             }
+    //         }
+    //         if(unit!=null){
+    //             // System.out.println("Repairing");
+    //             rc.repair(unit.getLocation());
+    //         }
+    //     }
+    // }
+
     private static void selfHeal() throws GameActionException{
         if (rc.isActionReady()) {
-            RobotInfo unit = null;
-            int healthDiff = 0;
-            double robotHealth = 1000;
+            RobotInfo unit = null, militaryUnit = null;
+            int healthDiff = 0, militaryHealthDiff = 0;
+            double robotHealth = Double.MAX_VALUE;
+            double militaryRobotHealth = Double.MAX_VALUE;
             for(int i = inRangeAllies.length; --i >=0;){
                 RobotInfo ally = inRangeAllies[i];
-                healthDiff = ally.getType().getMaxHealth(rc.getLevel()) - ally.getHealth();
-                if(healthDiff == 0) continue;
-                if (healthDiff < robotHealth && rc.canRepair(ally.getLocation())) {
-                    robotHealth = ally.health;
-                    unit = ally;
+                if ((MAP_SIZE<=900) && ally.getType() == RobotType.SOLDIER || ally.getType() == RobotType.SAGE)
+                {
+                    militaryHealthDiff = ally.getType().getMaxHealth(rc.getLevel()) - ally.getHealth();
+                    if(militaryHealthDiff == 0) continue;
+                    if (militaryHealthDiff < militaryRobotHealth && rc.canRepair(ally.getLocation())) {
+                        militaryRobotHealth = ally.health;
+                        militaryUnit = ally;
+                    }
+                }
+                else if (militaryUnit == null) {
+                    healthDiff = ally.getType().getMaxHealth(rc.getLevel()) - ally.getHealth();
+                    if(healthDiff == 0) continue;
+                    if (healthDiff < robotHealth && rc.canRepair(ally.getLocation())) {
+                        robotHealth = ally.health;
+                        unit = ally;
+                    }
                 }
             }
-            if(unit!=null){
-                // System.out.println("Repairing");
+            if(militaryUnit != null){
+                rc.repair(militaryUnit.getLocation());
+            }
+            else if(unit!=null){
                 rc.repair(unit.getLocation());
             }
         }
