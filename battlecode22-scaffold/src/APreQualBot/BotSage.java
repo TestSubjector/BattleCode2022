@@ -120,14 +120,12 @@ public class BotSage extends CombatUtil{
     }
 
     private static void manageHealingState() {
-        if (!inHealingState && rc.getHealth() < rc.getType().getMaxHealth(rc.getLevel()) / 4.0) {
+        if (rc.getHealth() < rc.getType().getMaxHealth(rc.getLevel()) / 4.0) {
             rc.setIndicatorString("healing");
-            closestHealingArchon = null;
             inHealingState = true;
         }
         else if (rc.getHealth() > 2.0/3.0 * rc.getType().getMaxHealth(rc.getLevel())) {
             inHealingState = false;
-            closestHealingArchon = null;
         }
     }
 

@@ -283,8 +283,7 @@ public class BotSoldier extends CombatUtil{
     }
     
     private static void manageHealingState() {
-        if (!inHealingState && rc.getHealth() < rc.getType().getMaxHealth(rc.getLevel()) * 3.0/10.0) {
-            closestHealingArchon = null;
+        if (rc.getHealth() < rc.getType().getMaxHealth(rc.getLevel()) * 3.0/10.0) {
             inHealingState = true;
         }
         else if (rc.getHealth() > 3.0/4.0 * rc.getType().getMaxHealth(rc.getLevel())) {

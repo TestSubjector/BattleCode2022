@@ -48,16 +48,49 @@ public class BotLaboratory extends Util {
         rc.transmute();
     }
 
+    private static MapLocation findRubbleFreeLocation() throws GameActionException{
+        MapLocation[] adjacentLocations = rc.getAllLocationsWithinRadiusSquared(rc.getLocation(), LABORATORY_VISION_RADIUS);
+        MapLocation optLoc = rc.getLocation();
+        int optRubble = rc.senseRubble(rc.getLocation()), optDist = 0;
+        MapLocation loc;
+        for (int i = adjacentLocations.length; --i >= 0; ){
+            loc = adjacentLocations[i];
+            if (!rc.canSenseLocation(loc)) continue;
+            if (rc.canSenseRobotAtLocation(loc)) continue;
+            int rubble = rc.senseRubble(loc), dist = rc.getLocation().distanceSquaredTo(loc);
+            if (rubble < optRubble){
+                optRubble = rubble;
+                optLoc = loc;
+                // rc.setIndicatorString("Opt loc" + optLoc);
+                optDist = dist;
+            }
+            else if (rubble == optRubble && dist < optDist){
+                optLoc = loc;
+                // rc.setIndicatorString("Opt loc" + optLoc);
+                optDist = dist;
+            }
+        }
+        if (rc.senseRubble(rc.getLocation()) - optRubble < 10){
+            return rc.getLocation();
+        }
+        return optLoc;
+    }
+
 
     private static void moveIfNeeded(){
         try{
+            // TODO: Handle vortices too.
             if (!needForRelocation) return;
+            if (rc.getRoundNum() < BIRTH_ROUND + 60){
+                return;
+            }
             if (relocationTarget != null && rc.getLocation().equals(relocationTarget)){
                 rc.setIndicatorString("RT " + relocationTarget);
                 if (rc.getMode().equals(RobotMode.PORTABLE)){
-                    if (rc.canTransform()){
+                    if (rc.isTransformReady()){
                         rc.transform();
                         relocationTarget = null;
+                        needForRelocation = false;
                     }
                 }
                 else{
@@ -68,41 +101,37 @@ public class BotLaboratory extends Util {
             else if (relocationTarget != null){
                 rc.setIndicatorString("RT2 " + relocationTarget);
                 if (rc.getMode().equals(RobotMode.TURRET)){
-                    if (rc.canTransform()) rc.transform();
+                    // System.out.println("STOP! No further. This is a problem now!");
+                    // needForRelocation = false;
+                    if (rc.isTransformReady()) rc.transform();
+                    return;
+                }
+                if (rc.canSenseRobotAtLocation(relocationTarget)) relocationTarget = findRubbleFreeLocation();
+                if (relocationTarget.equals(rc.getLocation())){
+                    if (rc.isTransformReady()) {
+                        rc.transform();
+                        needForRelocation = false;
+                        relocationTarget = null;
+                    }
                     return;
                 }
                 if (Movement.goToDirect(relocationTarget)){
-                    if (relocationTarget.equals(rc.getLocation()) && rc.canTransform()) rc.transform();
+                    if (relocationTarget.equals(rc.getLocation()) && rc.isTransformReady()){ 
+                        rc.transform();
+                        needForRelocation = false;
+                        relocationTarget = null;
+                    }
                 }
                 return;
             }
-            MapLocation[] adjacentLocations = rc.getAllLocationsWithinRadiusSquared(rc.getLocation(), 8);
-            MapLocation optLoc = rc.getLocation();
-            int optRubble = rc.senseRubble(rc.getLocation()), optDist = 0;
-            MapLocation loc;
-            for (int i = adjacentLocations.length; --i >= 0; ){
-                loc = adjacentLocations[i];
-                if (!rc.canSenseLocation(loc)) continue;
-                if (rc.canSenseRobotAtLocation(loc)) continue;
-                int rubble = rc.senseRubble(loc), dist = rc.getLocation().distanceSquaredTo(loc);
-                if (rubble < optRubble){
-                    optRubble = rubble;
-                    optLoc = loc;
-                    rc.setIndicatorString("Opt loc" + optLoc);
-                    optDist = dist;
-                }
-                else if (rubble == optRubble && dist < optDist){
-                    optLoc = loc;
-                    rc.setIndicatorString("Opt loc" + optLoc);
-                    optDist = dist;
-                }
-            }
-            if (optLoc.equals(rc.getLocation())){
+            
+            relocationTarget = findRubbleFreeLocation();
+            if (relocationTarget.equals(rc.getLocation())){
                 needForRelocation = false;
+                relocationTarget = null;
                 return;
             }
-            relocationTarget = optLoc;
-            if (rc.canTransform()) rc.transform();
+            if (rc.isTransformReady()) rc.transform();
         } catch (Exception e){
             e.printStackTrace();
         }
@@ -111,7 +140,8 @@ public class BotLaboratory extends Util {
 
     public static void runLaboratory(RobotController rc) throws GameActionException{
         updateLaboratory();
-        // moveIfNeeded();
+        moveIfNeeded();
         touchOfMidas();
+        BotMiner.surveyForOpenMiningLocationsNearby();
     }
 }

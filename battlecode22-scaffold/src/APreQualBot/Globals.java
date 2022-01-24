@@ -254,9 +254,11 @@ public class Globals {
         ENEMY_TEAM = MY_TEAM.opponent();
         START_LOCATION = rc.getLocation();
         ID = rc.getID();
+        archonCount = rc.getArchonCount(); // 20 bytecodes
+
         SMALL_MAP = (MAP_HEIGHT*MAP_WIDTH < 799);
-        MEDIUM_MAP = !SMALL_MAP && (MAP_HEIGHT*MAP_WIDTH < 1002);
-        MAX_LABORATORY_COUNT = (SMALL_MAP || MEDIUM_MAP) ? 1 : 3;
+        MEDIUM_MAP = !SMALL_MAP && (MAP_HEIGHT*MAP_WIDTH < 2002);
+        MAX_LABORATORY_COUNT = (SMALL_MAP) ? 1 : 3;
 
         // For bytecode comparison of functions
         bytecodediff = Math.max(bytecodediff, 0);
@@ -264,8 +266,6 @@ public class Globals {
         MAP_CORNERS[1] = new MapLocation(MAP_WIDTH - 1, 0);
         MAP_CORNERS[2] = new MapLocation(0, MAP_HEIGHT - 1);
         MAP_CORNERS[3] = new MapLocation(MAP_WIDTH - 1, MAP_HEIGHT - 1);
-
-        archonCount = rc.getArchonCount(); // 20 bytecodes
 
         // Added the following lines (249,250) because otherwise it was causing an error in line 263 in getParentArchonLocation -> line 278: updateArchonLocations -> 
         //                                                                                                 Comms.java: line 159: archonLocations[count] = ... 

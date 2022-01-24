@@ -12,7 +12,7 @@ public class BotBuilder extends Util{
     private static RobotInfo[] visibleAllies, visibleEnemies;
     private static boolean isFleeing;
     private static boolean archonHealingDuty;
-    private static final boolean DEBUG_MODE = true;
+    private static final boolean DEBUG_MODE = false;
     private static int healArchonCommID;
 
     public static void initBotBuilder(){
@@ -355,11 +355,17 @@ public class BotBuilder extends Util{
 
 
     private static void healArchon() throws GameActionException{
+        if (Comms.getLaboratoryCount() < MAX_LABORATORY_COUNT){
+            archonHealingDuty = false;
+            healArchon = null;
+            return;
+        }
         if (!archonHealingDuty && !checkIfAnyArchonNeedsHealing()) return;
         else if (!archonHealingDuty) archonHealingDuty = true;
         if (healArchon == null) assignClosestUnHealedArchon();
         if (healArchon == null) return;
         Comms.builderAssignedToArchon(healArchonCommID, true);
+        healArchon = Comms.getArchonLocation(healArchonCommID);
         if (rc.getLocation().distanceSquaredTo(healArchon) > BUILDER_ACTION_RADIUS){
             if (DEBUG_MODE)
             rc.setIndicatorString("heading out to heal archon");
@@ -407,6 +413,7 @@ public class BotBuilder extends Util{
                 else Movement.goToDirect(BotMiner.explore());
                 buildLocation = null;
             }
+            BotMiner.surveyForOpenMiningLocationsNearby();
         } catch (Exception e){
             e.printStackTrace();
         }

@@ -87,6 +87,10 @@ public class BotArchon extends Util{
         transformAndMoveTarget = null;
         atTargetLocationForTransform = false;
         goodPlace = false;
+        if (MAP_HEIGHT * MAP_WIDTH < 901 && archonCount == 1) {
+            MEDIUM_MAP = false;
+            SMALL_MAP = true;
+        }
         mediumMapFlag = MEDIUM_MAP;
     }
     
@@ -456,7 +460,7 @@ public class BotArchon extends Util{
     private static void updateArchon() throws GameActionException{
         archonComms();
         updateVision();
-        if (rc.getRoundNum() > 300 && SMALL_MAP) SMALL_MAP = false;
+        if (rc.getRoundNum() > 800 && SMALL_MAP) SMALL_MAP = false;
         selectedEnemyDestination = setEnemyDestination(); // This is for building of soldiers closer to enemy archon guess
         Comms.writeArchonMode(rc.getMode());
         checkIfEnemyArchonInVision();
@@ -659,7 +663,8 @@ public class BotArchon extends Util{
     private static void shouldTransformAndMove() throws GameActionException{
         // if (archonCount == 1) return;
         // if (SMALL_MAP) return;
-        if (MAP_WIDTH * MAP_HEIGHT < 900) return;
+        // if (MAP_WIDTH * MAP_HEIGHT > 2499) return;
+        if (MAP_WIDTH * MAP_HEIGHT < 900 && !SMALL_MAP) return;
         if (archonCount == 1) return;
         if (checkIfAnyOtherArchonIsMoving()){ 
             transformAndMove = false;
