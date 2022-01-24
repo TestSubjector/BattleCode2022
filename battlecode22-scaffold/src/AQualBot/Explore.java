@@ -135,16 +135,16 @@ public class Explore extends Util{
                 return;
             case NORTH:
             case SOUTH:
-                int east = eastCloser();
-                switch(east){
-                    case 1:
-                        assignExplore3Dir(Direction.WEST);
-                        return;
-                    case -1:
-                        assignExplore3Dir(Direction.EAST);
-                        return;
-                }
-                Direction dir = exploreDir.rotateLeft().rotateLeft();
+                // int east = eastCloser();
+                // switch(east){
+                //     case 1:
+                //         assignExplore3Dir(Direction.WEST);
+                //         return;
+                //     case -1:
+                //         assignExplore3Dir(Direction.EAST);
+                //         return;
+                // }
+                Direction dir = exploreDir.rotateLeft().rotateLeft().rotateLeft();
                 if (!movingOutOfMap(dir)) {
                     assignExplore3Dir(dir);
                 }
@@ -154,16 +154,16 @@ public class Explore extends Util{
                 return;
             case EAST:
             case WEST:
-                int north = northCloser();
-                switch(north){
-                    case 1:
-                        assignExplore3Dir(Direction.SOUTH);
-                        return;
-                    case -1:
-                        assignExplore3Dir(Direction.NORTH);
-                        return;
-                }
-                dir = exploreDir.rotateLeft().rotateLeft();
+                // int north = northCloser();
+                // switch(north){
+                //     case 1:
+                //         assignExplore3Dir(Direction.SOUTH);
+                //         return;
+                //     case -1:
+                //         assignExplore3Dir(Direction.NORTH);
+                //         return;
+                // }
+                dir = exploreDir.rotateLeft().rotateLeft().rotateLeft();
                 if (!movingOutOfMap(dir)) assignExplore3Dir(dir);
                 else assignExplore3Dir(dir.opposite());
                 return;
