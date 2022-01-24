@@ -1,4 +1,4 @@
-package APreQualBot;
+package OPreQualBot;
 
 import battlecode.common.*;
 

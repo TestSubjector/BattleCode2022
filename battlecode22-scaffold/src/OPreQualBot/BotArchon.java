@@ -1,6 +1,6 @@
-package APreQualBot;
+package OPreQualBot;
 
-import APreQualBot.Comms.SHAFlag;
+import OPreQualBot.Comms.SHAFlag;
 import battlecode.common.*;
 
 public class BotArchon extends Util{

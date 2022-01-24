@@ -1,4 +1,4 @@
-package APreQualBot;
+package AQualBot;
 
 import java.util.Random;
 
