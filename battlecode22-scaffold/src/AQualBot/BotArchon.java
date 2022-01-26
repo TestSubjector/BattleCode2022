@@ -509,7 +509,7 @@ public class BotArchon extends Util{
     private static void updateArchon() throws GameActionException{
         archonComms();
         updateVision();
-        if (rc.getRoundNum() > 800 && SMALL_MAP) SMALL_MAP = false;
+        if (rc.getRoundNum() > 200 && SMALL_MAP) SMALL_MAP = false;
         selectedEnemyDestination = setEnemyDestination(); // This is for building of soldiers closer to enemy archon guess
         Comms.writeArchonMode(rc.getMode());
         checkIfEnemyArchonInVision();
