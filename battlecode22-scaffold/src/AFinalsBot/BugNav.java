@@ -1,4 +1,4 @@
-package AQualBot;
+package AFinalsBot;
 
 import battlecode.common.*;
 
