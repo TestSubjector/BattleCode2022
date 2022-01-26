@@ -27,7 +27,7 @@ public class BFS extends Globals{
     public static boolean move(MapLocation dest) throws GameActionException{
         if (dest == null) return false;
         if (!rc.isMovementReady()) return false;
-        if (rc.getLocation().distanceSquaredTo(dest) < 2) 
+        if (rc.getLocation().distanceSquaredTo(dest) <= 2) 
             return Movement.goToDirect(dest);
 
         if (rc.getRoundNum() - BIRTH_ROUND > 2 || Clock.getBytecodesLeft() > BYTECODE_REMAINING){

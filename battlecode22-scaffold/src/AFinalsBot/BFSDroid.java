@@ -435,7 +435,7 @@ public class BFSDroid extends Globals {
         try {
             if (rc.onTheMap(l71)) {
                 if (!rc.canSenseRobotAtLocation(l71)) {
-                    p71 = 10 + rc.senseRubble(l71);
+                    p71 = 10.0 + rc.senseRubble(l71);
                     if (v71 > v84 + p71) {
                         v71 = v84 + p71;
                         d71 = Direction.WEST;
@@ -444,7 +444,7 @@ public class BFSDroid extends Globals {
             }
             if (rc.onTheMap(l83)) {
                 if (!rc.canSenseRobotAtLocation(l83)) {
-                    p83 = 10 + rc.senseRubble(l83);
+                    p83 = 10.0 + rc.senseRubble(l83);
                     if (v83 > v84 + p83) {
                         v83 = v84 + p83;
                         d83 = Direction.SOUTH;
@@ -457,7 +457,7 @@ public class BFSDroid extends Globals {
             }
             if (rc.onTheMap(l85)) {
                 if (!rc.canSenseRobotAtLocation(l85)) {
-                    p85 = 10 + rc.senseRubble(l85);
+                    p85 = 10.0 + rc.senseRubble(l85);
                     if (v85 > v84 + p85) {
                         v85 = v84 + p85;
                         d85 = Direction.NORTH;
@@ -470,7 +470,7 @@ public class BFSDroid extends Globals {
             }
             if (rc.onTheMap(l97)) {
                 if (!rc.canSenseRobotAtLocation(l97)) {
-                    p97 = 10 + rc.senseRubble(l97);
+                    p97 = 10.0 + rc.senseRubble(l97);
                     if (v97 > v84 + p97) {
                         v97 = v84 + p97;
                         d97 = Direction.EAST;
@@ -487,7 +487,7 @@ public class BFSDroid extends Globals {
             }
             if (rc.onTheMap(l70)) {
                 if (!rc.canSenseRobotAtLocation(l70)) {
-                    p70 = 10 + rc.senseRubble(l70);
+                    p70 = 10.0 + rc.senseRubble(l70);
                     if (v70 > v84 + p70) {
                         v70 = v84 + p70;
                         d70 = Direction.SOUTHWEST;
@@ -504,7 +504,7 @@ public class BFSDroid extends Globals {
             }
             if (rc.onTheMap(l72)) {
                 if (!rc.canSenseRobotAtLocation(l72)) {
-                    p72 = 10 + rc.senseRubble(l72);
+                    p72 = 10.0 + rc.senseRubble(l72);
                     if (v72 > v84 + p72) {
                         v72 = v84 + p72;
                         d72 = Direction.NORTHWEST;
@@ -521,7 +521,7 @@ public class BFSDroid extends Globals {
             }
             if (rc.onTheMap(l96)) {
                 if (!rc.canSenseRobotAtLocation(l96)) {
-                    p96 = 10 + rc.senseRubble(l96);
+                    p96 = 10.0 + rc.senseRubble(l96);
                     if (v96 > v84 + p96) {
                         v96 = v84 + p96;
                         d96 = Direction.SOUTHEAST;
@@ -538,7 +538,7 @@ public class BFSDroid extends Globals {
             }
             if (rc.onTheMap(l98)) {
                 if (!rc.canSenseRobotAtLocation(l98)) {
-                    p98 = 10 + rc.senseRubble(l98);
+                    p98 = 10.0 + rc.senseRubble(l98);
                     if (v98 > v84 + p98) {
                         v98 = v84 + p98;
                         d98 = Direction.NORTHEAST;
@@ -554,7 +554,7 @@ public class BFSDroid extends Globals {
                 }
             }
             if (rc.onTheMap(l58)) {
-                p58 = 10 + rc.senseRubble(l58);
+                p58 = 10.0 + rc.senseRubble(l58);
                 if (v58 > v71 + p58) {
                     v58 = v71 + p58;
                     d58 = d71;
@@ -569,7 +569,7 @@ public class BFSDroid extends Globals {
                 }
             }
             if (rc.onTheMap(l82)) {
-                p82 = 10 + rc.senseRubble(l82);
+                p82 = 10.0 + rc.senseRubble(l82);
                 if (v82 > v83 + p82) {
                     v82 = v83 + p82;
                     d82 = d83;
@@ -584,7 +584,7 @@ public class BFSDroid extends Globals {
                 }
             }
             if (rc.onTheMap(l86)) {
-                p86 = 10 + rc.senseRubble(l86);
+                p86 = 10.0 + rc.senseRubble(l86);
                 if (v86 > v85 + p86) {
                     v86 = v85 + p86;
                     d86 = d85;
@@ -599,7 +599,7 @@ public class BFSDroid extends Globals {
                 }
             }
             if (rc.onTheMap(l110)) {
-                p110 = 10 + rc.senseRubble(l110);
+                p110 = 10.0 + rc.senseRubble(l110);
                 if (v110 > v97 + p110) {
                     v110 = v97 + p110;
                     d110 = d97;
@@ -614,7 +614,7 @@ public class BFSDroid extends Globals {
                 }
             }
             if (rc.onTheMap(l57)) {
-                p57 = 10 + rc.senseRubble(l57);
+                p57 = 10.0 + rc.senseRubble(l57);
                 if (v57 > v71 + p57) {
                     v57 = v71 + p57;
                     d57 = d71;
@@ -629,7 +629,7 @@ public class BFSDroid extends Globals {
                 }
             }
             if (rc.onTheMap(l59)) {
-                p59 = 10 + rc.senseRubble(l59);
+                p59 = 10.0 + rc.senseRubble(l59);
                 if (v59 > v71 + p59) {
                     v59 = v71 + p59;
                     d59 = d71;
@@ -644,7 +644,7 @@ public class BFSDroid extends Globals {
                 }
             }
             if (rc.onTheMap(l69)) {
-                p69 = 10 + rc.senseRubble(l69);
+                p69 = 10.0 + rc.senseRubble(l69);
                 if (v69 > v83 + p69) {
                     v69 = v83 + p69;
                     d69 = d83;
@@ -663,7 +663,7 @@ public class BFSDroid extends Globals {
                 }
             }
             if (rc.onTheMap(l73)) {
-                p73 = 10 + rc.senseRubble(l73);
+                p73 = 10.0 + rc.senseRubble(l73);
                 if (v73 > v85 + p73) {
                     v73 = v85 + p73;
                     d73 = d85;
@@ -682,7 +682,7 @@ public class BFSDroid extends Globals {
                 }
             }
             if (rc.onTheMap(l95)) {
-                p95 = 10 + rc.senseRubble(l95);
+                p95 = 10.0 + rc.senseRubble(l95);
                 if (v95 > v83 + p95) {
                     v95 = v83 + p95;
                     d95 = d83;
@@ -697,7 +697,7 @@ public class BFSDroid extends Globals {
                 }
             }
             if (rc.onTheMap(l99)) {
-                p99 = 10 + rc.senseRubble(l99);
+                p99 = 10.0 + rc.senseRubble(l99);
                 if (v99 > v85 + p99) {
                     v99 = v85 + p99;
                     d99 = d85;
@@ -712,7 +712,7 @@ public class BFSDroid extends Globals {
                 }
             }
             if (rc.onTheMap(l109)) {
-                p109 = 10 + rc.senseRubble(l109);
+                p109 = 10.0 + rc.senseRubble(l109);
                 if (v109 > v97 + p109) {
                     v109 = v97 + p109;
                     d109 = d97;
@@ -731,7 +731,7 @@ public class BFSDroid extends Globals {
                 }
             }
             if (rc.onTheMap(l111)) {
-                p111 = 10 + rc.senseRubble(l111);
+                p111 = 10.0 + rc.senseRubble(l111);
                 if (v111 > v97 + p111) {
                     v111 = v97 + p111;
                     d111 = d97;
@@ -750,7 +750,7 @@ public class BFSDroid extends Globals {
                 }
             }
             if (rc.onTheMap(l56)) {
-                p56 = 10 + rc.senseRubble(l56);
+                p56 = 10.0 + rc.senseRubble(l56);
                 if (v56 > v70 + p56) {
                     v56 = v70 + p56;
                     d56 = d70;
@@ -765,7 +765,7 @@ public class BFSDroid extends Globals {
                 }
             }
             if (rc.onTheMap(l60)) {
-                p60 = 10 + rc.senseRubble(l60);
+                p60 = 10.0 + rc.senseRubble(l60);
                 if (v60 > v72 + p60) {
                     v60 = v72 + p60;
                     d60 = d72;
@@ -780,7 +780,7 @@ public class BFSDroid extends Globals {
                 }
             }
             if (rc.onTheMap(l108)) {
-                p108 = 10 + rc.senseRubble(l108);
+                p108 = 10.0 + rc.senseRubble(l108);
                 if (v108 > v96 + p108) {
                     v108 = v96 + p108;
                     d108 = d96;
@@ -795,7 +795,7 @@ public class BFSDroid extends Globals {
                 }
             }
             if (rc.onTheMap(l112)) {
-                p112 = 10 + rc.senseRubble(l112);
+                p112 = 10.0 + rc.senseRubble(l112);
                 if (v112 > v98 + p112) {
                     v112 = v98 + p112;
                     d112 = d98;
@@ -810,7 +810,7 @@ public class BFSDroid extends Globals {
                 }
             }
             if (rc.onTheMap(l45)) {
-                p45 = 10 + rc.senseRubble(l45);
+                p45 = 10.0 + rc.senseRubble(l45);
                 if (v45 > v58 + p45) {
                     v45 = v58 + p45;
                     d45 = d58;
@@ -825,7 +825,7 @@ public class BFSDroid extends Globals {
                 }
             }
             if (rc.onTheMap(l81)) {
-                p81 = 10 + rc.senseRubble(l81);
+                p81 = 10.0 + rc.senseRubble(l81);
                 if (v81 > v82 + p81) {
                     v81 = v82 + p81;
                     d81 = d82;
@@ -840,7 +840,7 @@ public class BFSDroid extends Globals {
                 }
             }
             if (rc.onTheMap(l87)) {
-                p87 = 10 + rc.senseRubble(l87);
+                p87 = 10.0 + rc.senseRubble(l87);
                 if (v87 > v86 + p87) {
                     v87 = v86 + p87;
                     d87 = d86;
@@ -855,7 +855,7 @@ public class BFSDroid extends Globals {
                 }
             }
             if (rc.onTheMap(l123)) {
-                p123 = 10 + rc.senseRubble(l123);
+                p123 = 10.0 + rc.senseRubble(l123);
                 if (v123 > v110 + p123) {
                     v123 = v110 + p123;
                     d123 = d110;
@@ -870,7 +870,7 @@ public class BFSDroid extends Globals {
                 }
             }
             if (rc.onTheMap(l44)) {
-                p44 = 10 + rc.senseRubble(l44);
+                p44 = 10.0 + rc.senseRubble(l44);
                 if (v44 > v58 + p44) {
                     v44 = v58 + p44;
                     d44 = d58;
@@ -889,7 +889,7 @@ public class BFSDroid extends Globals {
                 }
             }
             if (rc.onTheMap(l46)) {
-                p46 = 10 + rc.senseRubble(l46);
+                p46 = 10.0 + rc.senseRubble(l46);
                 if (v46 > v58 + p46) {
                     v46 = v58 + p46;
                     d46 = d58;
@@ -908,7 +908,7 @@ public class BFSDroid extends Globals {
                 }
             }
             if (rc.onTheMap(l68)) {
-                p68 = 10 + rc.senseRubble(l68);
+                p68 = 10.0 + rc.senseRubble(l68);
                 if (v68 > v82 + p68) {
                     v68 = v82 + p68;
                     d68 = d82;
@@ -927,7 +927,7 @@ public class BFSDroid extends Globals {
                 }
             }
             if (rc.onTheMap(l74)) {
-                p74 = 10 + rc.senseRubble(l74);
+                p74 = 10.0 + rc.senseRubble(l74);
                 if (v74 > v86 + p74) {
                     v74 = v86 + p74;
                     d74 = d86;
@@ -946,7 +946,7 @@ public class BFSDroid extends Globals {
                 }
             }
             if (rc.onTheMap(l94)) {
-                p94 = 10 + rc.senseRubble(l94);
+                p94 = 10.0 + rc.senseRubble(l94);
                 if (v94 > v82 + p94) {
                     v94 = v82 + p94;
                     d94 = d82;
@@ -965,7 +965,7 @@ public class BFSDroid extends Globals {
                 }
             }
             if (rc.onTheMap(l100)) {
-                p100 = 10 + rc.senseRubble(l100);
+                p100 = 10.0 + rc.senseRubble(l100);
                 if (v100 > v86 + p100) {
                     v100 = v86 + p100;
                     d100 = d86;
@@ -984,7 +984,7 @@ public class BFSDroid extends Globals {
                 }
             }
             if (rc.onTheMap(l122)) {
-                p122 = 10 + rc.senseRubble(l122);
+                p122 = 10.0 + rc.senseRubble(l122);
                 if (v122 > v110 + p122) {
                     v122 = v110 + p122;
                     d122 = d110;
@@ -1003,7 +1003,7 @@ public class BFSDroid extends Globals {
                 }
             }
             if (rc.onTheMap(l124)) {
-                p124 = 10 + rc.senseRubble(l124);
+                p124 = 10.0 + rc.senseRubble(l124);
                 if (v124 > v110 + p124) {
                     v124 = v110 + p124;
                     d124 = d110;
@@ -1022,7 +1022,7 @@ public class BFSDroid extends Globals {
                 }
             }
             if (rc.onTheMap(l43)) {
-                p43 = 10 + rc.senseRubble(l43);
+                p43 = 10.0 + rc.senseRubble(l43);
                 if (v43 > v57 + p43) {
                     v43 = v57 + p43;
                     d43 = d57;
@@ -1037,7 +1037,7 @@ public class BFSDroid extends Globals {
                 }
             }
             if (rc.onTheMap(l47)) {
-                p47 = 10 + rc.senseRubble(l47);
+                p47 = 10.0 + rc.senseRubble(l47);
                 if (v47 > v59 + p47) {
                     v47 = v59 + p47;
                     d47 = d59;
@@ -1052,7 +1052,7 @@ public class BFSDroid extends Globals {
                 }
             }
             if (rc.onTheMap(l55)) {
-                p55 = 10 + rc.senseRubble(l55);
+                p55 = 10.0 + rc.senseRubble(l55);
                 if (v55 > v69 + p55) {
                     v55 = v69 + p55;
                     d55 = d69;
@@ -1071,7 +1071,7 @@ public class BFSDroid extends Globals {
                 }
             }
             if (rc.onTheMap(l61)) {
-                p61 = 10 + rc.senseRubble(l61);
+                p61 = 10.0 + rc.senseRubble(l61);
                 if (v61 > v73 + p61) {
                     v61 = v73 + p61;
                     d61 = d73;
@@ -1090,7 +1090,7 @@ public class BFSDroid extends Globals {
                 }
             }
             if (rc.onTheMap(l107)) {
-                p107 = 10 + rc.senseRubble(l107);
+                p107 = 10.0 + rc.senseRubble(l107);
                 if (v107 > v95 + p107) {
                     v107 = v95 + p107;
                     d107 = d95;
@@ -1105,7 +1105,7 @@ public class BFSDroid extends Globals {
                 }
             }
             if (rc.onTheMap(l113)) {
-                p113 = 10 + rc.senseRubble(l113);
+                p113 = 10.0 + rc.senseRubble(l113);
                 if (v113 > v99 + p113) {
                     v113 = v99 + p113;
                     d113 = d99;
@@ -1120,7 +1120,7 @@ public class BFSDroid extends Globals {
                 }
             }
             if (rc.onTheMap(l121)) {
-                p121 = 10 + rc.senseRubble(l121);
+                p121 = 10.0 + rc.senseRubble(l121);
                 if (v121 > v109 + p121) {
                     v121 = v109 + p121;
                     d121 = d109;
@@ -1139,7 +1139,7 @@ public class BFSDroid extends Globals {
                 }
             }
             if (rc.onTheMap(l125)) {
-                p125 = 10 + rc.senseRubble(l125);
+                p125 = 10.0 + rc.senseRubble(l125);
                 if (v125 > v111 + p125) {
                     v125 = v111 + p125;
                     d125 = d111;
@@ -1158,7 +1158,7 @@ public class BFSDroid extends Globals {
                 }
             }
             if (rc.onTheMap(l32)) {
-                p32 = 10 + rc.senseRubble(l32);
+                p32 = 10.0 + rc.senseRubble(l32);
                 if (v32 > v45 + p32) {
                     v32 = v45 + p32;
                     d32 = d45;
@@ -1173,7 +1173,7 @@ public class BFSDroid extends Globals {
                 }
             }
             if (rc.onTheMap(l80)) {
-                p80 = 10 + rc.senseRubble(l80);
+                p80 = 10.0 + rc.senseRubble(l80);
                 if (v80 > v81 + p80) {
                     v80 = v81 + p80;
                     d80 = d81;
@@ -1188,7 +1188,7 @@ public class BFSDroid extends Globals {
                 }
             }
             if (rc.onTheMap(l88)) {
-                p88 = 10 + rc.senseRubble(l88);
+                p88 = 10.0 + rc.senseRubble(l88);
                 if (v88 > v87 + p88) {
                     v88 = v87 + p88;
                     d88 = d87;
@@ -1203,7 +1203,7 @@ public class BFSDroid extends Globals {
                 }
             }
             if (rc.onTheMap(l136)) {
-                p136 = 10 + rc.senseRubble(l136);
+                p136 = 10.0 + rc.senseRubble(l136);
                 if (v136 > v123 + p136) {
                     v136 = v123 + p136;
                     d136 = d123;
@@ -1219,7 +1219,7 @@ public class BFSDroid extends Globals {
             }
             
             if (rc.onTheMap(l42)) {
-                p42 = 10 + rc.senseRubble(l42);
+                p42 = 10.0 + rc.senseRubble(l42);
                 if (v42 > v56 + p42) {
                     v42 = v56 + p42;
                     d42 = d56;
@@ -1234,7 +1234,7 @@ public class BFSDroid extends Globals {
                 }
             }
             if (rc.onTheMap(l48)) {
-                p48 = 10 + rc.senseRubble(l48);
+                p48 = 10.0 + rc.senseRubble(l48);
                 if (v48 > v60 + p48) {
                     v48 = v60 + p48;
                     d48 = d60;
@@ -1249,7 +1249,7 @@ public class BFSDroid extends Globals {
                 }
             }
             if (rc.onTheMap(l120)) {
-                p120 = 10 + rc.senseRubble(l120);
+                p120 = 10.0 + rc.senseRubble(l120);
                 if (v120 > v108 + p120) {
                     v120 = v108 + p120;
                     d120 = d108;
@@ -1264,7 +1264,7 @@ public class BFSDroid extends Globals {
                 }
             }
             if (rc.onTheMap(l126)) {
-                p126 = 10 + rc.senseRubble(l126);
+                p126 = 10.0 + rc.senseRubble(l126);
                 if (v126 > v112 + p126) {
                     v126 = v112 + p126;
                     d126 = d112;

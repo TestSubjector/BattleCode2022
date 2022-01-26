@@ -167,7 +167,7 @@ public class BotSage extends CombatUtil{
     }
 
     private static boolean sendCombatLocation(RobotInfo[] visibleHostiles) throws GameActionException{
-        if (visibleHostiles.length != 0 && Clock.getBytecodesLeft() > 600){
+        if (visibleHostiles.length != 0){
 			RobotInfo closestHostile = getClosestUnitWithCombatPriority(visibleHostiles);
             if (closestHostile == null) return false;
             else

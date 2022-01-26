@@ -254,7 +254,7 @@ public class BotSoldier extends CombatUtil{
     }
 
     public static boolean sendCombatLocation(RobotInfo[] visibleHostiles) throws GameActionException{
-        if (visibleHostiles.length != 0 && Clock.getBytecodesLeft() > 600){
+        if (visibleHostiles.length != 0){
 			RobotInfo closestHostile = getClosestUnitWithCombatPriority(visibleHostiles);
             if (closestHostile == null) return false;
 			if (!standOff) currentDestination = closestHostile.location;
@@ -338,7 +338,6 @@ public class BotSoldier extends CombatUtil{
         // detectIfAttackTargetIsGone();
         tryToMicro();
         updateVision();
-        // TODO: Turret avoidance Comms code
 
         if (inHealingState && tryToHealAtArchon()){
             updateVision();
