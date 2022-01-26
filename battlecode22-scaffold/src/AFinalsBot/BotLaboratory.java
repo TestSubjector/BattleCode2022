@@ -29,7 +29,7 @@ public class BotLaboratory extends Util {
 
 
     private static boolean shouldTransmute(){
-        if (rc.getTeamGoldAmount(MY_TEAM) > 50) return false;
+        if (rc.getTeamGoldAmount(MY_TEAM) > 50 && rc.getTeamLeadAmount(MY_TEAM) < 165) return false;
         return true;
     }
 
@@ -234,9 +234,9 @@ public class BotLaboratory extends Util {
 
     public static void runLaboratory(RobotController rc) throws GameActionException{
         updateLaboratory();
+        touchOfMidas();
         moveIfNeeded();
         vortexMoveIfNeeded();
-        touchOfMidas();
-        BotMiner.surveyForOpenMiningLocationsNearby();
+        if (Clock.getBytecodesLeft() > 1000) BotMiner.surveyForOpenMiningLocationsNearby();
     }
 }

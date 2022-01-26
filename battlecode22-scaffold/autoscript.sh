@@ -1,7 +1,7 @@
 #!/bin/bash
 start_time=$SECONDS
 team1=AFinalsBot
-team2=OQualBot
+team2=OTempBot
 # team2=OPerfectProducerBot
 
 mkdir -p logs

@@ -120,10 +120,10 @@ public class BotArchon extends Util{
         }
         else if (MEDIUM_MAP) {
             watchTowerWeight = (watchTowerCount + laboratoryCount)/2;
-            aBUWeights[ArchonBuildUnits.BUILDER.ordinal()] = 1.0d;
+            aBUWeights[ArchonBuildUnits.BUILDER.ordinal()] = 0.5d;
             aBUWeights[ArchonBuildUnits.MINER.ordinal()] = 4.5d;
             aBUWeights[ArchonBuildUnits.SAGE.ordinal()] = 9.0d;
-            aBUWeights[ArchonBuildUnits.SOLDIER.ordinal()] = 4.50d;
+            aBUWeights[ArchonBuildUnits.SOLDIER.ordinal()] = 2.50d;
         }
         else {
             watchTowerWeight = (watchTowerCount + laboratoryCount)/2;
@@ -229,7 +229,7 @@ public class BotArchon extends Util{
     public static ArchonBuildUnits labFirstOrder() throws GameActionException{
         if (minerCount < 4) return ArchonBuildUnits.MINER;
         else if (builderCount == 0 && rc.getRobotCount() <= archonCount + 4) return ArchonBuildUnits.BUILDER;
-        else if (laboratoryCount < 1 && turnsWaitingToBuild < 40) return null;
+        else if (laboratoryCount < 1 && turnsWaitingToBuild < 50) return null;
         else {
             mediumMapFlag = false;
             return null;
@@ -288,6 +288,7 @@ public class BotArchon extends Util{
 
     public static boolean watchTowerDebt(double minWeight, ArchonBuildUnits unitToBuild) throws GameActionException{
         if (unitToBuild == ArchonBuildUnits.SAGE) return false;
+        if (builderCount > 1 && laboratoryCount == 0 && turnsWaitingToBuild < 60) return true;
         return minWeight < 100000 && 
                 watchTowerWeight < minWeight && 
                 laboratoryCount < MAX_LABORATORY_COUNT &&
@@ -301,7 +302,7 @@ public class BotArchon extends Util{
     public static boolean shouldBuildBuilder(){
         // if (currentLeadReserves < RobotType.BUILDER.buildCostLead) return false;
         if (SMALL_MAP) return false;   
-        if (builderCount == 0 && rc.getRoundNum() > 300) return true;
+        if (builderCount == 0 && rc.getRoundNum() > 120) return true;
         if (turnCount < 30 + commID) return false;
         // if (rc.getRoundNum() < 100 && (builderCount > (laboratoryCount + 1) || currentLeadReserves < 90)) return false; 
         if (builderCount > (laboratoryCount + 1 + archonCount) || currentLeadReserves < 90) return false;
@@ -310,8 +311,6 @@ public class BotArchon extends Util{
 
     public static boolean shouldBuildMiner(){    
         // if (currentLeadReserves < RobotType.MINER.buildCostLead) return false;
-        if (minerCount > 10 && minerCount > soldierCount + 1) return false;
-        if (builderCount == 0 && minerCount >=4) return true;
         return currentLeadReserves >= RobotType.MINER.buildCostLead;
     }
 
@@ -319,7 +318,7 @@ public class BotArchon extends Util{
     public static boolean shouldBuildSoldier(){
         // if (currentLeadReserves < RobotType.SOLDIER.buildCostLead) return false;
         if ((rc.getTeamGoldAmount(MY_TEAM) >= 20)) return false;
-        if (SMALL_MAP || MEDIUM_MAP) return turnCount >= 5;
+        if (SMALL_MAP) return turnCount >= 5;
         return (turnCount >= 15);
     }
 
@@ -509,7 +508,7 @@ public class BotArchon extends Util{
     private static void updateArchon() throws GameActionException{
         archonComms();
         updateVision();
-        if (rc.getRoundNum() > 200 && SMALL_MAP) SMALL_MAP = false;
+        if (rc.getRoundNum() > 120 && SMALL_MAP) SMALL_MAP = false;
         selectedEnemyDestination = setEnemyDestination(); // This is for building of soldiers closer to enemy archon guess
         Comms.writeArchonMode(rc.getMode());
         checkIfEnemyArchonInVision();
