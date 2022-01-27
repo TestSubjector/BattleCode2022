@@ -21,6 +21,7 @@ public class BotBuilder extends Util{
         isFleeing = false;
         archonHealingDuty = false;
         healArchon = null;
+        Anomaly.initAnomaly();
     }
 
 
@@ -194,8 +195,9 @@ public class BotBuilder extends Util{
             //     return;
             // }
             // buildLocation = Movement.moveToLattice(MIN_LATTICE_DIST, 0);
+            if (!vortexAboutToHappen())
             buildLocation = findRubbleFreeBuildLocation(closestArchon);
-            if (buildLocation == null) System.out.println("Seriously?!!!");
+            // if (buildLocation == null) System.out.println("Seriously?!!!");
         } catch (Exception e){
             e.printStackTrace();
         }
@@ -233,6 +235,14 @@ public class BotBuilder extends Util{
     }
 
 
+    private static boolean vortexAboutToHappen() throws GameActionException{
+        AnomalyScheduleEntry anomaly = Anomaly.getNextAnomaly();
+        if (anomaly == null) return false;
+        if (anomaly.anomalyType == AnomalyType.VORTEX && anomaly.roundNumber < rc.getRoundNum() + rc.getActionCooldownTurns()) return true;
+        return false;
+    }
+
+
     private static boolean buildMode(){
         try{
             if (archonHealingDuty){
@@ -245,7 +255,7 @@ public class BotBuilder extends Util{
             findBuildLocation(buildType);
             if (buildLocation == null) {
                 if (DEBUG_MODE)
-                rc.setIndicatorString("Moving away from archon it seems. Check.");
+                rc.setIndicatorString("Moving away from archon it seems or waiting for vortex to pass. Check.");
                 return false;
             }
             if (!rc.getLocation().equals(buildLocation)){ 
