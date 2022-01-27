@@ -529,8 +529,6 @@ public class BotArchon extends Util{
             else{
                 updateNeedToMove = 2050;
             }
-            // System.out.println("This anomaly: " + nextAnomaly.anomalyType);
-            // System.out.println("This anomaly round num: " + nextAnomaly.roundNumber);
         }
 
         if (nextAnomaly != null && !nextAnomaly.equals(prevAnomaly)){
@@ -540,14 +538,9 @@ public class BotArchon extends Util{
             }
             else
                 updateNeedToMove = 2050;
-            // System.out.println("This anomaly: " + nextAnomaly.anomalyType);
-            // System.out.println("This anomaly round num: " + nextAnomaly.roundNumber);
         }
-        
-        // if (rc.getRoundNum() > updateNeedToMove){
-        //     if (rc.senseRubble(rc.getLocation()) > HIGH_RUBBLE_MOVE_TRIGGER)
-        //         needToMove = true;
-        // }
+
+        updateArchonCanSeeEnemies();
     }
 
 
@@ -945,6 +938,13 @@ public class BotArchon extends Util{
         } catch (Exception e){
             e.printStackTrace();
         }
+    }
+
+
+    public static void updateArchonCanSeeEnemies() throws GameActionException{
+        if (CombatUtil.militaryCount(visibleEnemies) > 0)
+            Comms.updateArchonCanSeeEnemies(true);
+        else Comms.updateArchonCanSeeEnemies(false);
     }
 
 

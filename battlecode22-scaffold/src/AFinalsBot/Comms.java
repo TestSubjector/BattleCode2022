@@ -778,6 +778,25 @@ public class Comms extends Util{
     }
 
 
+    // uses the fifth bit of archon's 3rd private channel; this function assumes that the information of whether it can see an enemy has been provided to it.
+    public static void updateArchonCanSeeEnemies(boolean canSeeEnemies) throws GameActionException{
+        int channel = getArchonUtilChannel();
+        int val = (canSeeEnemies? 0x10 : 0);
+        rc.writeSharedArray(channel, ((rc.readSharedArray(channel) & 0xFFEF) | val));
+    }
+
+
+    // uses the fifth bit of archon's 3rd private channel
+    public static boolean canArchonSeeEnemies(int commID) throws GameActionException{
+        int channel = getArchonUtilChannel(commID);
+        switch(rc.readSharedArray(channel) & 0x10){
+            case 16: return true;
+            case 0: return false;
+        }
+        return false;
+    }
+
+
     public static void builderAssignedToArchon(int commID, boolean assign) throws GameActionException{
         int channel = getArchonUtilChannel(commID);
         int val = (assign? 0x8 : 0);
@@ -785,14 +804,12 @@ public class Comms extends Util{
     }
 
 
-    // Defunct Function
     // Uses first two bits of CHANNEL_ARCHON_UTIL to store which archon should move:
     public static int getArchonTransformAndMoveTurn() throws GameActionException{
         return (rc.readSharedArray(CHANNEL_ARCHON_UTIL) & 0x3);
     }
 
 
-    // Defunct Function
     // Uses first two bits of CHANNEL_ARCHON_UTIL to store which archon should move:
     public static void writeArchonTransformAndMoveTurn(int val) throws GameActionException{
         rc.writeSharedArray(CHANNEL_ARCHON_UTIL, ((rc.readSharedArray(CHANNEL_ARCHON_UTIL) & 0xFFFC) | val));
@@ -808,14 +825,12 @@ public class Comms extends Util{
     }
 
 
-    // Defunct Function
     // Uses bits 2-12 (both inclusive) of CHANNEL_ARCHON_UTIL to store which archon should move:
     public static int getArchonWaitTimeForArchonTransformAndMove() throws GameActionException{
         return ((rc.readSharedArray(CHANNEL_ARCHON_UTIL) & 0x1FFC) >> 2);
     }
 
 
-    // Defunct Function
     // Uses bits 2-12 of CHANNEL_ARCHON_UTIL to store which archon should move:
     public static void updateWaitTimeForArchonTransformAndMove(int waitTime) throws GameActionException{
         int val = rc.readSharedArray(CHANNEL_ARCHON_UTIL);
