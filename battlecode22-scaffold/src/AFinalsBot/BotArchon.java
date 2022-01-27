@@ -123,7 +123,7 @@ public class BotArchon extends Util{
             aBUWeights[ArchonBuildUnits.BUILDER.ordinal()] = 0.5d;
             aBUWeights[ArchonBuildUnits.MINER.ordinal()] = 4.5d;
             aBUWeights[ArchonBuildUnits.SAGE.ordinal()] = 9.0d;
-            aBUWeights[ArchonBuildUnits.SOLDIER.ordinal()] = 2.50d;
+            aBUWeights[ArchonBuildUnits.SOLDIER.ordinal()] = Math.max(2.0d, 3.0d - lTC/200.0) ;
         }
         else {
             watchTowerWeight = (watchTowerCount + laboratoryCount)/2;
@@ -236,6 +236,21 @@ public class BotArchon extends Util{
         }
     } 
 
+    public static boolean distributeResources(RobotType unitToBuild) throws GameActionException{
+        if (unitToBuild == RobotType.BUILDER) {
+            if (!Comms.canArchonSeeEnemies(commID)) return false;
+            for (int i = archonCount - 1; i > commID; i--){
+                if (!Comms.canArchonSeeEnemies(i)) return true;
+            }
+        }
+        else if (unitToBuild == RobotType.SAGE) {
+            if (Comms.canArchonSeeEnemies(commID) || rc.getTeamGoldAmount(MY_TEAM) >= 40) return false;
+            for (int i = archonCount - 1; i > commID; i--){
+                if (Comms.canArchonSeeEnemies(i)) return true;
+            }
+        }
+        return false;
+    }
 
     public static void buildUnit() throws GameActionException{
         try {
@@ -244,7 +259,7 @@ public class BotArchon extends Util{
             if (mediumMapFlag) unitToBuild = labFirstOrder();
             else unitToBuild = standardOrder();
             
-            if (unitToBuild == null || waitQuota()) {
+            if (unitToBuild == null || waitQuota() || distributeResources(giveUnitType(unitToBuild))) {
                 turnsWaitingToBuild++;
                 return;
             }
@@ -281,14 +296,18 @@ public class BotArchon extends Util{
                 turnsWaitingToBuild++;
                 return null;
         }
-        // System.out.println("Unit to build is " + unitToBuild + " with weight " + minWeight);
+        // if (rc.getRoundNum() > 150 && rc.getRoundNum() < 220){
+        //     System.out.println("Skipping because " + builderCount + " " + laboratoryCount + " " + turnsWaitingToBuild);
+        //     System.out.println("Unit to build is " + unitToBuild + " with weight " + minWeight);
+        // }
         return unitToBuild;
     }
 
 
     public static boolean watchTowerDebt(double minWeight, ArchonBuildUnits unitToBuild) throws GameActionException{
         if (unitToBuild == ArchonBuildUnits.SAGE) return false;
-        if (builderCount > 1 && laboratoryCount == 0 && turnsWaitingToBuild < 60) return true;
+        if (builderCount >= 1 && laboratoryCount == 0 && turnsWaitingToBuild < 75) return true;
+        
         return minWeight < 100000 && 
                 watchTowerWeight < minWeight && 
                 laboratoryCount < MAX_LABORATORY_COUNT &&
@@ -310,6 +329,7 @@ public class BotArchon extends Util{
     }
 
     public static boolean shouldBuildMiner(){    
+        if (minerCount > Math.max(10 + rc.getRoundNum()/50 * Math.exp(MAP_SIZE- 3600), sageCount)) return false;
         // if (currentLeadReserves < RobotType.MINER.buildCostLead) return false;
         return currentLeadReserves >= RobotType.MINER.buildCostLead;
     }
@@ -540,7 +560,6 @@ public class BotArchon extends Util{
                 updateNeedToMove = 2050;
         }
 
-        updateArchonCanSeeEnemies();
     }
 
 
@@ -689,59 +708,59 @@ public class BotArchon extends Util{
 
 
 
-    private static void moveIfNeeded(){
-        try{
-            if (!needToMove) return;
-            if (!goodTimeToMove()) return;
-            if (moveIfNeededTarget != null){
-                if (rc.getMode() == RobotMode.PORTABLE){
-                    // moveIfNeededTarget = findBetterAdjacentLocation();
-                    if (moveIfNeededTarget.equals(rc.getLocation())){
-                        if (rc.isTransformReady()){ 
-                            rc.transform();
-                            rc.setIndicatorString("Started the transformation");
-                            needToMove = false;
-                            moveIfNeededTarget = null;
-                        }
-                        else{
-                            rc.setIndicatorString("Can't transform for some reason. Wait");
-                        }
-                        return;
-                    }
-                    if (!rc.isMovementReady()) {
-                        rc.setIndicatorString("Movement cooldown dude. Have patience");
-                        return;
-                    }
-                    BFS.move(moveIfNeededTarget);
-                    // Movement.goToDirect(moveIfNeededTarget);
-                    return;
-                }
-                if (moveIfNeededTarget.equals(rc.getLocation())){
-                    System.out.println("why oh why does this happen?");
-                    needToMove = false;
-                    return;
-                }
-                if (rc.isTransformReady()){ 
-                    rc.transform();
-                    rc.setIndicatorString("I am gaining the ability to move!");
-                }
-                return;
-            }
-            // moveIfNeededTarget = findBetterAdjacentLocation();
-            moveIfNeededTarget = findBetterOverallLocation();
-            if (moveIfNeededTarget.equals(rc.getLocation())){
-                needToMove = false;
-                moveIfNeededTarget = null;
-                return;
-            }
-            if (rc.isTransformReady()){ 
-                rc.transform();
-                rc.setIndicatorString("Imma gonna start moving!");
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
+    // private static void moveIfNeeded(){
+    //     try{
+    //         if (!needToMove) return;
+    //         if (!goodTimeToMove()) return;
+    //         if (moveIfNeededTarget != null){
+    //             if (rc.getMode() == RobotMode.PORTABLE){
+    //                 // moveIfNeededTarget = findBetterAdjacentLocation();
+    //                 if (moveIfNeededTarget.equals(rc.getLocation())){
+    //                     if (rc.isTransformReady()){ 
+    //                         rc.transform();
+    //                         rc.setIndicatorString("Started the transformation");
+    //                         needToMove = false;
+    //                         moveIfNeededTarget = null;
+    //                     }
+    //                     else{
+    //                         rc.setIndicatorString("Can't transform for some reason. Wait");
+    //                     }
+    //                     return;
+    //                 }
+    //                 if (!rc.isMovementReady()) {
+    //                     rc.setIndicatorString("Movement cooldown dude. Have patience");
+    //                     return;
+    //                 }
+    //                 BFS.move(moveIfNeededTarget);
+    //                 // Movement.goToDirect(moveIfNeededTarget);
+    //                 return;
+    //             }
+    //             if (moveIfNeededTarget.equals(rc.getLocation())){
+    //                 System.out.println("why oh why does this happen?");
+    //                 needToMove = false;
+    //                 return;
+    //             }
+    //             if (rc.isTransformReady()){ 
+    //                 rc.transform();
+    //                 rc.setIndicatorString("I am gaining the ability to move!");
+    //             }
+    //             return;
+    //         }
+    //         // moveIfNeededTarget = findBetterAdjacentLocation();
+    //         moveIfNeededTarget = findBetterOverallLocation();
+    //         if (moveIfNeededTarget.equals(rc.getLocation())){
+    //             needToMove = false;
+    //             moveIfNeededTarget = null;
+    //             return;
+    //         }
+    //         if (rc.isTransformReady()){ 
+    //             rc.transform();
+    //             rc.setIndicatorString("Imma gonna start moving!");
+    //         }
+    //     } catch (Exception e) {
+    //         e.printStackTrace();
+    //     }
+    // }
 
 
     private static void healArchon() throws GameActionException{
@@ -942,7 +961,8 @@ public class BotArchon extends Util{
 
 
     public static void updateArchonCanSeeEnemies() throws GameActionException{
-        if (CombatUtil.militaryCount(visibleEnemies) > 0)
+        visibleEnemies = rc.senseNearbyRobots(ARCHON_VISION_RADIUS, ENEMY_TEAM);
+        if (CombatUtil.militaryCount(visibleEnemies) > 0 && rc.getActionCooldownTurns() < 20)
             Comms.updateArchonCanSeeEnemies(true);
         else Comms.updateArchonCanSeeEnemies(false);
     }
@@ -960,6 +980,7 @@ public class BotArchon extends Util{
         shouldFlee();
         transformAndFlee();
         selfHeal();
+        updateArchonCanSeeEnemies();
         BotMiner.sendCombatLocation(visibleEnemies);
         endOfTurnUpdate();
     }

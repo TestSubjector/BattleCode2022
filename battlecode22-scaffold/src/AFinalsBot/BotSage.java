@@ -4,8 +4,6 @@ import battlecode.common.*;
 
 public class BotSage extends CombatUtil{
 
-    //TODO: Watchtower will be in prototype form/portable form for a while. Make sure you dont call methods like attack not possible then.
-
     private static RobotInfo[] visibleEnemies;
     private static RobotInfo[] inRangeEnemies;
     private static boolean inHealingState;
@@ -101,9 +99,9 @@ public class BotSage extends CombatUtil{
             int crowd = 0;
             MapLocation adjLoc = rc.getLocation().add(dir);
             if (!rc.canMove(dir)) continue;
-            for (RobotInfo hostile : visibleHostiles){
-                if (hostile.type != RobotType.SOLDIER || hostile.type == RobotType.SAGE) continue;
-                if (adjLoc.distanceSquaredTo(hostile.location) <= RobotType.SAGE.actionRadiusSquared){
+            for (int i = visibleHostiles.length; --i >= 0;){
+                if (visibleHostiles[i].type != RobotType.SOLDIER || visibleHostiles[i].type == RobotType.SAGE) continue;
+                if (adjLoc.distanceSquaredTo(visibleHostiles[i].location) <= RobotType.SAGE.actionRadiusSquared){
                     crowd++;
                 }
             }
@@ -189,6 +187,12 @@ public class BotSage extends CombatUtil{
     }
 
     private static void moveToBetterSpot() throws GameActionException{
+        RobotInfo[] visibleAllies = rc.senseNearbyRobots(SAGE_VISION_RADIUS, MY_TEAM);
+        for (int i = visibleAllies.length; --i >= 0;){
+            if (visibleAllies[i].type == RobotType.ARCHON){
+                return;
+            }
+        }
         Direction goodAdjDirections[] = directions;
         int goodAdjCount = 0;
         int bestRubble = rc.senseRubble(rc.getLocation());
