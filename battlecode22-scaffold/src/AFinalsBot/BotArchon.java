@@ -867,21 +867,22 @@ public class BotArchon extends Util{
     private static MapLocation findRubbleFreeSettleLocation() throws GameActionException{
         MapLocation[] nearbyLocations = rc.getAllLocationsWithinRadiusSquared(rc.getLocation(), ARCHON_VISION_RADIUS);
         MapLocation optLoc = rc.getLocation(), loc;
-        int optRubble = rc.senseRubble(optLoc), rubble, optDist = 0, dist;
+        int optRubble = rc.senseRubble(optLoc) + 1, rubble, dist;
         for (int i = nearbyLocations.length; --i >= 0;){
             loc = nearbyLocations[i];
             if ((!rc.canSenseLocation(loc)) || rc.canSenseRobotAtLocation(loc)) continue;
-            rubble = rc.senseRubble(loc);
-            dist = rc.getLocation().distanceSquaredTo(loc);
+            rubble = rc.senseRubble(loc) + 1;
+            dist = rc.getLocation().distanceSquaredTo(loc) / 2;
+            rubble = rubble * (dist + 1);
             if (rubble < optRubble){
                 optLoc = loc;
                 optRubble = rubble;
-                optDist = dist;
+                // optDist = dist;
             }
-            else if (rubble == optRubble && dist < optDist){
-                optLoc = loc;
-                optDist = dist;
-            }
+            // else if (rubble == optRubble && dist < optDist){
+            //     optLoc = loc;
+            //     optDist = dist;
+            // }
         }
         return optLoc;
     }

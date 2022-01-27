@@ -249,6 +249,15 @@ public class Util extends Globals {
 
 
     public static MapLocation translateByStepsCount(MapLocation src, MapLocation dest, int count) throws GameActionException{
+        double angle = Math.atan2(dest.y-src.y, dest.x - src.x);
+        double x = src.x, y = src.y;
+        x += Math.cos(angle)*count;
+        y += Math.sin(angle)*count;
+        return new MapLocation((int)x, (int)y);
+    }
+
+
+    public static MapLocation translateByStepsCountUsingDir(MapLocation src, MapLocation dest, int count) throws GameActionException{
         Direction dir = src.directionTo(dest);
         MapLocation intermediateStep;
         for (int i = -1; ++i < count;){
