@@ -1,7 +1,7 @@
 #!/bin/bash
 start_time=$SECONDS
 team1=AFinalsBot
-team2=OQualBot
+team2=OTempBot
 # team2=OPerfectProducerBot
 
 mkdir -p logs
@@ -32,7 +32,7 @@ fi
 
 count=0
 for i in nottestsmall spine squer equals jellyfish progress tower collaboration pillars sandwich underground \
-    intersection stronghold valley snowflake dodgeball fortress chessboard nyancat rivers highway panda uncomfortable eckleburg colosseum #  \
+    intersection stronghold valley snowflake dodgeball fortress chessboard nyancat rivers highway panda uncomfortable eckleburg colosseum
 do
   count=$[count+1]
   if test $count -eq 1; then

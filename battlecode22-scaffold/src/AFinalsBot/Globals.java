@@ -258,7 +258,7 @@ public class Globals {
 
         SMALL_MAP = (MAP_HEIGHT*MAP_WIDTH < 799);
         MEDIUM_MAP = !SMALL_MAP && (MAP_HEIGHT*MAP_WIDTH < 3602);
-        MAX_LABORATORY_COUNT = (SMALL_MAP) ? 1 : 3;
+        MAX_LABORATORY_COUNT = (SMALL_MAP) ? 1 : 4;
 
         // For bytecode comparison of functions
         bytecodediff = Math.max(bytecodediff, 0);

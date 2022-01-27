@@ -33,6 +33,14 @@ public class CombatUtil extends Util{
         return count;
     }
 
+    public static int militaryAndArchonCount(RobotInfo[] visibleRobots){
+        int count = 0;
+        for (int i = visibleRobots.length; --i >= 0;) {
+            if (isMilitaryUnit(visibleRobots[i].type) || visibleRobots[i].type == RobotType.ARCHON) count++;
+        }
+        return count;
+    }
+
     public static RobotInfo getClosestUnitWithCombatPriority(RobotInfo[] units) {
         if (units.length == 0) return null;
 		RobotInfo closestUnit = null;

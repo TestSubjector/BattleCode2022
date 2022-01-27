@@ -127,7 +127,7 @@ public class BotArchon extends Util{
             aBUWeights[ArchonBuildUnits.BUILDER.ordinal()] = 0.5d;
             aBUWeights[ArchonBuildUnits.MINER.ordinal()] = 4.5d;
             aBUWeights[ArchonBuildUnits.SAGE.ordinal()] = 9.0d;
-            aBUWeights[ArchonBuildUnits.SOLDIER.ordinal()] = Math.max(2.0d, 3.0d - lTC/200.0) ;
+            aBUWeights[ArchonBuildUnits.SOLDIER.ordinal()] = Math.max(0.5d, 2.0d - lTC/200.0) ;
         }
         else {
             watchTowerWeight = (watchTowerCount + laboratoryCount)/2;
@@ -163,11 +163,14 @@ public class BotArchon extends Util{
     }
 
     // TODO - Analyse this and if fleeindex != 0 make required units
-    public static boolean waitQuota() throws GameActionException{
+    public static boolean waitQuota(RobotType unitToBuild) throws GameActionException{
         int archonWhoShouldBuild = (rc.getRoundNum() - 1) % archonCount;
         switch(Comms.readArchonMode(archonWhoShouldBuild)){
             case PORTABLE: return false;
-            case TURRET: return (archonWhoShouldBuild > commID && (currentLeadReserves < 95) && fleeIndex == 0);
+            case TURRET: {
+                if (Comms.canArchonSeeEnemies(commID) && !Comms.canArchonSeeEnemies(archonWhoShouldBuild) && unitToBuild == RobotType.SAGE) return false;
+                return archonWhoShouldBuild > commID && (currentLeadReserves < 95);
+            }
             default: System.out.println("Why is this happening oh battlecode god??!!!"); return false;
         }
     }
@@ -217,11 +220,10 @@ public class BotArchon extends Util{
         if (goodAdjCount == 0) return null;
         
         bestSpawnDir = goodAdjDirections[rng.nextInt(goodAdjCount)];
-        rc.setIndicatorString("gACount: " + goodAdjCount + " bs " + bestSpawnDir);
+        // rc.setIndicatorString("gACount: " + goodAdjCount + " bs " + bestSpawnDir);
         return bestSpawnDir;
 
     }
-
 
     public static void spawnBot(RobotType unitType, Direction spawnDir, ArchonBuildUnits unitToBuild) throws GameActionException{
         if (spawnDir == null) return;
@@ -232,7 +234,7 @@ public class BotArchon extends Util{
         // if(ID ==2) System.out.println("Unit built is " + unitType + " Weights are " + Arrays.toString(currentWeights));
     }
 
-    public static ArchonBuildUnits labFirstOrder() throws GameActionException{
+    public static ArchonBuildUnits labFirstOrder() throws GameActionException{        
         if (minerCount < 4) return ArchonBuildUnits.MINER;
         else if (builderCount == 0 && rc.getRobotCount() <= archonCount + 4) return ArchonBuildUnits.BUILDER;
         else if (laboratoryCount < 1 && turnsWaitingToBuild < 50) return null;
@@ -265,7 +267,7 @@ public class BotArchon extends Util{
             if (mediumMapFlag) unitToBuild = labFirstOrder();
             else unitToBuild = standardOrder();
             
-            if (unitToBuild == null || waitQuota() || distributeResources(giveUnitType(unitToBuild))) {
+            if (unitToBuild == null || waitQuota(giveUnitType(unitToBuild)) || distributeResources(giveUnitType(unitToBuild))) {
                 turnsWaitingToBuild++;
                 return;
             }
@@ -296,16 +298,13 @@ public class BotArchon extends Util{
                 unitToBuild = archonBuildUnits[i];
             }
         }
-
+        rc.setIndicatorString("Build1 " + unitToBuild);
         if (watchTowerDebt(minWeight, unitToBuild)) {
                 // System.out.println("Building watchtower instead of " + giveUnitType(unitToBuild));
                 turnsWaitingToBuild++;
                 return null;
         }
-        // if (rc.getRoundNum() > 150 && rc.getRoundNum() < 220){
-        //     System.out.println("Skipping because " + builderCount + " " + laboratoryCount + " " + turnsWaitingToBuild);
-        //     System.out.println("Unit to build is " + unitToBuild + " with weight " + minWeight);
-        // }
+        rc.setIndicatorString("Build2 " + unitToBuild + " Gold " + rc.getTeamGoldAmount(MY_TEAM) + " " + commID);
         return unitToBuild;
     }
 
@@ -313,13 +312,23 @@ public class BotArchon extends Util{
     public static boolean watchTowerDebt(double minWeight, ArchonBuildUnits unitToBuild) throws GameActionException{
         if (unitToBuild == ArchonBuildUnits.SAGE) return false;
         if (builderCount >= 1 && laboratoryCount == 0 && turnsWaitingToBuild < 75) return true;
-        
+
+        if (MAP_SIZE > 799  && MAP_SIZE <= 1250){
+            return minWeight < 100000 && 
+            watchTowerWeight < minWeight && 
+            builderCount != 0 && 
+            currentLeadReserves < giveUnitType(unitToBuild).buildCostLead + RobotType.LABORATORY.buildCostLead && 
+            turnsWaitingToBuild < 60 && 
+            (minerCount >= 5 || laboratoryCount < 2) && currentLeadReserves > 50;
+        }
+        else{
         return minWeight < 100000 && 
                 watchTowerWeight < minWeight && 
                 builderCount != 0 && 
                 currentLeadReserves < giveUnitType(unitToBuild).buildCostLead + RobotType.LABORATORY.buildCostLead && 
                 turnsWaitingToBuild < 60 && 
-                (minerCount >= 10 && currentLeadReserves > 80);
+                (minerCount >= 10 && currentLeadReserves > 50);
+        }
     }
 
 
@@ -341,15 +350,16 @@ public class BotArchon extends Util{
 
 
     public static boolean shouldBuildSoldier(){
+        if (MAP_SIZE > 799 && MAP_SIZE <= 1250 && rc.getRoundNum() > 60 && laboratoryCount != 0) return false;
         // if (currentLeadReserves < RobotType.SOLDIER.buildCostLead) return false;
-        if ((rc.getTeamGoldAmount(MY_TEAM) >= 20)) return false;
+        if (rc.getTeamGoldAmount(MY_TEAM) > 19) return false;
         if (SMALL_MAP) return turnCount >= 5;
         return (turnCount >= 15);
     }
 
 
     public static boolean shouldBuildSage(){
-        return (rc.getTeamGoldAmount(MY_TEAM) >= 20);
+        return rc.getTeamGoldAmount(MY_TEAM) >= 20;
     }
 
 
@@ -1058,7 +1068,7 @@ public class BotArchon extends Util{
 
     public static void updateArchonCanSeeEnemies() throws GameActionException{
         visibleEnemies = rc.senseNearbyRobots(ARCHON_VISION_RADIUS, ENEMY_TEAM);
-        if (CombatUtil.militaryCount(visibleEnemies) > 0 && rc.getActionCooldownTurns() < 20)
+        if (CombatUtil.militaryAndArchonCount(visibleEnemies) > 0 && rc.getActionCooldownTurns() < 20)
             Comms.updateArchonCanSeeEnemies(true);
         else Comms.updateArchonCanSeeEnemies(false);
     }
