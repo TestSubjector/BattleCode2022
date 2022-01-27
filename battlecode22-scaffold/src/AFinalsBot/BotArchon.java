@@ -943,7 +943,9 @@ public class BotArchon extends Util{
                 }
                 else if (rc.canSenseRobotAtLocation(transformAndMoveTarget)){
                     // TODO: Improve this.
-                    transformAndUpdate();
+                    transformAndMoveTarget = findRubbleFreeSettleLocation();
+                    goodPlace = true;
+                    // transformAndUpdate();
                     return;
                 }
             }
