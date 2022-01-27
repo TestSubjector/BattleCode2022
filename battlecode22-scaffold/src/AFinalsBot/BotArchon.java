@@ -360,9 +360,11 @@ public class BotArchon extends Util{
 
 
     public static void clearCommCounts() throws GameActionException{
+        rc.writeSharedArray(Comms.LAB_CHANNEL_MINER_COUNT, minerCount);
         rc.writeSharedArray(Comms.CHANNEL_MINER_COUNT, 0);
         rc.writeSharedArray(Comms.CHANNEL_BUILDER_COUNT, 0);
         rc.writeSharedArray(Comms.CHANNEL_SOLDIER_COUNT, 0);
+        rc.writeSharedArray(Comms.LAB_CHANNEL_MINER_COUNT, sageCount);
         rc.writeSharedArray(Comms.CHANNEL_SAGE_COUNT, 0);
         rc.writeSharedArray(Comms.CHANNEL_WATCHTOWER_COUNT, 0);
         Comms.writeLaboratoryCount(laboratoryCount);

@@ -50,7 +50,10 @@ public class Comms extends Util{
     public static final int CHANNEL_BUILDER_COUNT = CHANNEL_SOLDIER_COUNT + 1;
     public static final int CHANNEL_WATCHTOWER_COUNT = CHANNEL_BUILDER_COUNT + 1;
     public static final int CHANNEL_LABORATORY_COUNT = CHANNEL_WATCHTOWER_COUNT + 1;
-    public static final int CHANNEL_SAGE_COUNT = CHANNEL_LABORATORY_COUNT + 1;
+    public static final int LAB_CHANNEL_MINER_COUNT = CHANNEL_LABORATORY_COUNT + 1;
+    public static final int LAB_CHANNEL_SAGES_COUNT = LAB_CHANNEL_MINER_COUNT + 1;
+    // public static final int CHANNEL_SAGE_COUNT = CHANNEL_LABORATORY_COUNT + 1;
+    public static final int CHANNEL_SAGE_COUNT = LAB_CHANNEL_SAGES_COUNT + 1;
     // All Archons will have minimum 4 channels until they die
     public static final int CHANNEL_ARCHON_START = CHANNEL_SAGE_COUNT + 4;
     public static final int TOTAL_CHANNELS_COUNT = 64;
@@ -868,6 +871,16 @@ public class Comms extends Util{
         }
         System.out.println("Why does this happen?");
         return -1;
+    }
+
+
+    public static int getMinerCount() throws GameActionException{
+        return rc.readSharedArray(LAB_CHANNEL_MINER_COUNT);
+    }
+
+
+    public static int getSagesCount() throws GameActionException{
+        return rc.readSharedArray(LAB_CHANNEL_SAGES_COUNT);
     }
 
 
