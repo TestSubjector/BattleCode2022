@@ -84,7 +84,7 @@ public class BotArchon extends Util{
         fleeIndex = 0;
         fleeLocation = null;
         enemyArchonQueueHead = 0;
-        if (rc.senseRubble(rc.getLocation()) > HIGH_RUBBLE_MOVE_TRIGGER)
+        if (archonCount == 1 && rc.senseRubble(rc.getLocation()) > HIGH_RUBBLE_MOVE_TRIGGER)
         needToMove = true;
         else needToMove = false;
         moveIfNeededTarget = null;
@@ -666,13 +666,13 @@ public class BotArchon extends Util{
     }
 
 
-    // private static boolean goodTimeToMove(){
-    //     // if (checkIfAnyOtherArchonIsMoving()) return false;
-    //     if (rc.getRoundNum() > 50) return true;
-    //     // if (turnsWaitingToBuild > 10) return true;
+    private static boolean goodTimeToMove(){
+        // if (checkIfAnyOtherArchonIsMoving()) return false;
+        if (rc.getRoundNum() > 50) return true;
+        // if (turnsWaitingToBuild > 10) return true;
 
-    //     return false;
-    // }
+        return false;
+    }
 
 
     private static void vortexMoveIfNeeded() throws GameActionException{
@@ -740,60 +740,60 @@ public class BotArchon extends Util{
 
 
 
-    // private static void moveIfNeeded(){
-    //     try{
-    //         if (archonCount != 1) return;
-    //         if (!needToMove) return;
-    //         if (!goodTimeToMove()) return;
-    //         if (moveIfNeededTarget != null){
-    //             if (rc.getMode() == RobotMode.PORTABLE){
-    //                 // moveIfNeededTarget = findBetterAdjacentLocation();
-    //                 if (moveIfNeededTarget.equals(rc.getLocation())){
-    //                     if (rc.isTransformReady()){ 
-    //                         rc.transform();
-    //                         rc.setIndicatorString("Started the transformation");
-    //                         needToMove = false;
-    //                         moveIfNeededTarget = null;
-    //                     }
-    //                     else{
-    //                         rc.setIndicatorString("Can't transform for some reason. Wait");
-    //                     }
-    //                     return;
-    //                 }
-    //                 if (!rc.isMovementReady()) {
-    //                     rc.setIndicatorString("Movement cooldown dude. Have patience");
-    //                     return;
-    //                 }
-    //                 BFS.move(moveIfNeededTarget);
-    //                 // Movement.goToDirect(moveIfNeededTarget);
-    //                 return;
-    //             }
-    //             if (moveIfNeededTarget.equals(rc.getLocation())){
-    //                 System.out.println("why oh why does this happen?");
-    //                 needToMove = false;
-    //                 return;
-    //             }
-    //             if (rc.isTransformReady()){ 
-    //                 rc.transform();
-    //                 rc.setIndicatorString("I am gaining the ability to move!");
-    //             }
-    //             return;
-    //         }
-    //         // moveIfNeededTarget = findBetterAdjacentLocation();
-    //         moveIfNeededTarget = findBetterOverallLocation();
-    //         if (moveIfNeededTarget.equals(rc.getLocation())){
-    //             needToMove = false;
-    //             moveIfNeededTarget = null;
-    //             return;
-    //         }
-    //         if (rc.isTransformReady()){ 
-    //             rc.transform();
-    //             rc.setIndicatorString("Imma gonna start moving!");
-    //         }
-    //     } catch (Exception e) {
-    //         e.printStackTrace();
-    //     }
-    // }
+    private static void moveIfNeeded(){
+        try{
+            if (archonCount != 1) return;
+            if (!needToMove) return;
+            if (!goodTimeToMove()) return;
+            if (moveIfNeededTarget != null){
+                if (rc.getMode() == RobotMode.PORTABLE){
+                    // moveIfNeededTarget = findBetterAdjacentLocation();
+                    if (moveIfNeededTarget.equals(rc.getLocation())){
+                        if (rc.isTransformReady()){ 
+                            rc.transform();
+                            rc.setIndicatorString("Started the transformation");
+                            needToMove = false;
+                            moveIfNeededTarget = null;
+                        }
+                        else{
+                            rc.setIndicatorString("Can't transform for some reason. Wait");
+                        }
+                        return;
+                    }
+                    if (!rc.isMovementReady()) {
+                        rc.setIndicatorString("Movement cooldown dude. Have patience");
+                        return;
+                    }
+                    BFS.move(moveIfNeededTarget);
+                    // Movement.goToDirect(moveIfNeededTarget);
+                    return;
+                }
+                if (moveIfNeededTarget.equals(rc.getLocation())){
+                    System.out.println("why oh why does this happen?");
+                    needToMove = false;
+                    return;
+                }
+                if (rc.isTransformReady()){ 
+                    rc.transform();
+                    rc.setIndicatorString("I am gaining the ability to move!");
+                }
+                return;
+            }
+            // moveIfNeededTarget = findBetterAdjacentLocation();
+            moveIfNeededTarget = findBetterOverallLocation();
+            if (moveIfNeededTarget.equals(rc.getLocation())){
+                needToMove = false;
+                moveIfNeededTarget = null;
+                return;
+            }
+            if (rc.isTransformReady()){ 
+                rc.transform();
+                rc.setIndicatorString("Imma gonna start moving!");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
 
     private static void healArchon() throws GameActionException{
@@ -1070,8 +1070,8 @@ public class BotArchon extends Util{
     */
     public static void runArchon(RobotController rc) throws GameActionException {
         updateArchon();
+        moveIfNeeded();
         vortexMoveIfNeeded();
-        // moveIfNeeded();
         transformAndMove();
         buildDivision();
         shouldFlee();
