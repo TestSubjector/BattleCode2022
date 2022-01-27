@@ -144,7 +144,7 @@ public class BotArchon extends Util{
 
 
     public static void buildDivision() throws GameActionException{
-        if (!rc.isActionReady() || currentLeadReserves < RobotType.MINER.buildCostLead) return;
+        if (!rc.isActionReady()) return;
         else buildUnit();
     }
 
@@ -211,8 +211,10 @@ public class BotArchon extends Util{
             }
         }
         if (goodAdjCount == 0) return null;
-
-        return goodAdjDirections[rng.nextInt(goodAdjCount)];
+        
+        bestSpawnDir = goodAdjDirections[rng.nextInt(goodAdjCount)];
+        rc.setIndicatorString("gACount: " + goodAdjCount + " bs " + bestSpawnDir);
+        return bestSpawnDir;
 
     }
 
@@ -310,11 +312,10 @@ public class BotArchon extends Util{
         
         return minWeight < 100000 && 
                 watchTowerWeight < minWeight && 
-                laboratoryCount < MAX_LABORATORY_COUNT &&
                 builderCount != 0 && 
-                currentLeadReserves < giveUnitType(unitToBuild).buildCostLead + RobotType.WATCHTOWER.buildCostLead && 
+                currentLeadReserves < giveUnitType(unitToBuild).buildCostLead + RobotType.LABORATORY.buildCostLead && 
                 turnsWaitingToBuild < 60 && 
-                (BotMiner.areMiningLocationsAbundant() || currentLeadReserves > 80);
+                (minerCount >= 10 && currentLeadReserves > 80);
     }
 
 
@@ -329,7 +330,7 @@ public class BotArchon extends Util{
     }
 
     public static boolean shouldBuildMiner(){    
-        if (minerCount > Math.max(10 + rc.getRoundNum()/50 * Math.exp(MAP_SIZE- 3600), sageCount)) return false;
+        if (minerCount > Math.max(10 + rc.getRoundNum()/50 * Math.exp(MAP_SIZE- 3600), sageCount/2.0)) return false;
         // if (currentLeadReserves < RobotType.MINER.buildCostLead) return false;
         return currentLeadReserves >= RobotType.MINER.buildCostLead;
     }
@@ -401,7 +402,7 @@ public class BotArchon extends Util{
             if(healthDiff == 0) continue;
             unitsToHealCount++;
         }
-        rc.setIndicatorString("Heal: " + unitsToHealCount);
+        // rc.setIndicatorString("Heal: " + unitsToHealCount);
         Comms.updateHealingUnitNearby(unitsToHealCount);
     }
 

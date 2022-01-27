@@ -434,7 +434,7 @@ public class BotMiner extends Explore{
         // }
         potentialMiningLocations = rc.senseNearbyLocationsWithLead(UNIT_TYPE.visionRadiusSquared, 6);
         if (potentialMiningLocations.length < 15) return;
-        Comms.writeCommMessageOverrwriteLesserPriorityMessageUsingQueue(Comms.commType.MINER, rc.getLocation(), Comms.SHAFlag.LEAD_LOCATION);
+        Comms.writeCommMessageOverrwriteLesserPriorityMessageUsingQueue(Comms.commType.MINER, potentialMiningLocations[rng.nextInt(potentialMiningLocations.length)], Comms.SHAFlag.LEAD_LOCATION);
         // for (MapLocation loc : potentialMiningLocations){  // Team bias
         //     if (Clock.getBytecodesLeft() < 1200)
         //         break;
@@ -548,7 +548,6 @@ public class BotMiner extends Explore{
     public static void goMoveOut() throws GameActionException{
         inPlaceForMining = false;
         miningLocation = null;
-        if (Clock.getBytecodesLeft() < 500) return;
         getMiningLocation();
         if (!rc.isMovementReady()) return;
         if (miningLocation != null) goToMine();

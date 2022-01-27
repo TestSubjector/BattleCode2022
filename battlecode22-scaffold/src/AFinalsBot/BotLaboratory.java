@@ -28,7 +28,8 @@ public class BotLaboratory extends Util {
     }
 
 
-    private static boolean shouldTransmute(){
+    private static boolean shouldTransmute() throws GameActionException{
+        if (Comms.getMinerCount() > Comms.getSagesCount()/2.0) return true;
         if (rc.getTeamGoldAmount(MY_TEAM) > 50 && rc.getTeamLeadAmount(MY_TEAM) < 165) return false;
         return true;
     }
@@ -46,7 +47,7 @@ public class BotLaboratory extends Util {
     }
 
 
-    private static void updateLaboratory(){
+    private static void updateLaboratory() throws GameActionException{
         laboratoryComms();
         shouldDoAlchemy = shouldTransmute();
         // TODO: Don't update transmutationRate in every turn. Update only when the laboratory moves.
@@ -234,9 +235,9 @@ public class BotLaboratory extends Util {
 
     public static void runLaboratory(RobotController rc) throws GameActionException{
         updateLaboratory();
-        touchOfMidas();
         moveIfNeeded();
         vortexMoveIfNeeded();
+        touchOfMidas();
         if (Clock.getBytecodesLeft() > 1000) BotMiner.surveyForOpenMiningLocationsNearby();
     }
 }

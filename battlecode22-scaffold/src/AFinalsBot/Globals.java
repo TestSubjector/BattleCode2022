@@ -320,7 +320,6 @@ public class Globals {
         if (curHealth < myHealth) underAttack = true;
         else underAttack = false;
         myHealth = curHealth;
-
         currentLeadReserves = rc.getTeamLeadAmount(MY_TEAM);
         archonCount = rc.getArchonCount();
 	}
