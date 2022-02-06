@@ -1,5 +1,9 @@
 # BattleCode2022
 
+The repository for the team *Do Lonely Laboratories Dream of Golden Anomalies?*
+
+We were one of the finalists for BattleCode 2022.
+
 Postmortem may or may not happen.
 
 Link to our [final submission](https://github.com/TestSubjector/BattleCode2022/tree/main/battlecode22-scaffold/src/AFinalsBot).
@@ -11,5 +15,7 @@ The [CHANGELOG.md](https://github.com/TestSubjector/BattleCode2022/blob/main/bat
 A lot of our pathfinding/miner code is based on the previous BattleCode work of [IvanGeffner](https://github.com/IvanGeffner).
 
 A lot of our micro/soldier is based on the previous BattleCode work of [TheDuck314](https://github.com/TheDuck314).
+
+Several important observations are scattered across our commits, abandoned Markdown files and our local match runner script files.
 
 [Folder with BattleCode resources](https://drive.google.com/drive/folders/1IpFIea8u25va7a12fy6KBKwoLlT9Tc7v?usp=sharing)
