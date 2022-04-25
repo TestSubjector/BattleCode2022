@@ -1,6 +1,6 @@
 # BattleCode2022
 
-**Do Lonely Laboratories Dream of Golden Anomalies?** team repository.
+Team: **Do Lonely Laboratories Dream of Golden Anomalies?**
 
 We were one of the finalists for BattleCode 2022 and won the special prize by Symbotic for *Most Adaptive Strategy*.  
 Postmortem may or may not happen.
